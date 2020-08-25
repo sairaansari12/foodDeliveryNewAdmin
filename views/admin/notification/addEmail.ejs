@@ -1,0 +1,175 @@
+<!-- AUI Framework -->
+<!DOCTYPE html>
+    <html>
+   <%-include ('../partials/header')%>
+    <body style="overflow: hidden;">
+        
+
+       
+
+        <div id="page-wrapper" class="demo-example">
+
+           
+
+            <!-- #page-header -->
+
+            <%-include ('../partials/side_bar')%>
+            <!-- #page-sidebar -->
+            <div id="page-content-wrapper">
+                <div id="page-title">
+
+
+    <div class="text-transform-upr font-size-15 font-bold primary-font pad10A">Send Email</div>
+
+    
+
+                </div>
+                   <!-- #page-title -->
+<div id="page-content">
+
+
+<%-include ('../partials/flashMessage')%>
+
+
+
+    <div class="large-box col-md-12">
+        <div class="pad10A">
+            
+
+                <!-- <form id="demo-form" action=""  method="" /> -->
+                <form  role="form" onsubmit="return false"  class="col-md-12"  id="adduser" >
+
+
+                    <div class="form-row">
+                        <div class="form-label col-md-3">
+                            <label for="">
+                                Type:  <span class="required">*</span>
+                            
+                            </label>
+                        </div>
+                        <div class="form-input col-md-9">
+                            <select data-placeholder="Choose Type" class="chosen-select"  data-required="true" id="userType" name="userType">
+                               
+                                <option value="0" />All 
+                                <%for(var p=0;p<types.length;p++){%>
+                                   
+                                    <option   value="<%-types[p].id%>" ><%-types[p].userType%></option> 
+  
+                                   
+                                   <%}%>
+                
+                
+                       </select>                        </div>
+                    </div>
+
+
+                    
+                    <div class="form-row">
+                        <div class="form-label col-md-3">
+                            <label for="" class="label-description">
+                                Write Email Here :
+                                <span>10 chars min, 2000 max</span>
+                            </label>
+                        </div>
+                        <div class="form-input col-md-9">
+                            <textarea id="emailTiny" name="emailTiny"  data-trigger="keyup"  class="parsley-validated"></textarea>
+                       <input type="hidden" name="email" id="email"></inpu>
+                        </div>
+                    </div>
+                  
+                    <div class="divider"></div>
+                    <div class="form-row">
+                        <input type="hidden" name="superhidden" id="superhidden" />
+                        <div class="form-input col-md-8 col-md-offset-6">
+                            <!-- //onclick="javascript:$(&apos;#demo-form&apos;).parsley( &apos;validate&apos; );" -->
+                            <!-- onclick="javascript:$('#adduser').parsley('validate' );"  -->
+                            <button  type="button" onclick="window.history.back();"   class="btn ui-state-default medium bg-red mrg15R">
+                                <span class="button-content">Cancel</span>
+                            </button>
+                            <button  type="submit" class="btn ui-state-default medium  primary-bg">
+                                <span class="button-content">Push</span>
+                            </button>
+                            </div>
+                    </div>
+
+                </form>
+
+        </div>
+
+       
+    </div>
+
+
+
+                	</div><!-- #page-content -->
+            </div><!-- #page-main -->
+        </div><!-- #page-wrapper -->
+
+    </body>
+</html>
+
+
+<script type="text/javascript">
+
+tinymce.init({
+      selector: '#emailTiny',
+      plugins: "autoresize"
+
+    });
+$('#adduser').submit( function() {
+
+
+
+var tempform = $('#adduser');
+
+tempform .parsley('validate' );
+
+if(tempform.parsley('isValid' ))
+{
+
+   var temp =tinymce.get('emailTiny').getContent();
+   $('#email').val(temp)
+var form_data = new FormData(tempform[0]);
+$('#loading1').show()
+$.ajax({
+    type: 'POST',
+    url: '<%-adminpath%>notification/pushEmail',
+    dataType: 'json',
+    data: form_data,
+    contentType:false,
+    cache:false,
+    processData:false,
+       
+    success: function (response) {
+        $('#loading1').hide()
+        if (response.code == 200) {
+      
+            showToastSuccess(response.message)
+
+             window.location.reload();
+           
+        } else {
+            showToastError(response.message)
+        }
+    },
+
+    error: function(response)
+    {
+        $('#loading1').hide()
+       var errorResponse=JSON.parse(response.responseText)
+       showToastError(errorResponse.message)
+
+
+    }
+});
+}
+});
+
+
+
+
+
+
+
+
+    </script>

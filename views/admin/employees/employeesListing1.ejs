@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header'); -%>
+
+<body class="loading">
+    <!-- Begin page -->
+    <div id="wrapper">
+        <%- include('../partials/dashboardHeader'); -%>
+        <div class="content-page">
+            <div class="content">
+                <!-- Start Content-->
+                <div class="container-fluid">
+                    <!-- start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <div class="page-title-right">
+                                    <ol class="breadcrumb m-0">
+                                        <li class="breadcrumb-item"><a href="<%- adminpath %>">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Employees</a></li>
+                                    </ol>
+                                </div>
+                                <h4 class="page-title">Employees Listing</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end page title -->
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card-box">
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <form class="form-inline">
+                                            <div class="form-group mb-2">
+                                                <!-- <label for="inputPassword2" class="sr-only">Search</label>
+                                                    <input type="text" size="10" class="form-control search" id="search" name="search" /> -->
+                                                        <label for="inputPassword2" class="sr-only">Search</label>
+                                                        <input type="text" class="form-control" id="search" name="search"
+                                                            placeholder="Search...">
+                                            </div>
+                                            <!-- <div class="form-group mx-sm-3">
+                                                <label for="status-select" class="mr-2">Sort By</label>
+                                                <select class="custom-select" id="status-select">
+                                                    <option selected="">All</option>
+                                                    <option value="1">Name</option>
+                                                    <option value="2">Post</option>
+                                                    <option value="3">Followers</option>
+                                                    <option value="4">Followings</option>
+                                                </select>
+                                            </div> -->
+                                        </form>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="text-lg-right mt-3 mt-lg-0">
+                                            <!-- <button type="button"
+                                                class="btn btn-success waves-effect waves-light mr-1"><i
+                                                    class="mdi mdi-cog"></i></button> -->
+                                            <a href="<%-adminpath%>employees/map" class="btn medium primary-bg ">
+                                                <!-- <button type="button" class="btn btn-danger waves-effect waves-light"
+                                                        data-toggle="modal" data-target="#custom-modal"><i
+                                                            class="mdi mdi-plus-circle mr-1"></i> Add New</button> -->
+                                                <button type="button"
+                                                    class="btn btn-success waves-effect waves-light"><i
+                                                        class="fas fa-map"></i>View On Map</button>
+                                            </a>
+                                            <a href="<%-adminpath%>employees/add" class="btn medium primary-bg ">
+                                                <!-- <button type="button" class="btn btn-danger waves-effect waves-light"
+                                                data-toggle="modal" data-target="#custom-modal"><i
+                                                    class="mdi mdi-plus-circle mr-1"></i> Add New</button> -->
+                                                <button type="button"
+                                                    class="btn btn-danger waves-effect waves-light"><i
+                                                        class="mdi mdi-plus-circle mr-1"></i> Add New</button>
+                                            </a>
+                                        </div>
+                                    </div><!-- end col-->
+                                </div> <!-- end row -->
+                            </div> <!-- end card-box -->
+                        </div><!-- end col-->
+                    </div>
+                    <!-- end row -->
+                    <%-include ('../partials/flashMessage')%>
+                    <% 
+if(data==undefined || data==null || data=='{}' || data.length==0) {%>
+
+                    <%-include ('../partials/norecord')%>
+
+
+                    <%}else {%>
+
+                    <div class="row">
+                        <%for(var t=0;t<data.length;t++) {%>
+                        <div class="col-lg-4">
+                            <div class="text-center card-box">
+                                <div class="pt-2 pb-2">
+
+                                    <div class="text-lg-right mt-3 mt-lg-0">
+                                        <div class="dropdown text-lg-right">
+                                            <!-- <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Dropdown button <i class="mdi mdi-chevron-down"></i>
+                                            </button> -->
+                                            <i class="mdi mdi-chevron-down text-lg-right" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+                                                <a  class="dropdown-item"
+                                                href="javascript:;" <%if(data[t].status==0){%> style="display:none"
+                                                <%}%>  id="block_status_<%-data[t].id%>"
+                                                onclick="StatusChange('<%= data[t].id %>','1')" class="btn small  bg-green  ">
+                                                Block</a>
+                                            <a  class="dropdown-item"
+                                                href="javascript:;" <%if(data[t].status==1){%> style="display:none"
+                                                <%}%>  id="unblock_status_<%-data[t].id%>"
+                                                onclick="StatusChange('<%= data[t].id %>','0')" class="btn small  bg-red  ">
+                                                Unblock</a>
+
+                                                <a class="dropdown-item" onclick="return confirm('Are you sure you want to delete this?');"
+                                                href="<%-adminpath%>employees/delete/<%= data[t].id %>" >Delete</a>
+                                               
+                                                <a href="<%-adminpath%>employees/view/<%= data[t].id %>"
+                                                        class="dropdown-item">View
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- <img  src="<%-data[t].image %>" class="rounded-circle img-thumbnail avatar-xl"
+                                        alt="profile-image"> -->
+
+
+                                            <% if (! data[t].image) { %>
+
+                                          <img src="/dist/assets/images/users/user-1.jpg" class="rounded-circle img-thumbnail avatar-xl">
+                                                        <% }else { %>
+                                          <img src="<%-data[t].image %>" class="rounded-circle img-thumbnail avatar-xl">
+                                                            <% } %>
+                                      
+                                    <h4 class="mt-3"><a href="extras-profile.html" class="text-dark">
+                                            <%-data[t].firstName %> <%-data[t].lastName%></a></h4>
+                                            <p class="text-muted"> <%-data[t].email %></p>
+
+                                    <p class="text-muted"> <%-(data[t].staffRole!=null)?data[t].staffRole.userType: ""%></p>
+                                    <!-- <p class="text-dark"><b>D.O.B :</b> <%-data[t].dob %></p> -->
+                                    <p class="text-dark"> +<%-data[t].countryCode %>
+                                        <%-data[t].phoneNumber %></p>
+                                    <p class="text-muted font-10"><%-data[t].address %></p>
+
+                                    <a href="<%-adminpath%>employees/view/<%= data[t].id %>">
+                                        <button type="button"
+                                            class="btn btn-primary  waves-effect waves-light"><i></i>Profile</button>
+                                    </a>
+
+
+                                 
+                                </div> <!-- end .padding -->
+                            </div> <!-- end card-box-->
+                        </div> <!-- end col -->
+
+
+                        <%}%> </div>
+                                        <%}%>
+
+                        <!-- end row -->
+
+
+
+                    </div> <!-- container -->
+
+                </div> <!-- content -->
+
+                <!-- Footer Start -->
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6">
+                                2015 -
+                                <script>document.write(new Date().getFullYear())</script> &copy; Delicio theme by <a
+                                    href="">Coderthemes</a>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-md-right footer-links d-none d-sm-block">
+                                    <a href="javascript:void(0);">About Us</a>
+                                    <a href="javascript:void(0);">Help</a>
+                                    <a href="javascript:void(0);">Contact Us</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+                <!-- end Footer -->
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+
+        </div>
+        <!-- END wrapper -->
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="custom-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-light">
+                        <h4 class="modal-title" id="myCenterModalLabel">Add New Member</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form>
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter name">
+                            </div>
+                            <div class="form-group">
+                                <label for="position">Position</label>
+                                <input type="text" class="form-control" id="position" placeholder="Enter position">
+                            </div>
+                            <div class="form-group">
+                                <label for="company">Company</label>
+                                <input type="text" class="form-control" id="company" placeholder="Enter company">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Email address</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1"
+                                    placeholder="Enter email">
+                            </div>
+
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-success waves-effect waves-light">Save</button>
+                                <button type="button" class="btn btn-danger waves-effect waves-light"
+                                    data-dismiss="modal">Continue</button>
+                            </div>
+                        </form>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+
+
+        <!-- Right bar overlay-->
+        <div class="rightbar-overlay"></div>
+
+        <%- include('../partials/script'); -%>
+
+
+</body>
+
+</html>
+
+
+<script>
+    $('#search').on('keyup', function () {
+        console.log('search>>>>');
+        setTimeout(function () { getSearch(1) }, 800);
+    });
+
+
+    function StatusChange(id, status) {
+
+        var confirm1 = (status == "1") ? "Block" : "Unblock"
+        if (confirm('Are you sure you want to ' + confirm1 + ' this?')) {
+            $.ajax({
+                type: 'POST',
+                url: '<%-adminpath%>employees/status',
+                dataType: 'json',
+                data: { 'id': id, 'status': status },
+                success: function (response) {
+                    if (response.code == '200') {
+                        // $('#block_status_'+id).html('');
+
+                        if (status == "1") {
+                            $('#block_status_' + id).hide()
+                            $('#unblock_status_' + id).show()
+                            showToastSuccess("User blocked successfully")
+
+
+
+                        } else {
+
+                            $('#block_status_' + id).show()
+                            $('#unblock_status_' + id).hide()
+                            // $('#block_status_'+id).append("<i  class='fa fa-truck'  aria-hidden='true'></i>")
+                            showToastSuccess("User unblocked successfully")
+
+                        }
+
+                    }
+                    else {
+
+                        showToastError(response.message)
+                    }
+                },
+
+                error: function (response) {
+                    showToastError(response.message)
+
+                }
+            });
+        }
+    }
+
+
+
+
+    function getSearch(currentPage) {
+        currentPage = currentPage
+        var search = $('#search').val()
+        var limit = 40
+        $('#loading1').show()
+        var status = $('#status').val();
+
+        //alert(fromDate)
+        $.ajax({
+            type: 'POST',
+            url: '<%-adminpath%>employees/search',
+            dataType: 'json',
+            data: { 'search': search, 'page': currentPage, 'limit': limit },
+            success: function (response) {
+                $('#loading1').hide()
+                console.log('response>>>>>>>>>>>',response);
+
+                // if (response.code == '200') {
+                //     var row = "";
+                //     console.log(response)
+                //     $('#orderData').html('')
+                //     var data1 = response.body.data
+                //     var data = response.body.data.rows
+                //     for (var t = 0; t < data.length; t++) {
+
+
+                //         var status = "Pending"
+                //         var Payment = "Failed"
+                //         var paymentBg = "bg-red"
+                //         if (data[t].progressStatus == "1") status = "Confirmed"
+                //         if (data[t].progressStatus == "2") status = "Cancelled"
+                //         if (data[t].progressStatus == "3") status = "Processing"
+                //         if (data[t].progressStatus == "4") status = "Cancelled-Comapny"
+                //         if (data[t].progressStatus == "5") status = "Completed"
+
+                //         var btnBg = getOrderColor(data[t].progressStatus)
+                //         if (data[t].payment && data[t].payment.transactionStatus == "1") {
+                //             Payment = "Success"
+                //             paymentBg = "bg-green"
+                //         }
+
+
+                //         row = row + '<tr id="row_' + data[t].id + '">' +
+                //             '			<td>' + data[t].orderNo + ' </td>' +
+                //             '			<td>' + data[t].user.firstName + " " + data[t].user.lastName + ' </td>' +
+                //             '			<td>' + format(new Date(data[t].serviceDateTime)) + ' </td>' +
+                //             '            <td>' + data[t].user.countryCode + " " + data[t].user.phoneNumber + '</td>' +
+                //             '            <td>' + data[t].totalOrderPrice + '</td>' +
+                //             '            <td>' +
+                //             '             <a href="javascript:;"  class="btn ' + paymentBg + ' font-size-10 pad5A tooltip-button" data-placement="bottom" title="Open modal window"   >' +
+                //             '                <span class="button-content">' +
+                //             '                    <i class="glyph-icon icon-money float-left"></i>' +
+                //             '<span>' + Payment + ' <span>' +
+                //             '                </span>' +
+                //             '            </a></td>' +
+                //             '            <td>' + (data[t].address != null ? data[t].address.houseNo + " " + data[t].address.addressName + " ," + data[t].address.city : "") + '</td>' +
+                //             '            <td>' + format(new Date(data[t].createdAt)) + '</td>              ' +
+                //             '              ' +
+                //             '            <td>' +
+                //             '             <a href="javascript:;"  class="btn ' + btnBg + ' font-size-10 pad5A tooltip-button  black-modal-60" data-placement="bottom" title="Open modal window"  id="block_status_' + data[t].id + '"  onclick="showModal(\'' + data[t].id + '\',\'' + data[t].progressStatus + '\')" >' +
+                //             '                <input type="hidden"  value="' + data[t].progressStatus + '" id="block_statusvalue_' + data[t].id + '">' +
+                //             '                <span class="button-content">' +
+                //             '                    <i class="glyph-icon icon-cog float-left"></i>' +
+                //             '<span id="block_statustext_' + data[t].id + '">' + status + ' <span>' +
+                //             '                </span>' +
+                //             '            </a>' +
+                //             '             <div class="dropdown">' +
+                //             '                <a href="javascript:;" title="" class="btn small bg-blue dropdown-toggle" data-toggle="dropdown">' +
+                //             '                    <span class="button-content">' +
+                //             '                        <i class="glyph-icon font-size-11 icon-cog"></i>' +
+                //             '                        <i class="glyph-icon font-size-11 icon-chevron-down"></i>' +
+                //             '                    </span>' +
+                //             '                </a>' +
+                //             '                <ul class="dropdown-menu float-right">' +
+                //             '                    <li>' +
+                //             '                        <a href="<%-adminpath%>orders/view/' + data[t].id + '" title="">' +
+                //             '                            <i class="glyph-icon icon-edit mrg5R"></i>' +
+                //             '                            View' +
+                //             '                        </a>' +
+                //             '                    </li>' +
+                //             '                    <li class="divider"></li>' +
+                //             '                    <li>' +
+                //             '                        <a onclick="return confirm(\'Are you sure you want to delete this?\');"  href="<%-adminpath%>orders/delete/' + data[t].id + '" data-id="' + data[t].id + '" class="font-red" title="">' +
+                //             '                            <i class="glyph-icon icon-archive mrg5R"></i>' +
+                //             '                            Delete' +
+                //             '                        </a>' +
+                //             '                    </li>' +
+                //             '                </ul>' +
+                //             '            </div>' +
+                //             '            </td>		' +
+                //             '        </tr>';
+
+                //     }
+
+                //     if (row == "") {
+                //         $('#orderData').html('&nbsp;&nbsp;&nbsp;No matching records found')
+
+                //     }
+                //     else $('#orderData').html(row);
+                //     appendPagination(currentPage, Math.ceil(data1.count / limit))
+                //     appendStat(response.body.counts)
+
+                // }
+                // else {
+
+                //     showToastError(response.message)
+                // }
+            },
+
+            error: function (response) {
+                $('#loading1').hide()
+                console.log('else response>>>',response);
+
+                // showToastError(response.message)
+
+            }
+        });
+    }
+</script>
