@@ -102,7 +102,14 @@ include:[{model:CATEGORY , required:true,as:'category',attributes:['id','name']}
       offerName:services[k].offerName,  offer:services[k].offer, validUpto:services[k].validUpto,
       includedServices:services[k].includedServices, excludedServices:services[k].excludedServices,
     
-      status:services[k].status })
+      status:services[k].status,
+      rating:services[k].rating,
+      totalRatings:services[k].totalRatings,
+      popularity:services[k].popularity,
+    
+    
+    
+    })
     
  }
    
@@ -192,7 +199,7 @@ include:[{model:CATEGORY , required:true,as:'category',attributes:['id','name']}
       width: '25' // <- width in chars (when the number is passed as string)
     },
 
-    
+  
     status: {
       displayName: 'Status',
       headerStyle: styles.headerDark,
@@ -201,6 +208,24 @@ include:[{model:CATEGORY , required:true,as:'category',attributes:['id','name']}
       },
       width: '10' // <- width in chars (when the number is passed as string)
     },
+
+    rating: {
+      displayName: 'Rating',
+      headerStyle: styles.headerDark,
+      width: '10' // <- width in chars (when the number is passed as string)
+    },
+    totalRatings: {
+      displayName: 'Total Ratings',
+      headerStyle: styles.headerDark,
+      width: '10' // <- width in chars (when the number is passed as string)
+    },
+    popularity: {
+      displayName: 'Popularity',
+      headerStyle: styles.headerDark,
+      width: '15' // <- width in chars (when the number is passed as string)
+    },
+
+
 
   }
 
@@ -239,9 +264,11 @@ include:[{model:CATEGORY , required:true,as:'category',attributes:['id','name']}
 });
 
 
-app.post('/import',async (req, res, next) => {
+app.post('/import',adminAuth,async (req, res, next) => {
+//var cId="25cbf58b-46ba-4ba2-b25d-8f8f653e9f11"
+var cId=req.id
 
-
+var error=0
   
 try{
  
@@ -256,27 +283,118 @@ try{
         //upload file
         if (err)
         return responseHelper.error(res, err.message, 400);   
-    });
-  }
-    }
- 
-    
+
     if(file=="")
     return responseHelper.post(res, appstrings.no_meadia, null);
 
     else{
- 
 
-    xlsxFile(fs.createReadStream(config.UPLOAD_DIRECTORY +"assets/docs/"+ file)).then((rows) => {
-      console.log(rows)
-    })
+
+      var dataPush=[]
+    xlsxFile(fs.createReadStream(config.UPLOAD_DIRECTORY +"assets/docs/"+ file)).then(async (rows) => {
+
+var allNames=[]
+      for(var k=1;k<rows.length;k++)
+     {
+   var dataRow=rows[k]
+      if(!allNames.includes(dataRow[2])) allNames.push(dataRow[2])    
+
+     
+
+     }
+
+    // console.log(allNames)
+
+     var dataExist= await SERVICES.findAll({
+       attributes:['name','id'],
+      where:{
+         name: { [Op.in]: allNames },
+         companyId: cId
+      } 
+    });
+
+    var dataex = dataExist.map(user => user.name);
+
+
+     for(var k=1;k<rows.length;k++)
+     {
+      var data=rows[k]
+
+      var itemType=((data[3]+"").toLowerCase()=='veg') ?"0" :"1"
+      var status=((data[13]+"").toLowerCase()=='active') ?"1" :"0"
+      dataPush={categoryId:data[1],
+        categoryId:data[1],
+        name:data[2],
+        itemType:itemType,
+        duration:data[4],
+        originalPrice:(data[5]!=null)?data[5]:0,
+        offer:(data[6]!=null)?data[6]:0,
+        offerName:(data[7]!=null)?data[7]:"",
+        validUpto:data[8],
+        price:data[9],
+        description:(data[10]!=null)?data[10]:"",
+      incluedServices:data[11],
+      excludedServices:data[12],
+      status:status,
+      companyId:cId,
+      rating:(data[14]!=null)?data[14]:0,
+      totalRatings:(data[15]!=null)?data[15]:0,
+      popularity:(data[16]!=null)?data[16]:0
+
+      
+      
+      }
+     
+     
+
+
+        
+       if(dataex.includes(data[2])==false)  {
+        dataex.push(data[2])
+        SERVICES.create(dataPush).then(res=>{
+        }).catch(err=>{
+        console.log(err.message)
+         error++;
+
+        })
+      
+      
+    
+
+        
+      
+      }
+    
+      if(k==rows.length-1)
+      {
+        if(error==0) return responseHelper.post(res, appstrings.import_success, null);
+    
+        else return responseHelper.post(res, appstrings.some_entries_wrong,null, 200);
+    
+        
+      }
+  
+    
+    }
+
+
+    
+  }).catch(e=> {
+    return responseHelper.error(res, e.message, 400);
+
+  });
+
+
+
+}
+});
 
  
- return responseHelper.post(res, appstrings.success, null);
-  }
+}
   
 
     }
+  }
     catch (e) {
       console.log(e)
       return responseHelper.error(res, e.message, 400);
