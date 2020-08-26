@@ -329,7 +329,7 @@ return false;
             var form_data = new FormData(tempform[0]);
             $.ajax({
                 type: 'POST',
-                url: '<%=adminpath %>profile/companyUpdate',
+                url: '<%=superadminpath %>profile/companyUpdate',
                 dataType: 'json',
                 data: form_data,
                 contentType:false,

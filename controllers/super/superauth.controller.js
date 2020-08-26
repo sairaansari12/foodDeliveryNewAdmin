@@ -283,7 +283,7 @@ app.post('/login',async(req,res,next) => {
             		}
                 })  
                 
-                  
+                  console.log(userData)
                 if(userData)
                {
                 
