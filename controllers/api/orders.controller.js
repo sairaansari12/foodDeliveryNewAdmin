@@ -610,6 +610,62 @@ delete  user[t]['company'];
   });
 
 
+  app.post('/reorder',checkAuth,async (req, res) => {
+   
+    var params=req.body
+    var orderId=params.orderId
+
+    let responseNull=  commonMethods.checkParameterMissing([orderId])
+    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+     
+   try{
+
+    var orderData = await ORDERS.findOne({
+      attributes:['orderPrice','totalOrderPrice','userId','companyId','deliveryType'],
+      where :{id :orderId},      
+      include: [
+        {model: SUBORDERS , attributes: ['id','serviceId','quantity'],
+        include: [{
+          model: SERVICES,
+          attributes: ['id','name','price'],
+          required: false
+        }]        
+    }
+      ]
+
+      });
+
+if(orderData)
+{
+  orderData=JSON.parse(JSON.stringify(orderData))
+for(var p=0;p<orderData.suborders.length;p++)
+{
+
+  var orderTotalPrice=parseFloat(orderData.suborders[p].service.price)* parseInt(orderData.suborders[p].quantity)
+  await CART.create({
+    serviceId: orderData.suborders[p].serviceId,
+    orderPrice :orderData.suborders[p].service.price,
+    orderTotalPrice :orderTotalPrice,
+    quantity :orderData.suborders[p].quantity,
+    userId: req.id,
+    companyId: orderData.companyId,
+    deliveryType: orderData.deliveryType,
+
+  })
+
+}
+
+
+return responseHelper.post(res,appstrings.success,null);
+}
+
+else return responseHelper.post(res,appstrings.oops_something,null,400);
+
+    } catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+  });
+
   
 
 

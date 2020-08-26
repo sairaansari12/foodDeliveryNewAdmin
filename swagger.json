@@ -783,6 +783,24 @@
 
 
 
+   "/api/mobile/orders/reorder": {
+    "post": {
+      "x-swagger-router-controller": "/api/mobile/orders/reorder",
+      "operationId": "index",
+      "tags": ["Repeat Order"],
+      "description": "Repeat Order",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
+        { "name": "orderId",  "in": "formData",  "required":true ,"type":"string"}
+
+   ],
+      "responses": {}
+    }
+  },
+
+
+
+
    "/api/mobile/orders/instructions": {
      "get": {
        "x-swagger-router-controller": "/api/mobile/orders/instructions",
@@ -1097,8 +1115,7 @@
         { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
         { "name": "limit",  "in": "query", "type":"string"},
         { "name": "page",  "in": "query", "type":"string"},
-        { "name": "progressStatus",  "in": "query", "type":"string", "description":"e.g : 0,1,2,3,4,5   >>More Info :  0>Pending, 1->Confirmed, 2->Cancelled, 3->Started ,5 ->Completed"},
-        { "name": "jobStatus",  "in": "query", "type":"string", "description":"e.g : 0,1,2  >>More Info :  0>Pending, 1->Accepted, 2->Cancelled"}
+        { "name": "jobStatus",  "in": "query", "type":"string", "description":"e.g : 0,1,2  >>More Info :  0>Pending, 1->Accepted, 2->Cancelled, 3->Completed"}
 
        ],
       "responses": {}

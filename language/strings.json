@@ -74,7 +74,9 @@
     "liked_success":"Added to like successfully",
     "unliked_success":"Remove from like successfully",
     "order_mark_complete":" has marked completed",
-    "query_save" :"Your query is successfully sent to admin, Admin will contact you soon"
+    "query_save" :"Your query is successfully sent to admin, Admin will contact you soon",
+    "some_entries_wrong" :"Dome entries are not properly imported due to data inconsistenecy",
+    "import_success" :"Data imported successfully"
 
 
 }
