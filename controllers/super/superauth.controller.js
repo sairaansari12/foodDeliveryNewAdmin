@@ -20,9 +20,17 @@ function isAdminAuth(req, res, next) {
 */
 app.get('/', async (req, res, next) => {
     if(req.session.userData){
+      console.log(req.session.companyId)
+        const findData = await COMPANY.findAll({
+        where :{parentId :req.session.companyId},
+        order: [
+          ['companyName','ASC']
+        ],      
+
+        });
        //var data=await  getDashboardData("2020-04-10","2020-04-17",null,null,req.session.companyId)
         // return res.render(superadminfilepath+'index.ejs',{data:null});
-        return res.render(superadminfilepath+'dashboard.ejs',{data:null});
+        return res.render(superadminfilepath+'dashboard.ejs',{data:null,findData});
 
     }
 
@@ -190,7 +198,7 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
 
 var dataRating=await commonMethods.getCompAvgRating(companyId) 
 var ratingsData={}
-
+var rating = '0';
 if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating) 
 {rating=dataRating.dataValues.totalRating}
 foodQuality=dataRating.dataValues.foodQuality
@@ -260,8 +268,9 @@ ratingsData.foodQuantity=foodQuantity
 
 app.post('/dashboard', superAuth,async (req, res, next) => {
   try{
-    var params=req.body
-    var data=await getDashboardData(params.fromDate,params.toDate,null,params.filterName,req.id,req.parentCompany)
+    var params=req.body;
+    var cc = params.cid;
+    var data=await getDashboardData(params.fromDate,params.toDate,null,params.filterName,cc,req.id)
     return responseHelper.post(res, appstrings.success,data,200);
   }
   catch(e)
@@ -476,7 +485,155 @@ app.get('/forgotPassword', async (req, res, next) => {
 });
 
 app.get('/dashboard', async (req, res, next) => {
-  return res.render(superadminfilepath+'dashboard.ejs');
+  const findData = await COMPANY.findAll({
+        where :{parentId :req.id},
+        order: [
+          ['companyName','ASC']
+        ],      
+
+        });
+  return res.render(superadminfilepath+'dashboard.ejs',{findData});
+});
+
+/*
+*@role Get Top Restaurants
+*/
+app.get('/getToprestaurants', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+      attributes: ['companyName','rating'],
+      where :{parentId :req.id},
+      order: [
+        ['rating', 'DESC'],
+      ],
+      limit: 5
+  });
+  //Orders Basis
+  var toporders = await COMPANY.findAll({
+      attributes: ['companyName','totalOrders'],
+      where :{parentId :req.id},
+      order: [
+        ['totalOrders', 'DESC'],
+      ],
+      limit: 5
+  });
+  console.log('orderandrating')
+  const data ={};
+  data.topr = toprating;
+  data.topo = toporders;
+  return responseHelper.post(res, appstrings.success,data,200);
+});
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+      attributes: ['companyName','rating'],
+      where :{parentId :req.id},
+      order: [
+        ['rating', 'ASC'],
+      ],
+      limit: 5
+  });
+  //Orders Basis
+  var toporders = await COMPANY.findAll({
+      attributes: ['companyName','totalOrders'],
+      where :{parentId :req.id},
+      order: [
+        ['totalOrders', 'ASC'],
+      ],
+      limit: 5
+  });
+  const data ={};
+   data.topr = toprating;
+  data.topo = toporders;
+
+  return responseHelper.post(res, appstrings.success,data,200);
+});
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+      attributes: ['companyName','rating'],
+      where :{parentId :req.id},
+      order: [
+        ['rating', 'ASC'],
+      ],
+      limit: 5
+  });
+  //Orders Basis
+  var toporders = await COMPANY.findAll({
+      attributes: ['companyName','totalOrders'],
+      where :{parentId :req.id},
+      order: [
+        ['totalOrders', 'ASC'],
+      ],
+      limit: 5
+  });
+  const data ={};
+   data.topr = toprating;
+  data.topo = toporders;
+
+  return responseHelper.post(res, appstrings.success,data,200);
+});
+
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.get('/getrevenue', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+    attributes: ['id','companyName','rating'],
+    where :{
+      parentId :req.id
+    },
+  });
+  var main = [];
+  for (var i = 0; i < toprating.length; i++) {
+    var data = {};
+    var id = toprating[i].id;
+    var ordersDataqDepthFull= await ORDERS.findAll({
+      attributes: ['progressStatus',
+        [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum']],
+        where :{
+          companyId: id,
+          progressStatus: '5'
+        },
+    });
+    if(ordersDataqDepthFull)
+    {
+      data.name = toprating[i].companyName;
+      data.rating = toprating[i].rating;
+      data.orders = ordersDataqDepthFull;
+      main.push(data);
+    }
+   
+  }
+  console.log(main);
+  return responseHelper.post(res, appstrings.success,main,200);
+});
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.get('/compareRestaurants', superAuth,async (req, res, next) => {
+  var params=req.body;
+    var data=await getDashboardData(params.fromDate,params.toDate,null,params.filterName,req.id,req.parentCompany)
+  return responseHelper.post(res, appstrings.success,main,200);
 });
 module.exports = app;
 

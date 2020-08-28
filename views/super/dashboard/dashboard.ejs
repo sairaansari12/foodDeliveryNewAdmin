@@ -74,7 +74,7 @@
                                         <div class="col-6">
                                             <div class="text-right">
                                                 <h3 class="mt-1">Top 5 Restaurants</h3>
-                                                <p class="text-muted mb-1 text-truncate">Show list</p>
+                                                 <p style="cursor: pointer;" onclick="showtop()" data-toggle="modal" data-target="#right-modal" class="text-muted mb-1 text-truncate">Show list</p>
                                             </div>
                                         </div>
                                     </div> <!-- end row-->
@@ -92,7 +92,7 @@
                                         <div class="col-8">
                                             <div class="text-right">
                                                 <h3 class="mt-1">Bottom 5 Restaurants</h3>
-                                                <p class="text-muted mb-1 text-truncate">Show list</p>
+                                                <p style="cursor: pointer;" onclick="showbottom()" data-toggle="modal" data-target="#left-modal" class="text-muted mb-1 text-truncate">Show list</p>
                                             </div>
                                         </div>
                                     </div> <!-- end row-->
@@ -109,7 +109,7 @@
                                         </div>
                                         <div class="col-6">
                                             <div class="text-right">
-                                                <h3 class="text-dark mt-1"><span data-plugin="counterup" id="mTotalProducts" ></span></h3>
+                                                <h3 class="text-dark mt-1"><span data-plugin="counterup" id="mTotalProducts" ><%- findData.length %></span></h3>
                                                 <p class="text-muted mb-1 text-truncate">Total Restaurants</p>
                                             </div>
                                         </div>
@@ -118,7 +118,80 @@
                             </div> <!-- end col-->
                         </div>
                         <!-- end row-->
-                        
+                        <!-- end row-->
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card-box pb-2">
+                                <label>Restaurants<small>(Get Sales Analytics / Revenue Overview / Rating Overview)</small></label>
+                                    <div class="input-group">
+
+                                        <select id="cname" class="form-control" name="cname" class="target">
+                                           <% for(var i=0;i<findData.length;i++){ %>
+                                           <option value="<%= findData[i].id %>"><%= findData[i].companyName %></option>
+                                           <% } %>
+                                        </select>
+                                    </div>
+                                </div> <!-- end card-box -->
+                            </div> <!-- end col-->
+                            <div class="col-lg-12">
+                                <div class="card-box pb-2">
+                                    <div class="float-right d-none d-md-inline-block">
+                                        <div class="btn-group mb-2">
+                                            <!--<button type="button" id="filterDAY" onclick='setFilterName("DAY")' class="btn btn-xs btn-light">Daily</button>
+                                            <button type="button"  id="filterWEEK" onclick='setFilterName("WEEK")' class="btn btn-xs btn-light">Weekly</button>
+                                            <button type="button"  id="filterMONTH" onclick='setFilterName("MONTH")' class="btn btn-xs btn-light">Monthly</button>
+                                            <button type="button" id="filterYEAR" onclick='setFilterName("YEAR")' class="btn btn-xs btn-light">Yearly</button>-->
+
+                                        </div>
+                                    </div>
+
+                                    <h4 class="header-title mb-3">Sales Analytics</h4>
+
+                                    <div dir="ltr">
+                                        <div id="sales-analytics1" class="mt-4" data-colors="#3283f6,#43bee1"></div>
+                                    </div>
+                                </div> <!-- end card-box -->
+                            </div> <!-- end col-->
+                             <div class="col-lg-6">
+                                <div class="card-box">
+                                    <h4 class="header-title mb-0">Restaurant Revenue (This Month)</h4>
+                                    <div class="widget-chart text-center" dir="ltr">
+                                        <div id="total-revenue1"  series="[50]" class="mt-0"  data-colors="#f86262"></div>
+                                        <h5 class="text-muted mt-0">Total sales made</h5>
+                                        <h2 id='totalSales'></h2>
+                                        <p class="text-muted w-75 mx-auto sp-line-2"> Here are statistics & revenue for sales for this month.</p>
+                                        <div class="row mt-3">
+                                            <div class="col-4">
+                                                <p class="text-muted font-15 mb-1 text-truncate">Target</p>
+                                                <h4><span id="salesTarget"></span></h4>
+                                            </div>
+                                            <div class="col-4">
+                                                <p class="text-muted font-15 mb-1 text-truncate">Achieved</p>
+                                                <h4><i class="fe-arrow-up text-success mr-1"></i><span id="achTarget"></span></h4>
+                                            </div>
+                                            <div class="col-4">
+                                                <p class="text-muted font-15 mb-1 text-truncate">Exp.</p>
+                                                <h4><span id="sucessTarget" style="display:none"> <i class="fe-arrow-down text-danger mr-1"></i></span>
+                                                    <span id="failedTarget" style="display:none"> <i class="fe-arrow-up text-success mr-1"></i></span>
+                                                    <span id="expTarget"></span></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> <!-- end card-box -->
+                            </div> <!-- end col-->
+                            <div class="col-lg-6">
+                                <div class="card-box">
+                                    <h4 class="header-title mb-0">Restaurant Rating Overview</h4>
+                                    <div class="widget-chart text-center" dir="ltr">
+                                    <div id="apex-bar">
+                                    </div>
+                                    <p class="text-muted w-75 mx-auto sp-line-2"> Here are ratings with multiple factors</p>
+                                    </div>
+                                </div> <!-- end card-box -->
+                            </div> 
+                        </div>
+                        <!-- end row -->
                     </div> <!-- container -->
 
                 </div> <!-- content -->
@@ -129,69 +202,208 @@
             <!-- End Page content -->
             <!-- ============================================================== -->
 
-
+            
         </div>
         <!-- END wrapper -->
-
-        <!-- Right Sidebar -->
+        <!-- Right modal content -->
+        <div id="right-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-right" style="width: 100%">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <h4 class="header-title mt-5">Top 5 <small><b>Rating Basis</b></small> </h4>
+                            <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Restaurant Name </th>
+                                        <th>Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableTop5rating">
+                                </tbody>
+                            </table>
+                           
+                            <h4 class="header-title mb-2">Top 5 <small><b>Orders Basis</b></small></h4>
+                            <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Restaurant Name </th>
+                                        <th>Orders</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableTop5order">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+         <!-- Right modal content -->
+        <div id="left-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-right" style="width: 100%">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <h4 class="header-title mt-5">Bottom 5 <small><b>Rating Basis</b></small> </h4>
+                            <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Restaurant Name </th>
+                                        <th>Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablebottom5rating">
+                                </tbody>
+                            </table>
+                           
+                            <h4 class="header-title mb-2">Bottom 5 <small><b>Orders Basis</b></small></h4>
+                            <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Restaurant Name </th>
+                                        <th>Orders</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablebottom5order">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
         <%- include('../partials/rightBar'); -%>
-
-      
         <%- include('../partials/script'); -%>
         <%- include('../partials/commonJs'); -%>
-
-
         <script>
-//$('#range-datepicker').val(format(new Date())+" to "+format(new Date()))
+        /*
+        *@role Get Top List Restaurants
+        */
+        function showtop()
+        {
+            $.ajax({
+                type: 'GET',
+                url: '<%-superadminpath %>getToprestaurants',
+                dataType: 'json',
+                success: function (response) {
+                    $('#loading1').hide()
+                    if (response.code == '200') {
+                        var data=response.body
+                        console.log(data);
+                        top5RestData(data.topr,1);
+                        top5RestOrder(data.topo,1);
+                    }
+                    else{
+                       
+                        showToastError(response.message)
+                    }
+                },
+            });
+        }
+        /*
+        *@role Get Bottom List Restaurants
+        */
+        function showbottom()
+        {
+            $.ajax({
+                type: 'GET',
+                url: '<%-superadminpath %>getbottomrestaurants',
+                dataType: 'json',
+                success: function (response) {
+                    $('#loading1').hide()
+                    if (response.code == '200') {
+                        var data=response.body
+                        console.log(data);
+                        top5RestData(data.topr,2);
+                        top5RestOrder(data.topo,2);
+                    }
+                    else{
+                       
+                        showToastError(response.message)
+                    }
+                },
+            });
+        }
+        function top5RestData(data,status)
+        {
+            var html=""
+            for(var k=0;k<data.length;k++)
+            {
+                html=html + `<tr>
+                    <td>
+                        ${data[k].companyName}
+                    </td>
+                    <td>
+                       ${getRating(data[k].rating)}
+                    </td>
+                </tr>`;
+            }
+            if(status == '1')
+            {
+                $('#tableTop5rating').html(html)
+            }else{
+                $('#tablebottom5rating').html(html)
+            }
             
+        }
+        function top5RestOrder(data,status)
+        {
+            var html=""
+            for(var k=0;k<data.length;k++)
+            {
+                html=html + `<tr>
+                    <td>
+                        ${data[k].companyName}
+                    </td>
+                    <td>
+                       ${data[k].totalOrders}
+                    </td>
+                </tr>`;
+            }
+            if(status == '1')
+            {
+                $('#tableTop5order').html(html)
+            }else{
+                $('#tablebottom5order').html(html)
+            }
+        }
             var filterName="DAY"
             var fName=getURLParameter('filterName')
-if(fName && fName!="")
-filterName=fName
-$('#filter'+filterName).removeClass('btn-light')
-$('#filter'+filterName).addClass('btn-secondary')
+            if(fName && fName!="")
+            filterName=fName
+            $('#filter'+filterName).removeClass('btn-light')
+            $('#filter'+filterName).addClass('btn-secondary')
 
             var countLoad=0
             getFilter()
             function getFilter()
-                {
-        var fromDate=""
-         var toDate=""
-      var rangeDatePicker=$('#range-datepicker').val().split("to");
-  
+            {
+                var fromDate=""
+                var toDate=""
+                var rangeDatePicker=[]
+    var cid= $('#cname').val();
 
-       if(rangeDatePicker.length>1){ fromDate=rangeDatePicker[0];
-         toDate=rangeDatePicker[1];}
-            
-                  
-                       // if(countLoad>0)
-                        $('#loading1').show()
-
-                        countLoad++;
-            
+                if(rangeDatePicker.length>1){ fromDate=rangeDatePicker[0];
+                toDate=rangeDatePicker[1];}
+                // if(countLoad>0)
+                $('#loading1').show()
+                    countLoad++;
                     //alert(fromDate)
                     $.ajax({
                         type: 'POST',
-                        url: '<%-adminpath%>dashboard',
+                        url: '<%-superadminpath%>dashboard',
                         dataType: 'json',
-                        data: {'fromDate':fromDate ,'toDate':toDate,'filterName':filterName},
+                        data: {'fromDate':fromDate ,'toDate':toDate,'filterName':filterName,'cid':cid     },
                         success: function (response) {
                             $('#loading1').hide()
                             if (response.code == '200') {
                                 var data=response.body
-                            //$('#totalOrders').html(data.mainTotalOrder);
-                            setRevenueHistory(data.ordersDataStat)
-                            setRatingsBar(data.ratingsData)
-                            top5UsersData(data.top5UserStat)
-                            setTopBar(data)
-                            if(countLoad==1)setAnalytics(data.revenuAnalytics)
+                                setRatingsBar(data.ratingsData)
 
-                            setTotalRevenue(data.targetSales,data.paymentStat)
+                                if(countLoad==1)setAnalytics(data.revenuAnalytics)
 
-                            // $('#totalUsers').html(data.mainTotalUser);
-                            // var earnings=data.ordersDataStat.map(item => item.totalSum).reduce(function(acc, val) { return acc + val; }, 0)
-                            // $('#totalEarnings').html('<%-CURRENCY%>'+earnings); 
-            
+                                setTotalRevenue(data.targetSales,data.paymentStat)
                             }
                             else{
                                
@@ -209,15 +421,22 @@ $('#filter'+filterName).addClass('btn-secondary')
                     });
                 }
                 
-                
+
+
                 function setTotalRevenue(target,paymentStat)
                 {
-
+                    console.log(target,"target");
                     var sum=0
                     var escrow=0
                     var escrow=0
                     var count=0
-                   var target=(target.targetSales!=null)?target.targetSales:0
+                    if(target != null)
+                    {
+                        var target=(target.targetSales!=null)?target.targetSales:0
+                    }else{
+                        var target=0
+                    }
+                   
                     for(var k=0;k<paymentStat.length;k++)
                     {
                         sum=sum+paymentStat[k].totalSum
@@ -235,120 +454,22 @@ $('#filter'+filterName).addClass('btn-secondary')
                     
                    var revenuPer= (count/target)*100
 
-                
+                    var options = {
+                      chart: {
+                        height: 200,
+                        type: 'radialBar',
+                        stacked: false
+                      },
+                      plotOptions:{radialBar:{hollow:{size:"65%"}}},
+                      colors:colors,labels:["Revenue"],
+                      series: [revenuPer.toFixed(1)],
+                      colors:["#1abc9c","#4a81d4"]
+                    }
 
- 
-                   var options = {
-  chart: {
-    height: 200,
-    type: 'radialBar',
-    stacked: false
-  },
-  plotOptions:{radialBar:{hollow:{size:"65%"}}},
-  colors:colors,labels:["Revenue"],
-  series: [revenuPer.toFixed(1)],
-  colors:["#1abc9c","#4a81d4"]
-}
-
-var chart = new ApexCharts(document.querySelector("#total-revenue1"), options);
-chart.render();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    var chart = new ApexCharts(document.querySelector("#total-revenue1"), options);
+                    chart.render();
                     $('#escrow').html(revenuPer)
-
-
                 }
-            
-            
-                function setRevenueHistory(orderData)
-                {
-                    var html=""
-                    for(var k=0;k<orderData.length;k++)
-                    {
-                        var text=['text-warning','text-info','text-success','text-danger']
-               html=html+`  <tr>
-        <td><h5 class="m-0  font-weight-bold">${orderData[k].orderStatus.statusName}</h5></td>
-     <td><span class="text-muted ">${orderData[k].count}</span></td>
-     <td><%-CURRENCY%> ${orderData[k].totalSum}</td>
-
-    </tr>`
-
-                }
-            
-
-            $('#tableRevenueHistory').html(html)
-                }
-           
-           
-                function top5UsersData(data)
-                {
-                    var html=""
-                    for(var k=0;k<data.length;k++)
-                    {
-               html=html + `<tr>
-                                                    <td style="width: 36px;">
-                                                        <img   onError="this.onerror=null;this.src='/assets/images/products/no-image.jpg';"  src="${data[k].user.image}" alt="contact-img" title="contact-img" class="rounded-circle avatar-sm" />
-                                                    </td>
-    
-                                                    <td>
-                                                        <h5 class="m-0 font-weight-normal">${data[k].user.firstName + " " +data[k].user.lastName}</h5>
-                                                        <p class="mb-0 text-muted"><small>Member Since ${format(new Date(data[k].user.createdAt))}</small></p>
-                                                    </td>
-    
-
-                                                    <td>
-                                                        ${data[k].user.countryCode+"-"+data[k].user.phoneNumber}
-                                                    </td>
-                                                    <td>
-                                                       <%-CURRENCY%>${data[k].totalSum}
-                                                    </td>
-    
-                                                   
-    
-                                                    <td>
-                                                        ${data[k].count}
-                                                    </td>
-    
-                                                   
-                                                </tr>`;
-    
-
-                }
-            
-
-            $('#tableTop5users').html(html)
-                }
-
-                function setTopBar(data)
-                {
-var totalRatings=(data.ratingStat && data.ratingStat.count)?data.ratingStat.count:0
-var totalOrders=(data.totalOrders )?data.totalOrders:0
-var totalProducts=(data.productStat && data.productStat.count )?data.productStat.count:0
-var totalRevenue=(data.totalRevenue)?data.totalRevenue.toFixed(2):0
-
-
-$('#mTotalRatings').html(totalRatings)
-$('#mTotalProducts').html(totalProducts)
-$('#mTotalRevenue').html(totalRevenue)
-$('#mTotalOrders').html(totalOrders)
-
-
-                }
-          
-
                 function setRatingsBar(data)
                 {
                     var  options={chart:
@@ -388,31 +509,19 @@ $('#mTotalOrders').html(totalOrders)
 
             if(min==max) min=0
             var diff=max-min
-
-
             for(var k=0;k<=diff;k++)
             {   
-
-
-            const found =data.find( ( filters ) => filters[filterName] ===(min+k) );
-
-
-
-            if(found)  
-            {paymentData.push(found.totalSum)
-             orderCountData.push(found.count)
-             var date=format(new Date(found.createdAt))
-
-             if(filterName=="DAY")labelsArray.push(date)
-             if(filterName=="MONTH")labelsArray.push(date.split("-")[1])
-             if(filterName=="YEAR")labelsArray.push(date.split("-")[2])
-             if(filterName=="WEEK"){labelsArray.push("WEEK "+(k+1))}
-
-
-            
-            }
-            
-
+                const found =data.find( ( filters ) => filters[filterName] ===(min+k) );
+                if(found)  
+                {
+                    paymentData.push(found.totalSum)
+                    orderCountData.push(found.count)
+                    var date=format(new Date(found.createdAt))
+                    if(filterName=="DAY")labelsArray.push(date)
+                    if(filterName=="MONTH")labelsArray.push(date.split("-")[1])
+                    if(filterName=="YEAR")labelsArray.push(date.split("-")[2])
+                    if(filterName=="WEEK"){labelsArray.push("WEEK "+(k+1))}
+                }
             }
 
 
@@ -485,24 +594,19 @@ $('#mTotalOrders').html(totalOrders)
  	}]
  };
 
-
-
-    var chart = new ApexCharts(document.querySelector("#sales-analytics1"), options);
-    chart.render();
-
-
-
-
+                    var chart = new ApexCharts(document.querySelector("#sales-analytics1"), options);
+                    chart.render();
 
                 }
-
                 function setFilterName(filter)
                 {
-filterName=filter
-window.location.href="<%-adminpath%>?filterName="+filterName
+                    filterName=filter
+                    window.location.href="<%- superadminpath %>?filterName="+filterName
                 }
+                $( ".target" ).change(function() {
+  getFilter();
+});
 
-              
            </script>
         
     </body>

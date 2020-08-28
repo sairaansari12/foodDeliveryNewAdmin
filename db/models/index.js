@@ -62,8 +62,8 @@ let modules = [
   require('./recipe/recipeCategories'),
   require('./recipe/recipes'),
   require('./recipe/recipeMedia'),
-  require('./recipe/recipeLike')
-  
+  require('./recipe/recipeLike'),
+  require('./subscription')
 
 
 
