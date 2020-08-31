@@ -510,6 +510,21 @@ app.get('/getToprestaurants', superAuth,async (req, res, next) => {
       ],
       limit: 5
   });
+  var labels = [];
+  var ratedata = [];
+  for (var i = 0; i < toprating.length; i++) {
+    labels.push(toprating[i].companyName);
+    if(toprating[i].rating == "")
+    {
+      ratedata.push('0');
+    }else{
+      ratedata.push(toprating[i].rating);
+    }
+  }
+  var MainRate = {};
+  MainRate.labels = labels;
+  MainRate.ratedata = ratedata;
+
   //Orders Basis
   var toporders = await COMPANY.findAll({
       attributes: ['companyName','totalOrders'],
@@ -519,10 +534,28 @@ app.get('/getToprestaurants', superAuth,async (req, res, next) => {
       ],
       limit: 5
   });
-  console.log('orderandrating')
-  const data ={};
-  data.topr = toprating;
-  data.topo = toporders;
+
+  var olabels = [];
+  var oratedata = [];
+  for (var i = 0; i < toporders.length; i++) {
+    olabels.push(toporders[i].companyName);
+    if(toporders[i].totalOrders == "")
+    {
+      oratedata.push('0');
+    }else{
+      oratedata.push(toporders[i].totalOrders);
+    }
+  }
+  var MainOrder = {};
+  MainOrder.labels = olabels;
+  MainOrder.ratedata = oratedata;
+ 
+  const data  = {};
+  data.topr   = toprating;
+  data.topo   = toporders;
+  data.rating = MainRate;
+  data.orders = MainOrder;
+
   return responseHelper.post(res, appstrings.success,data,200);
 });
 
@@ -541,6 +574,20 @@ app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
       ],
       limit: 5
   });
+  var labels = [];
+  var ratedata = [];
+  for (var i = 0; i < toprating.length; i++) {
+    labels.push(toprating[i].companyName);
+    if(toprating[i].rating == "")
+    {
+      ratedata.push('0');
+    }else{
+      ratedata.push(toprating[i].rating);
+    }
+  }
+  var MainRate = {};
+  MainRate.labels = labels;
+  MainRate.ratedata = ratedata;
   //Orders Basis
   var toporders = await COMPANY.findAll({
       attributes: ['companyName','totalOrders'],
@@ -550,10 +597,26 @@ app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
       ],
       limit: 5
   });
-  const data ={};
-   data.topr = toprating;
-  data.topo = toporders;
+  var olabels = [];
+  var oratedata = [];
+  for (var i = 0; i < toporders.length; i++) {
+    olabels.push(toporders[i].companyName);
+    if(toporders[i].totalOrders == "")
+    {
+      oratedata.push('0');
+    }else{
+      oratedata.push(toporders[i].totalOrders);
+    }
+  }
+  var MainOrder = {};
+  MainOrder.labels = olabels;
+  MainOrder.ratedata = oratedata;
 
+  const data ={};
+  data.topr = toprating;
+  data.topo = toporders;
+  data.rating = MainRate;
+  data.orders = MainOrder;
   return responseHelper.post(res, appstrings.success,data,200);
 });
 
@@ -597,16 +660,17 @@ app.get('/getrevenue', superAuth,async (req, res, next) => {
   console.log(companyId);
   //Rating Basis
   var toprating = await COMPANY.findAll({
-    attributes: ['id','companyName','rating'],
+    attributes: ['id','companyName','rating','totalOrders'],
     where :{
       parentId :req.id
     },
   });
-  var main = [];
+  var main    = [];
+  var NameC   = [];
+  var ratingC = [];
   for (var i = 0; i < toprating.length; i++) {
-    var data = {};
     var id = toprating[i].id;
-    var ordersDataqDepthFull= await ORDERS.findAll({
+    var ordersDataqDepthFull= await ORDERS.findOne({
       attributes: ['progressStatus',
         [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum']],
         where :{
@@ -616,15 +680,22 @@ app.get('/getrevenue', superAuth,async (req, res, next) => {
     });
     if(ordersDataqDepthFull)
     {
-      data.name = toprating[i].companyName;
-      data.rating = toprating[i].rating;
-      data.orders = ordersDataqDepthFull;
-      main.push(data);
+      ratingC.push(toprating[i].totalOrders)
+      NameC.push(toprating[i].companyName)
+      if(ordersDataqDepthFull.dataValues.totalSum == null)
+      {
+        main.push('0');
+      }else{
+        main.push(ordersDataqDepthFull.dataValues.totalSum);
+      }
     }
-   
   }
-  console.log(main);
-  return responseHelper.post(res, appstrings.success,main,200);
+  var data      = {};
+  data.name     = NameC;
+  data.orders   = ratingC;
+  data.totalSum = main;
+  //console.log(main);
+  return responseHelper.post(res, appstrings.success,data,200);
 });
 
 /*

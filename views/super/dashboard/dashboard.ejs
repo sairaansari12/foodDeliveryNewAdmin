@@ -63,43 +63,8 @@
                         <!-- end page title --> 
 
                         <div class="row">
-                            <div class="col-md-6 col-xl-3">
-                                <div class="widget-rounded-circle card-box">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="avatar-lg rounded-circle bg-soft-success border-success border">
-                                                <i class="mdi mdi-arrow-up-bold-circle font-22 avatar-title text-success"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-right">
-                                                <h3 class="mt-1">Top 5 Restaurants</h3>
-                                                 <p style="cursor: pointer;" onclick="showtop()" data-toggle="modal" data-target="#right-modal" class="text-muted mb-1 text-truncate">Show list</p>
-                                            </div>
-                                        </div>
-                                    </div> <!-- end row-->
-                                </div> <!-- end widget-rounded-circle-->
-                            </div> <!-- end col-->
 
-                            <div class="col-md-6 col-xl-3">
-                                <div class="widget-rounded-circle card-box">
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
-                                                <i class="mdi mdi-arrow-down-bold-circle font-22 avatar-title text-danger"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-8">
-                                            <div class="text-right">
-                                                <h3 class="mt-1">Bottom 5 Restaurants</h3>
-                                                <p style="cursor: pointer;" onclick="showbottom()" data-toggle="modal" data-target="#left-modal" class="text-muted mb-1 text-truncate">Show list</p>
-                                            </div>
-                                        </div>
-                                    </div> <!-- end row-->
-                                </div> <!-- end widget-rounded-circle-->
-                            </div> <!-- end col-->
-
-                            <div class="col-md-6 col-xl-3">
+                            <div class="col-md-12 col-xl-3">
                                 <div class="widget-rounded-circle card-box">
                                     <div class="row">
                                         <div class="col-6">
@@ -115,6 +80,98 @@
                                         </div>
                                     </div> <!-- end row-->
                                 </div> <!-- end widget-rounded-circle-->
+                            </div> <!-- end col-->
+                            <div class="row col-md-12">
+                                    <div class="col-lg-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h4 class="header-title">Total Revenue (<%- CURRENCY %>)</h4>
+                                                <div class="mt-4 chartjs-chart">
+                                                    <canvas id="barChart" height="80" ></canvas>
+                                                </div>
+                                            </div> <!-- end card-body-->
+                                        </div> <!-- end card-->
+                                    </div> <!-- end col -->
+                                </div>
+                            <div class="col-md-12 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="avatar-lg rounded-circle bg-soft-success border-success border">
+                                                <i class="mdi mdi-arrow-up-bold-circle font-22 avatar-title text-success"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-right">
+                                                <h3 class="mt-1">Top 5 Restaurants</h3>
+                                                 <p style="cursor: pointer;" onclick="showtop()" data-toggle="modal" data-target="#right-modal" class="text-muted mb-1 text-truncate">Show list</p>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h4 class="header-title">Rating Basis</h4>
+                                                <div class="mt-4 chartjs-chart">
+                                                    <canvas id="ratingBasis" height="200" ></canvas>
+                                                </div>
+                                            </div> <!-- end card-body-->
+                                        </div> <!-- end card-->
+                                    </div> <!-- end col -->
+                                    <div class="col-lg-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h4 class="header-title">Order Basis</h4>
+                                                <div class="mt-4 chartjs-chart">
+                                                    <canvas id="orderBasis" height="200" ></canvas>
+                                                </div>
+                                            </div> <!-- end card-body-->
+                                        </div> <!-- end card-->
+                                    </div> <!-- end col -->
+                                </div>
+                            </div> <!-- end col-->
+
+                            <div class="col-md-12 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
+                                                <i class="mdi mdi-arrow-down-bold-circle font-22 avatar-title text-danger"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="text-right">
+                                                <h3 class="mt-1">Bottom 5 Restaurants</h3>
+                                                <p style="cursor: pointer;" onclick="showbottom()" data-toggle="modal" data-target="#left-modal" class="text-muted mb-1 text-truncate">Show list</p>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h4 class="header-title">Rating Basis</h4>
+                                                <div class="mt-4 chartjs-chart">
+                                                    <canvas id="bottomratingBasis" height="200" ></canvas>
+                                                </div>
+                                            </div> <!-- end card-body-->
+                                        </div> <!-- end card-->
+                                    </div> <!-- end col -->
+                                    <div class="col-lg-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h4 class="header-title">Order Basis</h4>
+                                                <div class="mt-4 chartjs-chart">
+                                                    <canvas id="bottomorderBasis" height="200" ></canvas>
+                                                </div>
+                                            </div> <!-- end card-body-->
+                                        </div> <!-- end card-->
+                                    </div> <!-- end col -->
+                                </div>
+
                             </div> <!-- end col-->
                         </div>
                         <!-- end row-->
@@ -276,99 +333,326 @@
         <%- include('../partials/rightBar'); -%>
         <%- include('../partials/script'); -%>
         <%- include('../partials/commonJs'); -%>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.3/Chart.min.js"></script>
         <script>
-        /*
-        *@role Get Top List Restaurants
-        */
-        function showtop()
-        {
-            $.ajax({
-                type: 'GET',
-                url: '<%-superadminpath %>getToprestaurants',
-                dataType: 'json',
-                success: function (response) {
-                    $('#loading1').hide()
-                    if (response.code == '200') {
-                        var data=response.body
-                        console.log(data);
-                        top5RestData(data.topr,1);
-                        top5RestOrder(data.topo,1);
-                    }
-                    else{
-                       
-                        showToastError(response.message)
-                    }
-                },
+            /*
+            *@role Get Top List Restaurants
+            */
+            $(document).ready(function(){
+                showtop();
+                showbottom();
+                getRevenue();
+                // Global Options:
+                Chart.defaults.global.defaultFontColor = 'black';
+                Chart.defaults.global.defaultFontSize = 12;
+
             });
-        }
-        /*
-        *@role Get Bottom List Restaurants
-        */
-        function showbottom()
-        {
-            $.ajax({
-                type: 'GET',
-                url: '<%-superadminpath %>getbottomrestaurants',
-                dataType: 'json',
-                success: function (response) {
-                    $('#loading1').hide()
-                    if (response.code == '200') {
-                        var data=response.body
-                        console.log(data);
-                        top5RestData(data.topr,2);
-                        top5RestOrder(data.topo,2);
+
+
+            function getRevenue()
+            {
+                $.ajax({
+                    type: 'GET',
+                    url: '<%-superadminpath %>getrevenue',
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#loading1').hide()
+                        if (response.code == '200') {
+                            var data=response.body
+                            console.log(data);
+                              //Total Revenue
+                            var canvasBae = document.getElementById("barChart");
+                            var ctx = canvasBae.getContext('2d');
+
+                            var dataChart = {
+                              labels: data.name,
+                              datasets: [{
+                                  label: "Revenue",
+                                  fill: false,
+                                  lineTension: 0.1,
+                                  backgroundColor: "rgba(225,0,0,0.4)",
+                                  borderColor: "red", // The main line color
+                                  borderCapStyle: 'square',
+                                  borderDash: [], // try [5, 15] for instance
+                                  borderDashOffset: 0.0,
+                                  borderJoinStyle: 'miter',
+                                  pointBorderColor: "black",
+                                  pointBackgroundColor: "white",
+                                  pointBorderWidth: 1,
+                                  pointHoverRadius: 4,
+                                  pointHoverBackgroundColor: "red",
+                                  pointHoverBorderColor: "brown",
+                                  pointHoverBorderWidth: 2,
+                                  pointRadius: 4,
+                                  pointHitRadius: 10,
+                                  // notice the gap in the data and the spanGaps: true
+                                  data: data.totalSum,
+                                  spanGaps: true,
+                                }]
+                            };
+
+                            // Notice the scaleLabel at the same level as Ticks
+                            var optionBar = {
+                              scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero:true
+                                            },
+                                            scaleLabel: {
+                                                 display: true,
+                                                 labelString: 'Restaurants Revenue',
+                                                 fontSize: 10 
+                                              }
+                                        }]            
+                                    }  
+                            };
+
+                            // Chart declaration:
+                            var BarChart = new Chart(ctx, {
+                              type: 'line',
+                              data: dataChart,
+                              options: optionBar
+                            });
+                        }
+                        else{
+                           
+                            showToastError(response.message)
+                        }
+                    },
+                });
+            }
+            function showTopGraphs(data)
+            {
+                var options = {
+                    maintainAspectRatio: !1,
+                    legend: {
+                        display: !1
+                    },
+                    // yAxes: [{
+                    //             ticks: {
+                    //                 beginAtZero:true
+                    //             },
+                    //             scaleLabel: {
+                    //                  display: true,
+                    //                  labelString: 'Revenue / Rating',
+                    //                  fontSize: 10 
+                    //               }
+                    //         }]  
+                    scales: {
+                        yAxes: [{
+                            gridLines: {
+                                display: true
+                            },
+                            stacked: true,
+                            ticks: {
+                                beginAtZero:true
+                            },
+                        }],
+                        xAxes: [{
+                            barPercentage: .7,
+                            categoryPercentage: .5,
+                            stacked: true,
+                            gridLines: {
+                                color: "rgba(0,0,0,0.01)"
+                            }
+                        }]
                     }
-                    else{
-                       
-                        showToastError(response.message)
+                };
+                //Show Bar Chart
+                var canvas = document.getElementById('ratingBasis');
+                var canvas = canvas.getContext('2d');
+                var t = {
+                    labels: data.rating.labels,
+                    
+                    datasets: [{
+                        label: "Rating",
+                        backgroundColor: '#4a81d4',
+                        borderColor: '#4a81d4',
+                        hoverBackgroundColor: '#4a81d4',
+                        hoverBorderColor: '#4a81d4',
+                        data: data.rating.ratedata
+                    }]
+                };
+                var myBarChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: t,
+                    options: options
+                });
+                //Order Basis
+                var canvasOrder = document.getElementById('orderBasis');
+                var torder = {
+                    labels: data.orders.labels,
+                    datasets: [{
+                        label: "Orders",
+                        backgroundColor: '#ebeff2',
+                        borderColor: '#ebeff2',
+                        hoverBackgroundColor: '#ebeff2',
+                        hoverBorderColor: '#ebeff2',
+                        data: data.orders.ratedata
+                    }]
+                };
+                var myBarChart = new Chart(canvasOrder, {
+                    type: 'bar',
+                    data: torder,
+                    options: options
+                });
+            }
+            function showtop()
+            {
+                $.ajax({
+                    type: 'GET',
+                    url: '<%-superadminpath %>getToprestaurants',
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#loading1').hide()
+                        if (response.code == '200') {
+                            var data=response.body
+                            console.log(data);
+                            top5RestData(data.topr,1);
+                            top5RestOrder(data.topo,1);
+                            showTopGraphs(data);
+                        }
+                        else{
+                           
+                            showToastError(response.message)
+                        }
+                    },
+                });
+            }
+
+            function showBottomGraphs(data)
+            {
+                var options = {
+                    maintainAspectRatio: !1,
+                    legend: {
+                        display: !1
+                    },
+                    scales: {
+                        yAxes: [{
+                            gridLines: {
+                                display: true
+                            },
+                            stacked: true,
+                            ticks: {
+                                beginAtZero:true
+                            },
+                        }],
+                        xAxes: [{
+                            barPercentage: .7,
+                            categoryPercentage: .5,
+                            stacked: true,
+                            gridLines: {
+                                color: "rgba(0,0,0,0.01)"
+                            }
+                        }]
                     }
-                },
-            });
-        }
-        function top5RestData(data,status)
-        {
-            var html=""
-            for(var k=0;k<data.length;k++)
-            {
-                html=html + `<tr>
-                    <td>
-                        ${data[k].companyName}
-                    </td>
-                    <td>
-                       ${getRating(data[k].rating)}
-                    </td>
-                </tr>`;
+                };
+                //Show Bar Chart
+                var canvas = document.getElementById('bottomratingBasis');
+                var t = {
+                    labels: data.rating.labels,
+                    datasets: [{
+                        label: "Rating",
+                        backgroundColor: '#fa5c7c',
+                        borderColor: '#fa5c7c',
+                        hoverBackgroundColor: '#fa5c7c',
+                        hoverBorderColor: '#fa5c7c',
+                        data: data.rating.ratedata
+                    }]
+                };
+                var myBarChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: t,
+                    options: options
+                });
+                //Order Basis
+                var canvasOrder = document.getElementById('bottomorderBasis');
+                var torder = {
+                    labels: data.orders.labels,
+                    datasets: [{
+                        label: "Orders",
+                        backgroundColor: '#4fc6e1',
+                        borderColor: '#4fc6e1',
+                        hoverBackgroundColor: '#4fc6e1',
+                        hoverBorderColor: '#4fc6e1',
+                        data: data.orders.ratedata
+                    }]
+                };
+                var myBarChart = new Chart(canvasOrder, {
+                    type: 'bar',
+                    data: torder,
+                    options: options
+                });
             }
-            if(status == '1')
+            /*
+            *@role Get Bottom List Restaurants
+            */
+            function showbottom()
             {
-                $('#tableTop5rating').html(html)
-            }else{
-                $('#tablebottom5rating').html(html)
+                $.ajax({
+                    type: 'GET',
+                    url: '<%-superadminpath %>getbottomrestaurants',
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#loading1').hide()
+                        if (response.code == '200') {
+                            var data=response.body
+                            console.log(data);
+                            top5RestData(data.topr,2);
+                            top5RestOrder(data.topo,2);
+                            showBottomGraphs(data);
+                        }
+                        else{
+                           
+                            showToastError(response.message)
+                        }
+                    },
+                });
             }
-            
-        }
-        function top5RestOrder(data,status)
-        {
-            var html=""
-            for(var k=0;k<data.length;k++)
+            function top5RestData(data,status)
             {
-                html=html + `<tr>
-                    <td>
-                        ${data[k].companyName}
-                    </td>
-                    <td>
-                       ${data[k].totalOrders}
-                    </td>
-                </tr>`;
+                var html=""
+                for(var k=0;k<data.length;k++)
+                {
+                    html=html + `<tr>
+                        <td>
+                            ${data[k].companyName}
+                        </td>
+                        <td>
+                           ${getRating(data[k].rating)}
+                        </td>
+                    </tr>`;
+                }
+                if(status == '1')
+                {
+                    $('#tableTop5rating').html(html)
+                }else{
+                    $('#tablebottom5rating').html(html)
+                }
+                
             }
-            if(status == '1')
+            function top5RestOrder(data,status)
             {
-                $('#tableTop5order').html(html)
-            }else{
-                $('#tablebottom5order').html(html)
+                var html=""
+                for(var k=0;k<data.length;k++)
+                {
+                    html=html + `<tr>
+                        <td>
+                            ${data[k].companyName}
+                        </td>
+                        <td>
+                           ${data[k].totalOrders}
+                        </td>
+                    </tr>`;
+                }
+                if(status == '1')
+                {
+                    $('#tableTop5order').html(html)
+                }else{
+                    $('#tablebottom5order').html(html)
+                }
             }
-        }
-            var filterName="DAY"
+            var filterName="MONTH"
             var fName=getURLParameter('filterName')
             if(fName && fName!="")
             filterName=fName
@@ -382,7 +666,7 @@
                 var fromDate=""
                 var toDate=""
                 var rangeDatePicker=[]
-    var cid= $('#cname').val();
+                var cid= $('#cname').val();
 
                 if(rangeDatePicker.length>1){ fromDate=rangeDatePicker[0];
                 toDate=rangeDatePicker[1];}
@@ -421,8 +705,6 @@
                     });
                 }
                 
-
-
                 function setTotalRevenue(target,paymentStat)
                 {
                     console.log(target,"target");
@@ -493,110 +775,100 @@
 
                 function setAnalytics(data)
                 {
+                    var paymentData=[]
+                    var labels=[""]
+                    var paymentData=[]
+                    var orderCountData=[]
+                    var labelsArray=[]
 
+                    var min= Math.min.apply(Math, data.map(function(o) { return o[filterName]; }))
+                    var max= Math.max.apply(Math, data.map(function(o) { return o[filterName]; }))
+                  
 
-          
+                    if(min==max) min=0
+                    var diff=max-min
+                    for(var k=0;k<=diff;k++)
+                    {   
+                        const found =data.find( ( filters ) => filters[filterName] ===(min+k) );
+                        if(found)  
+                        {
+                            paymentData.push(found.totalSum)
+                            orderCountData.push(found.count)
+                            var date=format(new Date(found.createdAt))
+                            if(filterName=="DAY")labelsArray.push(date)
+                            if(filterName=="MONTH")labelsArray.push(date.split("-")[1])
+                            if(filterName=="YEAR")labelsArray.push(date.split("-")[2])
+                            if(filterName=="WEEK"){labelsArray.push("WEEK "+(k+1))}
+                        }
+                    }
+                    var options = {
+                        series: [{
+                 			name: "Revenue",
+                 			type: "column",
+                 			data:paymentData
+                 		},
 
-            var paymentData=[]
-            var labels=[""]
-            var paymentData=[]
-            var orderCountData=[]
-            var labelsArray=[]
-
-            var min= Math.min.apply(Math, data.map(function(o) { return o[filterName]; }))
-            var max= Math.max.apply(Math, data.map(function(o) { return o[filterName]; }))
-          
-
-            if(min==max) min=0
-            var diff=max-min
-            for(var k=0;k<=diff;k++)
-            {   
-                const found =data.find( ( filters ) => filters[filterName] ===(min+k) );
-                if(found)  
-                {
-                    paymentData.push(found.totalSum)
-                    orderCountData.push(found.count)
-                    var date=format(new Date(found.createdAt))
-                    if(filterName=="DAY")labelsArray.push(date)
-                    if(filterName=="MONTH")labelsArray.push(date.split("-")[1])
-                    if(filterName=="YEAR")labelsArray.push(date.split("-")[2])
-                    if(filterName=="WEEK"){labelsArray.push("WEEK "+(k+1))}
-                }
-            }
-
-
-
-
-          var options = {
-    series: [{
- 			name: "Revenue",
- 			type: "column",
- 			data:paymentData
- 		},
-
- 		{
- 			name: "Sales",
- 			type: "line",
- 			data: orderCountData
- 		}
- 	],
- 	chart: {
- 		height: 378,
- 		type: "line"
- 	},
- 	stroke: {
- 		width: [1, 2]
- 	},
- 	plotOptions: {
- 		bar: {
-             columnWidth: "10%",
-             distributed:true
- 		}
- 	},
-     colors: ['#41B883', '#E46651', '#f7b84b','#6658dd'],
- 	dataLabels: {
- 		enabled: !0,
- 		enabledOnSeries: [1]
- 	},
- 	labels: labelsArray,
- 	xaxis: {
- 		type: "string"
- 	},
- 	legend: {
- 		offsetY: 7
- 	},
- 	grid: {
- 		padding: {
- 			bottom: 20
- 		}
- 	},
- 	fill: {
- 		type: "gradient",
- 		gradient: {
- 			shade: "light",
- 			type: "horizontal",
- 			shadeIntensity: .25,
- 			gradientToColors: void 0,
- 			inverseColors: !0,
- 			opacityFrom: .75,
- 			opacityTo: .75,
- 			stops: [0, 0, 0]
- 		}
- 	}, yaxis: [{
- 		title: {
- 			text: "Net Revenue"
- 		}
- 	}, {
- 		opposite: !0,
- 		title: {
- 			text: "Number of Sales"
- 		}
- 	}]
- };
-
+                 		{
+                 			name: "Sales",
+                 			type: "line",
+                 			data: orderCountData
+                 		}
+                     	],
+                     	chart: {
+                     		height: 378,
+                     		type: "line"
+                     	},
+                     	stroke: {
+                     		width: [1, 2]
+                     	},
+                     	plotOptions: {
+                     		bar: {
+                                 columnWidth: "10%",
+                                 distributed:true
+                     		}
+                     	},
+                         colors: ['#41B883', '#E46651', '#f7b84b','#6658dd'],
+                     	dataLabels: {
+                     		enabled: !0,
+                     		enabledOnSeries: [1]
+                     	},
+                     	labels: labelsArray,
+                     	xaxis: {
+                     		type: "string"
+                     	},
+                     	legend: {
+                     		offsetY: 7
+                     	},
+                     	grid: {
+                     		padding: {
+                     			bottom: 20
+                     		}
+                     	},
+                     	fill: {
+                     		type: "gradient",
+                     		gradient: {
+                     			shade: "light",
+                     			type: "horizontal",
+                     			shadeIntensity: .25,
+                     			gradientToColors: void 0,
+                     			inverseColors: !0,
+                     			opacityFrom: .75,
+                     			opacityTo: .75,
+                     			stops: [0, 0, 0]
+                     		}
+                     	}, yaxis: [{
+                     		title: {
+                     			text: "Net Revenue"
+                     		}
+                     	}, {
+                     		opposite: !0,
+                     		title: {
+                     			text: "Number of Sales"
+                     		}
+                     	}]
+                    };
                     var chart = new ApexCharts(document.querySelector("#sales-analytics1"), options);
                     chart.render();
-
                 }
                 function setFilterName(filter)
                 {
@@ -604,8 +876,8 @@
                     window.location.href="<%- superadminpath %>?filterName="+filterName
                 }
                 $( ".target" ).change(function() {
-  getFilter();
-});
+                    getFilter();
+                });
 
            </script>
         
