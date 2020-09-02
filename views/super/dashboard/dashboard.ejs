@@ -183,7 +183,7 @@
                                 <label>Restaurants<small>(Get Sales Analytics / Revenue Overview / Rating Overview)</small></label>
                                     <div class="input-group">
 
-                                        <select id="cname" class="form-control" name="cname" class="target">
+                                        <select id="cname" class="form-control" name="cname" onchange="getFilter()" class="target">
                                            <% for(var i=0;i<findData.length;i++){ %>
                                            <option value="<%= findData[i].id %>"><%= findData[i].companyName %></option>
                                            <% } %>
@@ -334,6 +334,7 @@
         <%- include('../partials/script'); -%>
         <%- include('../partials/commonJs'); -%>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.3/Chart.min.js"></script>
+        
         <script>
             /*
             *@role Get Top List Restaurants
@@ -663,6 +664,7 @@
             getFilter()
             function getFilter()
             {
+                
                 var fromDate=""
                 var toDate=""
                 var rangeDatePicker=[]
@@ -707,7 +709,7 @@
                 
                 function setTotalRevenue(target,paymentStat)
                 {
-                    console.log(target,"target");
+                    $("#total-revenue1").html('');
                     var sum=0
                     var escrow=0
                     var escrow=0
@@ -726,6 +728,7 @@
                     }
 
                     var achratget=target-count
+
                     if(achratget>=0) $('#sucessTarget').show()
                      else $('#failedTarget').hide()
                     $('#totalSales').html('<%-CURRENCY%>'+sum.toFixed(2))
@@ -734,8 +737,14 @@
                     $('#expTarget').html(achratget)
 
                     
-                   var revenuPer= (count/target)*100
-
+                   var revenuPer= (count/target)*100;
+                   
+                   if(isNaN(revenuPer))
+                   {
+                    var revenuPer= 0;
+                   }else{
+                    var revenuPer= revenuPer;
+                   }
                     var options = {
                       chart: {
                         height: 200,
@@ -748,14 +757,16 @@
                       colors:["#1abc9c","#4a81d4"]
                     }
 
-                    var chart = new ApexCharts(document.querySelector("#total-revenue1"), options);
-                    chart.render();
+                    var chartApex = new ApexCharts(document.querySelector("#total-revenue1"), options);
+                    chartApex.render();
                     $('#escrow').html(revenuPer)
                 }
                 function setRatingsBar(data)
                 {
+                    console.log(data);
+                    $("#apex-bar").html('');
                     var  options={chart:
-                {height:320,
+                    {height:320,
                     type:"bar",
                     toolbar:{show:!1}},
                     plotOptions:{bar: {horizontal:!0,distributed: true}},
@@ -767,14 +778,13 @@
                     states:{hover:{filter:"none"}},
         
                     grid:{borderColor:"#f1f3fd"}}
-                    
-                    chart=new ApexCharts(document.querySelector("#apex-bar"),options).render();
-
-
+                  
+                    var charts=new ApexCharts(document.querySelector("#apex-bar"),options).render();         
                 }
 
                 function setAnalytics(data)
                 {
+                    $("#sales-analytics1").html('');
                     var paymentData=[]
                     var labels=[""]
                     var paymentData=[]
@@ -867,17 +877,10 @@
                      		}
                      	}]
                     };
-                    var chart = new ApexCharts(document.querySelector("#sales-analytics1"), options);
-                    chart.render();
+                    var chartApex = new ApexCharts(document.querySelector("#sales-analytics1"), options);
+                    chartApex.render();
                 }
-                function setFilterName(filter)
-                {
-                    filterName=filter
-                    window.location.href="<%- superadminpath %>?filterName="+filterName
-                }
-                $( ".target" ).change(function() {
-                    getFilter();
-                });
+
 
            </script>
         

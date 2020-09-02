@@ -1,7 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../partials/header'); -%>
+<style type="text/css">
+.car-dekho-main .car-dekho-main-head-inner {
+    width: 100%;
+    background: #fff;
+     font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+        display: flex;
+    align-items: center;
+    min-height: 104px;
+    justify-content: center;
 
+}
+.car-dekho-main-border {
+     border: 1px solid #ddd;
+     box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.2);
+}
+.car-dekho-main-head-inner  img {
+    max-width: 110px;
+    display: inline-block;
+    margin-left: 8px;
+}
+.car-dekho-main-border .car-dekho-main-body-inner {
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    vertical-align: middle;
+    width: 100%;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    height: 55px;
+}
+.car-dekho-main-body-inner:nth-child(even){
+    background: #f5f5f5;
+}
+.car-dekho-main-head, .car-dekho-main-body {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+.car-dekho-main-head, .car-dekho-main-body .car-dekho-main-body-inner:nth-child(1) {
+    border-right: 1px solid #ddd;
+}
+.car-dekho-main-border-inner {
+    width: 25%;
+}
+.car-dekho-main-border {
+    display: flex;
+    flex-wrap: wrap;
+}
+</style>
 <body class="loading">
     <!-- Begin page -->
     <div id="wrapper">
@@ -17,10 +73,10 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Companies</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Restaurants</a></li>
                                         </ol>
                                     </div>
-                                    <h4 class="page-title">Companies</h4>
+                                    <h4 class="page-title">Restaurants</h4>
                                 </div>
                             </div>
                         </div>     
@@ -49,8 +105,11 @@
                                                 </div>
                                             </form>
                                         </div> -->
+
                                         <div class="col-lg-12">
+                                            <input type="hidden" name="selectCompany" value="" id="selectCompany">
                                             <div class="text-lg-right mt-3 mt-lg-0">
+                                                <a href="javascript:;" onclick="compareCompany()"><button type="button" class="btn btn-info waves-effect waves-light mr-1" >Compare Restaurants</button></a>
                                                 <a href="<%- superadminpath %>company/add"><button type="button" class="btn btn-danger waves-effect waves-light mr-1"><i class="mdi mdi-plus-circle mr-1"></i> Add New</button></a>
                                             </div>
                                         </div><!-- end col-->
@@ -73,6 +132,7 @@ if(data==undefined || data==null || data=='{}' || data.length==0) {%>
                         <%for(var t=0;t<data.length;t++) {%>
                         <div class="col-lg-4">
                                 <div class="card-box bg-pattern">
+                                    <input type="checkbox" name="compare"  value="<%= data[t].id %>" class="checkbox" id="compare"><span style="margin-left: 5px;">Add to Compare</span>
                                     <div class="text-center">
                                         <% if (! data[t].logo1) { %>
                                         <img src="/dist/assets/images/users/user-1.jpg" class="rounded-circle img-thumbnail avatar-xl">
@@ -134,6 +194,29 @@ if(data==undefined || data==null || data=='{}' || data.length==0) {%>
 
 
         </div>
+        <!-- Long Content Scroll Modal -->
+                                       <!-- Full width modal content -->
+                                        <div id="full-width-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fullWidthModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-full-width">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="fullWidthModalLabel">Compare Restaurants</h4>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                         <div class="car-dekho-main">
+                                                        <div class="container">
+                                                            
+                                                        </div>
+                                                     </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                                                        
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal-dialog -->
+                                        </div><!-- /.modal -->
         <!-- END wrapper -->
         <%- include('../partials/script'); -%>
           <%- include('../partials/commonJs'); -%>
@@ -147,7 +230,92 @@ if(data==undefined || data==null || data=='{}' || data.length==0) {%>
         console.log('search>>>>');
         setTimeout(function () { getSearch(1) }, 800);
     });
+    $('.checkbox').click(function() {
+        var favorite = [];
+        $.each($("input[name='compare']:checked"), function(){
+            favorite.push($(this).val());
+        });
+        if(favorite.length > 3)
+        {
+            showToastError("Sorry! Maximum three restaurants are allowed to compare!");
+            return false;
+        }
+        $('#selectCompany').val(favorite);
+        
+    });
 
+    /**
+    *@role Compare Resturants
+    */
+    function compareCompany() 
+    {
+        var id = $('#selectCompany').val();
+        var array = id.split(",");
+        if(array.length == 1)
+        {
+            showToastError("Sorry! Minimum two restaurants are allowed to compare!");
+            return false;
+        }
+        $('#full-width-modal').modal('show');
+        $.ajax({
+            type: 'POST',
+            url: '<%-superadminpath %>compareRestaurants',
+            dataType: 'json',
+            data: { 'restaurantId': array },
+            success: function (response) {
+                console.log(response);
+              
+                if (response.code == '200') {
+                    var data = response.body;
+                    var html = "";
+                    html +=  '<div class="car-dekho-main-border">';
+                    html +=  '<div class="car-dekho-main-border-inner">';
+                    html +=  '<div class="car-dekho-main-head-inner">Basic Information</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Rating</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Total Orders</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Maximum Today Orders</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Food Quantity Rating</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Food Quality Rating</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Packing Pres Rating</div></div>';
+                    for (var i = 0; i < data.length; i++) {
+                        html +=  '<div class="car-dekho-main-border-inner">';
+                        html +=  '<div class="car-dekho-main-head-inner">';
+                        html +=  ''+data[i].companyName+'<img class="hover" title="'+data[i].companyName+'" alt="'+data[i].companyName+'" src="'+data[i].logo1+'" style="height: 73px;width: 61px;">';
+                        html +=  '</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].rating+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].totalOrders+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].totalOrders24+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].foodQuantityRating+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].foodQualityRating+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].packingPresRating+'</div>';
+                        html +=  '</div>';
+                    }
+                    html +=  '</div>';
+                    
+
+                    $('.container').html(html);
+                    if(data.length == '2')
+                    {
+                        console.log(data.length)
+                        $(".car-dekho-main-border-inner").attr("style", "width: 33% !important");
+                    }else{
+                        console.log(data.length,'fsdgd')
+                        $('.car-dekho-main-border-inner').css('width','25%');
+                    }
+                }
+                else {
+
+                    showToastError(response.message)
+                }
+            },
+
+            error: function (response) {
+                showToastError(response.message)
+
+            }
+        });
+
+    }
 
     function StatusChange(id, status) {
 
