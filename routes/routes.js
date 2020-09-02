@@ -52,6 +52,11 @@ const jwt = require('jsonwebtoken');
  RECMEDIA=db.models.recipeMedia
  RECCAT=db.models.recipeCategories
  RELIKE=db.models.recipeLike
+ TAGS=db.models.tags
+ STAFFWALLET=db.models.staffWallet
+ COMISSION=db.models.comission
+ COMISSIONHISTORY=db.models.comissionHistory
+ PAYMENTSETUP=db.models.paymentSetup
 
  
 

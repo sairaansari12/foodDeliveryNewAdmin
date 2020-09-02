@@ -19,7 +19,26 @@ app.get('/',adminAuth, async (req, res, next) => {
     }else{
       var inst = [];
     }
-    return res.render('admin/ordersetting/tags.ejs',{tags:inst });
+
+
+
+    const tagsData = await TAGS.findAll({
+      where: {
+        companyId: req.parentCompany,
+      }
+    });
+
+
+    const compTags = await COMPANY.findOne({
+      attributes:['tagsIncluded'],
+      where: {
+        id: req.id,
+      }
+    });
+
+    
+
+    return res.render('admin/settings/tags.ejs',{tags:inst,tagsData: tagsData,compTags});
   } catch (e) {
     return responseHelper.error(res, e.message, 400);
   }
@@ -47,8 +66,20 @@ app.post('/addTag',adminAuth, async (req, res, next) => {
         }
       }
       //Update Instruction
+      var upatedTags=""
+      if(data.tags && data.tags!="") 
+    { 
+      var tags=data.tags
+      if(typeof data.tags=='string')
+       tags=[data.tags]
+      
+      upatedTags=JSON.stringify(tags)
+
+    }
       const users = await COMPANY.update({
-        tags: JSON.stringify(mainArray)
+        tags: JSON.stringify(mainArray),
+        tagsIncluded: upatedTags
+
       },
       {
         where: {

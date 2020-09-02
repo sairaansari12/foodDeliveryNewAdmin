@@ -229,7 +229,8 @@ if(parseInt(value.progressStatus)>=8) display ="inline"
             {
                 $('#loading1').hide()
 
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });

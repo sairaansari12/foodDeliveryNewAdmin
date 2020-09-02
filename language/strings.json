@@ -39,15 +39,15 @@
     "fav_success" :"Added to favourite succesfully",
     "wrong_format" :"Date format is wrong",
     "add_service" :"Service added successfully",
-    "coupan_applied":"Coupan Applied Successfully",
-    "invalid_coupan":"Invalid Coupan",
-    "coupan_removed":"Coupan removed successfully",
-    "add_coupan" :"Coupan added successfully",
+    "coupan_applied":"Coupon Applied Successfully",
+    "invalid_coupan":"Invalid Coupon",
+    "coupan_removed":"Coupon removed successfully",
+    "add_coupan" :"Coupon added successfully",
     "session_expired" :"Session has been expired",
     "no_item_cart" :"No items in cart",
     "exceeded_limit" : "You have exceeded promocode usage imit",
     "add_emp_success" :"Employee added successfully",
-    "minimum_limit" :"Order price is not valid to redeem this Coupan",
+    "minimum_limit" :"Order price is not valid to redeem this coupon",
     "same_order_present" :"You already have booked slot for same date and time",
     "all_slots_full" :"Sorry, you are little bit late ,all slots are full now",
     "rating_added" :"Your feedback submitted successfully",
@@ -76,7 +76,10 @@
     "order_mark_complete":" has marked completed",
     "query_save" :"Your query is successfully sent to admin, Admin will contact you soon",
     "some_entries_wrong" :"Dome entries are not properly imported due to data inconsistenecy",
-    "import_success" :"Data imported successfully"
+    "import_success" :"Data imported successfully",
+    "charge_update_success" :"Charges updated successfully",
+    "payment_success" :"Amount for this order paid successfully"
+
 
 
 }

@@ -24,15 +24,20 @@ PAYMENT.belongsTo(ORDERS,{foreignKey: 'orderId'})
 
 app.post('/create',checkAuth,async (req, res, next) => {
   const params = req.body;
+  var paymentType = 1;
+
   var days=['sun','mon','tue','wed','thu','fri','sat']
 
 var promoCodeApplied=""
   let responseNull=  commonMethods.checkParameterMissing([params.serviceDateTime,params.addressId,params.deliveryType,params.serviceCharges,params.companyId,params.usedLPoints,params.LPointsPrice])
   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
    
+
+  if(params.paymentType && params.paymentType!="")
+  paymentType=params.paymentType
   
   try{
-		const findData = await PAYMENT.findOne({where: {userId: req.id,transactionStatus: 2},order: [
+		const findData = await PAYMENT.findOne({where: {userId: req.id,transactionStatus: 2,paymentType: 1},order: [
       ['createdAt','DESC']
     ],})  
       
@@ -131,6 +136,21 @@ const coupanDetails = await COUPAN.findOne({
  }
 
 
+var cookingInstMedia=""
+ if (req.files) {
+  ImageFile = req.files.cookingInstMedia;    
+  cookingInstMedia = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+  ImageFile.mv(config.UPLOAD_DIRECTORY +"cooking/"+ cookingInstMedia, function (err) {
+      //upload file
+      if (err)
+      responseHelper.error(res,err.message,400)
+     // return res.json(jsonResponses.response(0, err.message, null));
+  });
+  }
+
+
+
+
  //const cOrderData=null
     const cOrderData = await ORDERS.create({
 	
@@ -146,10 +166,12 @@ const coupanDetails = await COUPAN.findOne({
       deliveryType: params.deliveryType,
       tip: params.tip,
       cookingInstructions: params.cookingInstructions,
+      cookingInstMedia:cookingInstMedia,
       deliveryInstructions: params.deliveryInstructions,
       pickupInstructions: params.pickupInstructions,
       LPointsPrice:params.LPointsPrice,
-      usedLPoints:params.usedLPoints
+      usedLPoints:params.usedLPoints,
+      paymentType:paymentType,
 
 
       })  
@@ -163,7 +185,7 @@ const coupanDetails = await COUPAN.findOne({
   if(data)
   
   {
-    paymentEntry(req.id,params.companyId,cOrderData.dataValues.id,totalPrice)
+    paymentEntry(req.id,params.companyId,cOrderData.dataValues.id,totalPrice,paymentType)
     subtractBookingsCount(slotdata,countDataq.totalQuantity,params.serviceDateTime,dayCount,params.companyId)
      //sendNotification(req,params,totalPrice,cOrderData.dataValues.id)
      updateUserTye(req.id)
@@ -382,11 +404,9 @@ app.post('/paymentStatus',checkAuth,async(req,res,next) => {
     if(params.status=="1") {
       paymentState=1
       CART.destroy({where:{userId: req.id}})
-        
+  
       UpdateLoyalityPoints(req.id,orderData.dataValues.usedLPoints,orderData.dataValues.companyId)
-      sendNotification(req,orderData.dataValues.serviceDateTime,orderData.dataValues.totalOrderPrice,orderData.dataValues.id,1,orderData.dataValues.companyId)
-
-        
+      sendNotification(req,orderData.dataValues.serviceDateTime,orderData.dataValues.totalOrderPrice,orderData.dataValues.id,1,orderData.dataValues.companyId)  
     }
     else{
       sendNotification(req,orderData.dataValues.serviceDateTime,orderData.dataValues.totalOrderPrice,orderData.dataValues.id,2,orderData.dataValues.companyId)
@@ -459,7 +479,7 @@ app.post('/paymentStatus',checkAuth,async(req,res,next) => {
 });
 
 
-function paymentEntry(userId,companyId,orderId,amount)
+function paymentEntry(userId,companyId,orderId,amount,paymentType)
 {
 
   try{
@@ -468,10 +488,21 @@ function paymentEntry(userId,companyId,orderId,amount)
     userId: userId,
     companyId: companyId,
     orderId:orderId ,
-    amount:amount
+    amount:amount,
+    paymentType:paymentType
 
    
     })  
+
+if(paymentType==2){
+
+  CART.destroy({where:{userId: userId}})
+
+}
+
+
+
+
   }
   catch(e)
   {console.log(e)}
@@ -570,7 +601,16 @@ app.get('/list',checkAuth,async (req, res) => {
         {model: db.models.address , attributes: ['id','addressName','addressType','houseNo','latitude','longitude','town','landmark','city'] } ,
         {model: COMPANY , attributes: ['latitude','longitude'],required:true},
         {model: ORDERSTATUS , attributes: ['statusName','status']},
-        {model: PAYMENT , attributes: ['transactionStatus'],where:{transactionStatus:1},requird:true},
+        {model: PAYMENT , attributes: ['transactionStatus'],where:{
+          [Op.or]:[
+            
+        {paymentType:1, transactionStatus:1},
+         { paymentType:2}
+        
+      
+      ]
+    
+      },requird:true},
         {model: SUBORDERS , attributes: ['id','serviceId','quantity'],
         include: [{
           model: SERVICES,
@@ -642,6 +682,7 @@ for(var p=0;p<orderData.suborders.length;p++)
 {
 
   var orderTotalPrice=parseFloat(orderData.suborders[p].service.price)* parseInt(orderData.suborders[p].quantity)
+ 
   await CART.create({
     serviceId: orderData.suborders[p].serviceId,
     orderPrice :orderData.suborders[p].service.price,

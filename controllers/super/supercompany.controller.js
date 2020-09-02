@@ -107,14 +107,14 @@ app.post('/add',superAuth,async (req, res) => {
     var logo3 = "";
 
 
-    let responseNull= commonMethods.checkParameterMissing([data.companyName,data.email,data.address1,data.phoneNumber,data.password])
+    let responseNull= commonMethods.checkParameterMissing([data.companyName,data.email,data.address,data.phoneNumber,data.password])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
     const newPassword = await hashPassword.generatePass(data.password);
 
     //Uploading Comapny Images
     if (req.files) {
-      var ImageFile = req.files.image;
+      var ImageFile = req.files.logo1;
       if(ImageFile)
       {
         logo1 = Date.now() + '_' + ImageFile.name;
@@ -124,7 +124,7 @@ app.post('/add',superAuth,async (req, res) => {
             return responseHelper.error(res, err.message, 400);
         });
       }
-      var ImageFile2 = req.files.image2;
+      var ImageFile2 = req.files.logo2;
       if(ImageFile2)
       {
           logo2 = Date.now() + '_' + ImageFile2.name;
@@ -134,7 +134,7 @@ app.post('/add',superAuth,async (req, res) => {
             return responseHelper.error(res, err.message, 400);
         });
       }
-      var ImageFile3 = req.files.image3;
+      var ImageFile3 = req.files.logo3;
       if(ImageFile3)
       {
         logo3 = Date.now() + '_' + ImageFile3.name;
@@ -150,39 +150,24 @@ app.post('/add',superAuth,async (req, res) => {
         email: data.email }
     });
     if (!user) {
-      // if(logo1 == "")
-      // {
-      //   logo1 = user.dataValues.logo1;
-      // }
-      // if(logo2 == "")
-      // {
-      //   logo2 = user.dataValues.logo2;
-      // }
-      // if(logo3 == "")
-      // {
-      //   logo3 = user.dataValues.logo3;
-      // }
       //update Record
       const users = await COMPANY.create({
-          companyName: data.companyName,
-          email: data.email,
-          address1: data.address1,
-          address2: data.address2,
-          address1LatLong: data.address1LatLong,
-          address2LatLong: data.address2LatLong,
-          websiteLink: data.websiteLink,
-          logo1:logo1,
-          logo2:logo2,
-          logo3:logo3,
-          password:newPassword,
-          parentId: req.id,
-          phoneNumber: data.phoneNumber,
-          countryCode: data.countryCode,
-        });
-     
-  
-        responseHelper.post(res, appstrings.company_add, null,200);
-      
+        companyName: data.companyName,
+        email: data.email,
+        address1: data.address,
+        websiteLink: data.websiteLink,
+        logo1:logo1,
+        logo2:logo2,
+        logo3:logo3,
+        password:newPassword,
+        parentId: req.id,
+        tags: '',
+        phoneNumber: data.phoneNumber,
+        countryCode: data.countryCode,
+        latitude: data.latitude,
+        longitude: data.longitude,
+      });
+      return responseHelper.post(res, appstrings.company_add, null,200);
     }
       else  responseHelper.post(res, appstrings.already_exists, 204);
   } catch (e) {
@@ -199,13 +184,13 @@ app.post('/update',superAuth,async (req, res) => {
     var logo2 = "";
     var logo3 = "";
   var password=""
-    let responseNull= commonMethods.checkParameterMissing([data.companyId,data.companyName,data.email,data.address1,data.phoneNumber,data.password])
+    let responseNull= commonMethods.checkParameterMissing([data.companyId,data.companyName,data.email,data.address,data.phoneNumber])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
     //const newPassword = await hashPassword.generatePass(data.password);
     //Uploading Comapny Images
     if (req.files) {
-      var ImageFile = req.files.image;
+      var ImageFile = req.files.logo1;
       if(ImageFile)
       {
         logo1 = Date.now() + '_' + ImageFile.name;
@@ -215,7 +200,7 @@ app.post('/update',superAuth,async (req, res) => {
             return responseHelper.error(res, err.message, 400);
         });
       }
-      var ImageFile2 = req.files.image2;
+      var ImageFile2 = req.files.logo2;
       if(ImageFile2)
       {
           logo2 = Date.now() + '_' + ImageFile2.name;
@@ -225,7 +210,7 @@ app.post('/update',superAuth,async (req, res) => {
             return responseHelper.error(res, err.message, 400);
         });
       }
-      var ImageFile3 = req.files.image3;
+      var ImageFile3 = req.files.logo3;
       if(ImageFile3)
       {
         logo3 = Date.now() + '_' + ImageFile3.name;
@@ -240,14 +225,6 @@ app.post('/update',superAuth,async (req, res) => {
       where :{id :data.companyId }
     });
     if (user) {
-
-      console.log(data.password+">>>>>>>>>>>"+user.dataValues.password)
-
-      const match =(data.password==user.dataValues.password);
-
-      console.log(">>>>>>>>>>>"+match)
-if(!match) password=await hashPassword.generatePass(data.password); 
-else  password=user.dataValues.password 
 
       if(logo1 == "")
       {
@@ -265,17 +242,15 @@ else  password=user.dataValues.password
       const users = await COMPANY.update({
           companyName: data.companyName,
           email: data.email,
-          address1: data.address1,
-          address2: data.address2,
-          address1LatLong: data.address1LatLong,
-          address2LatLong: data.address2LatLong,
+          address1: data.address,
           websiteLink: data.websiteLink,
           logo1:logo1,
           logo2:logo2,
           logo3:logo3,
-          password:password,
           phoneNumber: data.phoneNumber,
           countryCode: data.countryCode,
+          latitude: data.latitude,
+          longitude: data.longitude,
         },
         {
           where :{id :data.companyId }

@@ -202,6 +202,13 @@ loginstatus: {
       },
 
 
+      walletBalance: {
+        type: DataTypes.FLOAT(10),
+        allowNull: false,
+        defaultValue: 0
+      },
+
+
     createdAt: {
       type: DataTypes.INTEGER(11),
       allowNull: false,

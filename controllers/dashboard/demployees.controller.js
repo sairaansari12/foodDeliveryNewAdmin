@@ -7,12 +7,10 @@ const SERVICES = db.models.services
 const Op = require('sequelize').Op;
 const STAFFROLE= db.models.staffRoles;
 EMPLOYEE.belongsTo(STAFFROLE,{foreignKey: 'role'})
-function isAdminAuth(req, res, next) {
-  if(req.session.userData){
-    return next();
-  }
-  return res.redirect('/company');
-}
+STAFFWALLET.belongsTo(ORDERS,{foreignKey: 'orderId'})
+
+
+
 
 app.get('/',adminAuth, async (req, res, next) => {
     
@@ -604,6 +602,9 @@ app.get('/view/:id',adminAuth,async(req,res) => {
     })
     
 
+
+    
+
     var pStatus= await ORDERSTATUS.findAll({companyId:req.parentCompany});
 
       return res.render('admin/employees/viewEmployee.ejs',{data:findData,roletypess,options:pStatus,ratings:ratingData});
@@ -619,6 +620,173 @@ app.get('/view/:id',adminAuth,async(req,res) => {
 
  
 });
+
+
+
+app.get('/wallet',adminAuth, async (req, res, next) => {
+    var params=req.query
+    var empId=params.empId
+  try {
+      const findData = await EMPLOYEE.findOne({
+      where :{id :empId},
+      });
+   
+
+     return res.render('admin/employees/walletHistory.ejs',{empData:findData});
+
+
+    } catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+
+
+});
+
+
+
+app.post('/wallet/history',adminAuth, async (req, res, next) => {
+  
+  try {
+    var params=req.body
+    var payType =  ['0','1']
+    var fromDate =  ""
+    var toDate =  ""
+    var empId=params.empId
+
+    
+    let responseNull=  common.checkParameterMissing([empId])
+    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+  
+  
+  
+    var page =1
+    var limit =50
+    if(params.page) page=params.page
+    if(params.limit) limit=parseInt(params.limit)
+    var offset=(page-1)*limit
+  
+  
+    if(params.payType && params.payType!="")  payType=[params.payType]
+  
+    where={companyId: req.companyId,
+      payType: { [Op.or]: payType},
+      empId : empId
+       }
+  
+  
+    if(params.fromDate)fromDate= Math.round(new Date(params.fromDate).getTime())
+    if(params.toDate) toDate=Math.round(new Date(params.toDate).getTime())
+    
+  
+  if(fromDate!="" && toDate!="")
+  {
+    where= {companyId: req.companyId,
+      payType: { [Op.or]: payType},
+      createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
+      empId : empId
+
+         }
+  
+         
+  
+        }
+
+
+
+
+        if(params.search && params.search!="")
+        {
+    
+         where={ [Op.or]: [
+            {payType: {[Op.like]: `%${params.search}%`}},
+            {amount: { [Op.like]: `%${params.search}%` }}
+          
+          ],
+          companyId: req.id,
+          payType:  {[Op.or]: payType},
+          empId : empId
+
+        }
+    
+      }
+        
+
+
+
+  
+        const findData = await STAFFWALLET.findAndCountAll({
+          order: [
+            ['createdAt', 'DESC'],  
+        ],
+        where :where,
+        
+        include: [
+          {model: ORDERS , attributes: ['id','createdAt','orderNo']},       
+        ],
+        distinct:true,
+        offset: offset, limit: limit ,
+  
+      });
+  
+  
+    
+      return responseHelper.post(res, appstrings.success, findData);
+  
+    } catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+  
+  
+  });
+  
+
+  app.post('/depositAmount',adminAuth,async (req, res) => {
+    var params=req.body
+
+    try{
+        let responseNull=  commonMethods.checkParameterMissing([params.empId,params.amount])
+        if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+       
+      
+
+          STAFFWALLET.create({empId:params.empId,payType:1, companyId: req.id,amount:params.amount,orderId:""})
+         
+         var staffValues=await EMPLOYEE.findOne({attributes:['walletBalance'],where:{id:params.empId}});
+
+         var updatedResponse=null
+         if(staffValues && staffValues.dataValues)
+          {
+            var oldBalnce=staffValues.dataValues.walletBalance
+            var walletBalance=oldBalnce+parseFloat(params.amount)
+            updatedResponse=await   EMPLOYEE.update({walletBalance:walletBalance},{where:{id:params.empId}})
+
+           
+          }
+
+
+      if(updatedResponse)
+      return responseHelper.post(res, appstrings.payment_success,null,200);
+
+
+       else
+        return responseHelper.post(res, appstrings.oops_something,null,400);
+
+      
+    
+   
+         }
+           catch (e) {
+             return responseHelper.error(res, e.message, 400);
+           }
+    
+    
+    
+   
+  });
+
+
+
 
 
 

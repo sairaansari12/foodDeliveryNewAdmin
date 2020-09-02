@@ -249,7 +249,7 @@ app.post('/update',adminAuth,async (req, res) => {
         {
            icon = Date.now() + '_' + ImageFile.name;
 
-        ImageFile.mv(config.UPLOAD_DIRECTORY +"coupans/icons/"+ icon, function (err) {
+        ImageFile.mv(config.UPLOAD_DIRECTORY +"coupans/thumbnails/"+ icon, function (err) {
             //upload file
             if (err)
             return responseHelper.error(res, err.meessage, 400);   

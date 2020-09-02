@@ -231,7 +231,7 @@
        if(rangeDatePicker.length>1){ fromDate=rangeDatePicker[0];
       toDate=rangeDatePicker[1];}
 
-          var search = $('#search').val();
+       var search = $('#search').val();
       $('#loading1').show()
       $.ajax({
               type: 'POST',
@@ -255,7 +255,7 @@
   
   var ratingData =getRating(rating)
   
-  $('#avgRating').html(" ("+rating+") "+ ratingData)
+  $('#avgRating').html(" ("+rating.toFixed(1)+") "+ ratingData)
   
   
   appendPagination(currentPage,Math.ceil(data1.count/limit))
@@ -273,6 +273,8 @@
                     states:{hover:{filter:"none"}},
                     grid:{borderColor:"#f1f3fd"}};
                     
+                    $("#apex-bar").html("")
+
                     chart=new ApexCharts(document.querySelector("#apex-bar"),options).render();
 
 
@@ -299,7 +301,8 @@
   
                   $('#loading1').hide()
   
-                  showToastError(response.message)
+                  var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
   
               }
           });
@@ -376,10 +379,12 @@
       else $("#appendData").html('<div class="pad10A button-pane button-pane-alt text-center">No data avialable in table</div>')             
        
       var colors=["#1abc9c","#1abc9d"]
+
+
       for(var k=0;k<data.length;k++) 
 {
 
-    var  options={chart:
+                var  options={chart:
                 {height:130,
                     type:"bar",
                     toolbar:{show:!1}},
@@ -391,6 +396,7 @@
                     states:{hover:{filter:"none"}},
                     grid:{borderColor:"#f1f3fd"}};
                     
+
                     chart=new ApexCharts(document.querySelector("#apex-bar-"+data[k].id),options).render();
 
   
@@ -400,7 +406,7 @@
 
       
           }
-          function deleteReview(id)
+   function deleteReview(id)
           {
       
               if( confirm('Are you sure you want to delete this review ?'))
@@ -425,17 +431,15 @@
       
                   error :function(response)
                   {
-                      showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
       
                   }
               });
           }
           }
-         
-      
-      
-      
-          function appendPagination(currentPage,count)
+     
+ function appendPagination(currentPage,count)
       {
           var fd="";
           if (count >= 1) { 
@@ -484,17 +488,13 @@
              $("#append_pagination").html(fd)  
       }
     
-      
-        
-      
-      
-       
-      $('#search').on( 'keyup', function () {
+  $('#search').on( 'keyup', function () {
              setTimeout(function(){getList(1) },1000);
       } );
       
-      function sorting()
+  function sorting()
       {
+
      var order=$('#sortby-select').val();
      var finalValue=order.split("#")
      orderByInfo.orderby=finalValue[0]

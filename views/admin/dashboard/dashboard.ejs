@@ -86,7 +86,7 @@
                                     <div class="row">
                                         <div class="col-6">
                                             <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
-                                                <i class="mdi mdi-heart mdi-spin font-22 avatar-title text-primary"></i>
+                                                <i class="mdi mdi-currency-usd mdi-spin font-22 avatar-title text-primary"></i>
                                             </div>
                                         </div>
                                         <div class="col-6">
@@ -397,7 +397,7 @@ $('#filter'+filterName).addClass('btn-secondary')
                             setRatingsBar(data.ratingsData)
                             top5UsersData(data.top5UserStat)
                             setTopBar(data)
-                            if(countLoad==1)setAnalytics(data.revenuAnalytics)
+                           setAnalytics(data.revenuAnalytics)
 
                             setTotalRevenue(data.targetSales,data.paymentStat)
 
@@ -462,7 +462,7 @@ $('#filter'+filterName).addClass('btn-secondary')
   series: [revenuPer.toFixed(1)],
   colors:["#1abc9c","#4a81d4"]
 }
-
+$('#total-revenue1').html("")
 var chart = new ApexCharts(document.querySelector("#total-revenue1"), options);
 chart.render();
 
@@ -586,6 +586,7 @@ $('#mTotalOrders').html(totalOrders)
                 function setAnalytics(data)
                 {
 
+                    $("#sales-analytics1").html("")
 
           
 
@@ -700,6 +701,8 @@ $('#mTotalOrders').html(totalOrders)
 
 
 
+
+     
     var chart = new ApexCharts(document.querySelector("#sales-analytics1"), options);
     chart.render();
 
@@ -712,7 +715,8 @@ $('#mTotalOrders').html(totalOrders)
                 function setFilterName(filter)
                 {
 filterName=filter
-window.location.href="<%-adminpath%>?filterName="+filterName
+//window.location.href="<%-adminpath%>?filterName="+filterName
+getFilter()
                 }
 
               

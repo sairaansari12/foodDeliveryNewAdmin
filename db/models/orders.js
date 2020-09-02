@@ -186,10 +186,31 @@ cookingInstructions :
 
 
 
+cookingInstMedia: {
+  type: DataTypes.TEXT,
+  allowNull: false,
+  get() {
+    if(this.getDataValue('cookingInstMedia') && this.getDataValue('cookingInstMedia')!="")
+    return config.IMAGE_APPEND_URL+"cooking/"+this.getDataValue('cookingInstMedia')
+    else return ""
+
+},
+  defaultValue: ""
+},
+
+
 tip :
 {
   type: DataTypes.STRING(10),
   defaultValue :'0'
+},
+
+
+
+paymentType :
+{
+  type: DataTypes.STRING(10),
+  defaultValue :'1'
 },
 
 

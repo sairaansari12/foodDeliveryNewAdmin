@@ -740,10 +740,14 @@
          { "name": "companyId",  "in": "formData",  "required":true ,"type":"string"},
          { "name": "tip",  "in": "formData", "type":"string"},
          { "name": "cookingInstructions",  "in": "formData", "type":"string"},
+         { "name": "cookingInstMedia",  "in": "formData", "type":"file"},
          { "name": "deliveryInstructions",  "in": "formData", "type":"string"},
          { "name": "pickupInstructions",  "in": "formData", "type":"string"},
          { "name": "usedLPoints",  "in": "formData", "type":"string","required":true},
-         { "name": "LPointsPrice",  "in": "formData", "type":"string","required":true}
+         { "name": "LPointsPrice",  "in": "formData", "type":"string","required":true},
+         { "name": "paymentType",  "in": "formData", "type":"string","description":"1->Online, 2->Cash"}
+
+         
 
 
     ],
@@ -1014,6 +1018,7 @@
 
 
 
+
    "/api/delivery/auth/login": {
     "post": {
       "x-swagger-router-controller": "api/delivery/auth/login",
@@ -1088,6 +1093,28 @@
     }
   },
 
+  
+  "/api/delivery/profile/wallet/history": {
+    "post": {
+      "x-swagger-router-controller": "api/delivery/profile/wallet/history",
+      "operationId": "index",
+      "tags": ["Wallet transaction history"],
+      "description": "Authentication",
+      "parameters": [
+      { "name": "authorization",  "in": "header",  "required":"true" ,"type":"string"},
+    { "name": "fromDate",   "in": "formData",    "type": "string" },
+    { "name": "toDate" ,"in": "formData",  "type": "string" },
+    { "name": "page", "in": "formData", "type": "string" },
+    { "name": "limit",  "in": "formData",  "type": "string" },
+    { "name": "payType",  "in": "formData",  "type": "string" ,"description":"0->debit , 1->credit"}
+   
+   ],
+   "responses": {}
+   
+    }
+  },
+
+
 
   "/api/delivery/auth/markStatus": {
     "post": {
@@ -1132,6 +1159,24 @@
       "parameters": [
         { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
         { "name": "id",  "in": "path",  "required":true ,"type":"string"}
+
+   ],
+      "responses": {}
+    }
+  },
+
+
+
+  "/api/delivery/orders/cashCollected": {
+    "post": {
+      "x-swagger-router-controller": "/api/delivery/orders/cashCollected",
+      "operationId": "index",
+      "tags": ["Change Payment Status after collection money from customer"],
+      "description": "Order Payment  1->Success ,2 ->Failed",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
+        { "name": "orderId",  "in": "formData",  "required":true ,"type":"string"},
+        { "name": "amount",  "in": "formData",  "required":true ,"type":"string"}
 
    ],
       "responses": {}

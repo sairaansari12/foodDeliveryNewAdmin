@@ -553,7 +553,8 @@ $('#search').on( 'keyup', function () {
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });
@@ -590,7 +591,8 @@ $('#search').on( 'keyup', function () {
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });
@@ -622,7 +624,8 @@ $('#search').on( 'keyup', function () {
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });
@@ -655,7 +658,8 @@ $('#search').on( 'keyup', function () {
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });
@@ -788,7 +792,8 @@ dataAppend=dataAppend+'<a href="javascript:void(0);"  onclick="deleteCat(\''+dat
             {
                 $('#loading1').hide()
 
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });
@@ -928,7 +933,8 @@ dataAppend=dataAppend+'<a href="javascript:void(0);"  onclick="deleteProduct(\''
             {
                 $('#loading1').hide()
 
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });

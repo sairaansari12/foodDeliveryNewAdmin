@@ -343,7 +343,9 @@ function getFilter(page)
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
 
                 }
             });
@@ -397,7 +399,9 @@ function getFilter(page)
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
 
                 }
             });

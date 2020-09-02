@@ -20,9 +20,17 @@ function isAdminAuth(req, res, next) {
 */
 app.get('/', async (req, res, next) => {
     if(req.session.userData){
+      console.log(req.session.companyId)
+        const findData = await COMPANY.findAll({
+        where :{parentId :req.session.companyId},
+        order: [
+          ['companyName','ASC']
+        ],      
+
+        });
        //var data=await  getDashboardData("2020-04-10","2020-04-17",null,null,req.session.companyId)
         // return res.render(superadminfilepath+'index.ejs',{data:null});
-        return res.render(superadminfilepath+'dashboard.ejs',{data:null});
+        return res.render(superadminfilepath+'dashboard.ejs',{data:null,findData});
 
     }
 
@@ -38,7 +46,7 @@ app.get('/login', async (req, res, next) => {
 async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,companyId,parentCompany)
 {
     try {
-        
+        console.log("safsdfsdfsjsa",parentCompany)
         var fromDate =  ""
         var toDate =  ""
         var date = new Date();
@@ -47,7 +55,11 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
 
 
         var filterNameMain=[sequelize.literal(`DAY(createdAt)`), 'DAY']
-        var pStatus= await ORDERSTATUS.findAll({companyId:parentCompany});
+        var pStatus= await ORDERSTATUS.findAll({
+          where: {
+            companyId:parentCompany
+          }}
+          );
         progressStatus = pStatus.map(user => user.status);
         if(progressStatus1 && progressStatus1!="")  progressStatus=[progressStatus1]
        
@@ -112,11 +124,6 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
            where :orderWhere
       });
 
-
-
-
-
-      
           var ordersDataqDepthFull= await ORDERS.findAll({
             attributes: ['progressStatus',
               [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum'],
@@ -138,23 +145,13 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
               limit:5, offset:0
           });
           
-
-          
+      
           var ratings= await COMPANYRATING.findOne({
             attributes: ['rating',
               [sequelize.fn('AVG', sequelize.col('rating')), 'avgRating'],
               [sequelize.fn('COUNT', sequelize.col('rating')), 'count']],
               where:ratingWhere
           });
-          
-     
-         
-
-
-
-
-
-
           var paymentDataqdepth = await PAYMENT.findAll({
             attributes: ['paymentState',
               [sequelize.fn('sum', sequelize.col('amount')), 'totalSum'],
@@ -162,8 +159,6 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
             group: ['paymentState'],
             where :{companyId: companyId,createdAt: { [Op.lte]: lastDay,[Op.gt]: firstDay   }}});
 
-
-      
           // var userDataqDepth = await USER.findAll({
           //   attributes: ['id','status',
           //   filterNameMain,
@@ -188,54 +183,51 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
 
 //RatingsDatat
 
-var dataRating=await commonMethods.getCompAvgRating(companyId) 
-var ratingsData={}
+  var dataRating=await commonMethods.getCompAvgRating(companyId) 
+  var ratingsData={}
+  var rating = '0';
+  if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating) 
+  {
+    rating=dataRating.dataValues.totalRating
+  }
+  foodQuality=dataRating.dataValues.foodQuality
+  packingPres=dataRating.dataValues.packingPres
+  foodQuantity=dataRating.dataValues.foodQuantity
+  ratingsData.avgRating=rating
+  ratingsData.foodQuality=foodQuality
+  ratingsData.packingPres=packingPres
+  ratingsData.foodQuantity=foodQuantity
+    var userDtaa={}
+    userDtaa.ordersDataStat=JSON.parse(JSON.stringify(ordersDataqDepthFull))
+    userDtaa.revenuAnalytics=ordersDataqDepth
+    userDtaa.top5UserStat=top5UserStat
+    userDtaa.ratingStat=ratings
+    userDtaa.productStat=productStat
+    userDtaa.paymentStat=paymentDataqdepth;
+    if(targetSales)
+    {
+       userDtaa.targetSales=targetSales
+     }else{
+       userDtaa.targetSales= 0
+     }
+   
+    userDtaa.ratingsData=ratingsData   
+    // userDtaa.paymentDataStat=paymentDataqdepth
+    // userDtaa.userDataStat=userDataqDepth
+    // userDtaa.categoryDataStat=categoryDataq
+     userDtaa.totalOrders=userDtaa.ordersDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
+    
+    
+    
+     userDtaa.totalRevenue=userDtaa.ordersDataStat.map(item => item.totalSum).reduce(function(acc, val) { return acc + val; }, 0)
 
-if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating) 
-{rating=dataRating.dataValues.totalRating}
-foodQuality=dataRating.dataValues.foodQuality
-packingPres=dataRating.dataValues.packingPres
-foodQuantity=dataRating.dataValues.foodQuantity
-
-
-
-
-
-ratingsData.avgRating=rating
-ratingsData.foodQuality=foodQuality
-ratingsData.packingPres=packingPres
-ratingsData.foodQuantity=foodQuantity
-
-
-
-
-
-
-          var userDtaa={}
-          userDtaa.ordersDataStat=JSON.parse(JSON.stringify(ordersDataqDepthFull))
-          userDtaa.revenuAnalytics=ordersDataqDepth
-          userDtaa.top5UserStat=top5UserStat
-          userDtaa.ratingStat=ratings
-          userDtaa.productStat=productStat
-          userDtaa.paymentStat=paymentDataqdepth
-          userDtaa.targetSales=targetSales
-       userDtaa.ratingsData=ratingsData   
-          // userDtaa.paymentDataStat=paymentDataqdepth
-          // userDtaa.userDataStat=userDataqDepth
-          // userDtaa.categoryDataStat=categoryDataq
-           userDtaa.totalOrders=userDtaa.ordersDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
-          
-          
-          
-           userDtaa.totalRevenue=userDtaa.ordersDataStat.map(item => item.totalSum).reduce(function(acc, val) { return acc + val; }, 0)
-
-           // userDtaa.totalStatCategory=userDtaa.categoryDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
-         // userDtaa.totalStatPayment=userDtaa.paymentDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
-          // userDtaa.totalStatUser=userDtaa.userDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
-          // userDtaa.mainTotalOrder=(await ORDERS.findAll({where:{companyId:companyId}})).length
-          // userDtaa.mainTotalUser=(await USER.findAll({where:{companyId:companyId}})).length
-          // userDtaa.mainTotalPayment=(await PAYMENT.findAll({where:{companyId:companyId}})).length
-          // userDtaa.mainTotalCategory=(await CATEGORY.findAll({where:{companyId:companyId}})).length
+     // userDtaa.totalStatCategory=userDtaa.categoryDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
+   // userDtaa.totalStatPayment=userDtaa.paymentDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
+    // userDtaa.totalStatUser=userDtaa.userDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
+    // userDtaa.mainTotalOrder=(await ORDERS.findAll({where:{companyId:companyId}})).length
+    // userDtaa.mainTotalUser=(await USER.findAll({where:{companyId:companyId}})).length
+    // userDtaa.mainTotalPayment=(await PAYMENT.findAll({where:{companyId:companyId}})).length
+    // userDtaa.mainTotalCategory=(await CATEGORY.findAll({where:{companyId:companyId}})).length
 
           return  userDtaa
       
@@ -260,8 +252,9 @@ ratingsData.foodQuantity=foodQuantity
 
 app.post('/dashboard', superAuth,async (req, res, next) => {
   try{
-    var params=req.body
-    var data=await getDashboardData(params.fromDate,params.toDate,null,params.filterName,req.id,req.parentCompany)
+    var params=req.body;
+    var cc = params.cid;
+    var data=await getDashboardData(params.fromDate,params.toDate,null,params.filterName,cc,req.id)
     return responseHelper.post(res, appstrings.success,data,200);
   }
   catch(e)
@@ -283,7 +276,7 @@ app.post('/login',async(req,res,next) => {
             		}
                 })  
                 
-                  
+                  console.log(userData)
                 if(userData)
                {
                 
@@ -476,7 +469,233 @@ app.get('/forgotPassword', async (req, res, next) => {
 });
 
 app.get('/dashboard', async (req, res, next) => {
-  return res.render(superadminfilepath+'dashboard.ejs');
+  const findData = await COMPANY.findAll({
+        where :{parentId :req.id},
+        order: [
+          ['companyName','ASC']
+        ],      
+
+        });
+  return res.render(superadminfilepath+'dashboard.ejs',{findData});
+});
+
+/*
+*@role Get Top Restaurants
+*/
+app.get('/getToprestaurants', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+      attributes: ['companyName','rating'],
+      where :{parentId :req.id},
+      order: [
+        ['rating', 'DESC'],
+      ],
+      limit: 5
+  });
+  var labels = [];
+  var ratedata = [];
+  for (var i = 0; i < toprating.length; i++) {
+    labels.push(toprating[i].companyName);
+    if(toprating[i].rating == "")
+    {
+      ratedata.push('0');
+    }else{
+      ratedata.push(toprating[i].rating);
+    }
+  }
+  var MainRate = {};
+  MainRate.labels = labels;
+  MainRate.ratedata = ratedata;
+
+  //Orders Basis
+  var toporders = await COMPANY.findAll({
+      attributes: ['companyName','totalOrders'],
+      where :{parentId :req.id},
+      order: [
+        ['totalOrders', 'DESC'],
+      ],
+      limit: 5
+  });
+
+  var olabels = [];
+  var oratedata = [];
+  for (var i = 0; i < toporders.length; i++) {
+    olabels.push(toporders[i].companyName);
+    if(toporders[i].totalOrders == "")
+    {
+      oratedata.push('0');
+    }else{
+      oratedata.push(toporders[i].totalOrders);
+    }
+  }
+  var MainOrder = {};
+  MainOrder.labels = olabels;
+  MainOrder.ratedata = oratedata;
+ 
+  const data  = {};
+  data.topr   = toprating;
+  data.topo   = toporders;
+  data.rating = MainRate;
+  data.orders = MainOrder;
+
+  return responseHelper.post(res, appstrings.success,data,200);
+});
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+      attributes: ['companyName','rating'],
+      where :{parentId :req.id},
+      order: [
+        ['rating', 'ASC'],
+      ],
+      limit: 5
+  });
+  var labels = [];
+  var ratedata = [];
+  for (var i = 0; i < toprating.length; i++) {
+    labels.push(toprating[i].companyName);
+    if(toprating[i].rating == "")
+    {
+      ratedata.push('0');
+    }else{
+      ratedata.push(toprating[i].rating);
+    }
+  }
+  var MainRate = {};
+  MainRate.labels = labels;
+  MainRate.ratedata = ratedata;
+  //Orders Basis
+  var toporders = await COMPANY.findAll({
+      attributes: ['companyName','totalOrders'],
+      where :{parentId :req.id},
+      order: [
+        ['totalOrders', 'ASC'],
+      ],
+      limit: 5
+  });
+  var olabels = [];
+  var oratedata = [];
+  for (var i = 0; i < toporders.length; i++) {
+    olabels.push(toporders[i].companyName);
+    if(toporders[i].totalOrders == "")
+    {
+      oratedata.push('0');
+    }else{
+      oratedata.push(toporders[i].totalOrders);
+    }
+  }
+  var MainOrder = {};
+  MainOrder.labels = olabels;
+  MainOrder.ratedata = oratedata;
+
+  const data ={};
+  data.topr = toprating;
+  data.topo = toporders;
+  data.rating = MainRate;
+  data.orders = MainOrder;
+  return responseHelper.post(res, appstrings.success,data,200);
+});
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+      attributes: ['companyName','rating'],
+      where :{parentId :req.id},
+      order: [
+        ['rating', 'ASC'],
+      ],
+      limit: 5
+  });
+  //Orders Basis
+  var toporders = await COMPANY.findAll({
+      attributes: ['companyName','totalOrders'],
+      where :{parentId :req.id},
+      order: [
+        ['totalOrders', 'ASC'],
+      ],
+      limit: 5
+  });
+  const data ={};
+   data.topr = toprating;
+  data.topo = toporders;
+
+  return responseHelper.post(res, appstrings.success,data,200);
+});
+
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.get('/getrevenue', superAuth,async (req, res, next) => {
+  var companyId = req.id;
+  console.log(companyId);
+  //Rating Basis
+  var toprating = await COMPANY.findAll({
+    attributes: ['id','companyName','rating','totalOrders'],
+    where :{
+      parentId :req.id
+    },
+  });
+  var main    = [];
+  var NameC   = [];
+  var ratingC = [];
+  for (var i = 0; i < toprating.length; i++) {
+    var id = toprating[i].id;
+    var ordersDataqDepthFull= await ORDERS.findOne({
+      attributes: ['progressStatus',
+        [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum']],
+        where :{
+          companyId: id,
+          progressStatus: '5'
+        },
+    });
+    if(ordersDataqDepthFull)
+    {
+      ratingC.push(toprating[i].totalOrders)
+      NameC.push(toprating[i].companyName)
+      if(ordersDataqDepthFull.dataValues.totalSum == null)
+      {
+        main.push('0');
+      }else{
+        main.push(ordersDataqDepthFull.dataValues.totalSum);
+      }
+    }
+  }
+  var data      = {};
+  data.name     = NameC;
+  data.orders   = ratingC;
+  data.totalSum = main;
+  //console.log(main);
+  return responseHelper.post(res, appstrings.success,data,200);
+});
+
+/*
+*@role Get Bottom Restaurants
+*/
+app.post('/compareRestaurants',async (req, res, next) => {
+  var params=req.body;
+  var toprating = await COMPANY.findAll({
+    attributes: ['id','companyName','rating','totalOrders','startTime','endTime','deliveryType','totalOrders24','logo1','foodQuantityRating','foodQualityRating','packingPresRating'],
+    where :{
+      id :{
+        [Op.in]: params.restaurantId
+      }
+    },
+  });
+  return responseHelper.post(res, appstrings.success,toprating,200);
 });
 module.exports = app;
 

@@ -1,6 +1,7 @@
 
 const express = require('express');
 const app = express();
+const Op = require('sequelize').Op;
 
 
 
@@ -149,7 +150,96 @@ if(updatedResponse)
  
 })
 
+app.post('/wallet/history',checkAuth, async (req, res, next) => {
+  
+  try {
+    var params=req.body
+    var payType =  ['0','1']
+    var fromDate =  ""
+    var toDate =  ""
+   var empId=req.id
+    
+  
+    var page =1
+    var limit =50
+    if(params.page) page=params.page
+    if(params.limit) limit=parseInt(params.limit)
+    var offset=(page-1)*limit
+  
+  
+    if(params.payType && params.payType!="")  payType=[params.payType]
+  
+    where={
+      payType: { [Op.or]: payType},
+      empId : empId
+       }
+  
+  
+    if(params.fromDate)fromDate= Math.round(new Date(params.fromDate).getTime())
+    if(params.toDate) toDate=Math.round(new Date(params.toDate).getTime())
+    
+  
+  if(fromDate!="" && toDate!="")
+  {
+    where= {
+      payType: { [Op.or]: payType},
+      createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
+      empId : empId
 
+         }
+  
+         
+  
+        }
+
+
+
+
+        if(params.search && params.search!="")
+        {
+    
+         where={ [Op.or]: [
+            {payType: {[Op.like]: `%${params.search}%`}},
+            {amount: { [Op.like]: `%${params.search}%` }}
+          
+          ],
+         
+          payType:  {[Op.or]: payType},
+          empId : empId
+
+        }
+    
+      }
+        
+
+
+
+  
+        const findData = await STAFFWALLET.findAll({
+          order: [
+            ['createdAt', 'DESC'],  
+        ],
+        where :where,
+        
+        include: [
+          {model: ORDERS , attributes: ['id','createdAt','orderNo']},       
+        ],
+        distinct:true,
+        offset: offset, limit: limit ,
+  
+      });
+  
+  
+    
+      return responseHelper.post(res, appstrings.success, findData);
+  
+    } catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+  
+  
+  });
 
 
 

@@ -315,6 +315,66 @@ app.get('/userrole/delete/:id',adminAuth,async(req,res,next) => {
   }
 });
 
+
+app.get('/charges',adminAuth, async (req, res, next) => {
+  const findData = await SHIPMENT.findOne({
+    where: {
+      companyId: req.id
+    }
+  });
+  return res.render('admin/settings/charges.ejs',{data:findData});
+});
+
+
+app.post('/chargesUpdate',adminAuth,async (req, res) => {
+  try {
+    const params = req.body;
+    var chargesId=params.chargesId
+    let responseNull=  common.checkParameterMissing([params.extraDistanceCharges,params.freeUptoDistance, params.radius])
+  if(responseNull) return responseHelper.error(res, appstrings.required_field, 400);
+var response=null
+  if(chargesId!="")
+  {
+    response=await SHIPMENT.update(
+      {
+        radius: params.radius,
+        freeUptoDistance: params.freeUptoDistance,
+        extraDistanceCharges: params.extraDistanceCharges
+      },
+      {where: {
+        companyId: req.id,
+      
+      }}
+    );
+  }
+
+  else{
+    response= await SHIPMENT.create(
+      {
+        radius: params.radius,
+        freeUptoDistance: params.freeUptoDistance,
+        extraDistanceCharges: params.extraDistanceCharges,
+        companyId:req.id
+      },
+     
+    );
+
+  }
+  
+
+  if(response)
+  return responseHelper.post(res, appstrings.charge_update_success, null,200);
+else 
+return responseHelper.post(res, appstrings.oops_something, null,400);
+
+   
+  } catch (e) {
+    return responseHelper.error(res, e.message, null,400);
+  }
+
+})
+
+
 module.exports = app;
 
 //Edit User Profile

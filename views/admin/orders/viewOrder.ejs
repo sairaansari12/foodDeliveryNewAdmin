@@ -268,6 +268,12 @@
 
                                         <ul class="list-unstyled mb-0">
                                             <li>
+                                                <% 
+                                                var type="Online"
+                                                if(data.payment.paymentType == 2)  type="COD"
+                                               
+                                 %>
+                                                <p class="mb-2"><span class="font-weight-semibold mr-2">Payment Mode:</span><%-  type %></p>
                                                 <p class="mb-2"><span class="font-weight-semibold mr-2">Payment Type:</span><%-  data.payment.paymentMode %></p>
                                                 <p class="mb-2"><span class="font-weight-semibold mr-2">Transaction Id:</span><%-  data.payment.transactionId %></p>
                                                 <p class="mb-2"><span class="font-weight-semibold mr-2">Transaction Status:</span>
@@ -293,6 +299,15 @@
                                 <p class="sub-header">
                                    <%- data.cookingInstructions %>
                                 </p>
+
+
+                                <%
+                                if(data.cookingInstMedia && data.cookingInstMedia!=null && data.cookingInstMedia!=""){%>  
+                                <div class="mt-1 mb-2 ">
+                                    <a id="PlayLink" target="_blank"  href="<%-data.cookingInstMedia%>" onclick="pplayMusic(this, 'music_select');">Click here to watch cooking instructions</a>
+                                </div>
+                                <%}%>
+
                                 <h4 class="header-title">Delivery Instructions</h4>
                                 <% if(instructions){ %>
                                     <% for(var t=0;t<instructions.deliveryInstructions.length;t++){ %>
@@ -504,6 +519,7 @@
     
     <script src="/dist/assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js"></script>
     <script src="/dist/assets/js/pages/form-advanced.init.js"></script>
+    <script type="text/javascript" src="http://mediaplayer.yahoo.com/js"></script>
 
     <!-- Init js-->
     <script>
@@ -543,7 +559,8 @@
             error :function(response)
             {$('#loading1').hide();
 
-            toastr.error(response.message)
+            var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });
@@ -582,7 +599,8 @@
 
                     error :function(response)
                     {
-                        showToastError(response.message)
+                        var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                     }
                 });

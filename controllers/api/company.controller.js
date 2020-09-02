@@ -11,7 +11,7 @@ app.get('/getCompanies', checkAuth,async (req, res, next) => {
   try{
     var params=req.query
    var category=params.categoryId
-
+    var reqParam=false
    var lat=0
    var lng=0
    if(params.lat) lat=parseFloat(params.lat)
@@ -32,6 +32,21 @@ app.get('/getCompanies', checkAuth,async (req, res, next) => {
     //Get All Categories
     var newDate = moment(new Date()).format("MM/DD/YYYY");
 
+
+    where= {
+      status :1,
+      // validupto: {
+      //   [Op.gte]: newDate
+      // },
+      offerType:'overall'
+    
+    } 
+
+      if(params.discount && params.discount!="")
+    {  where.discount=params.discount
+      reqParam=true
+    }
+
     var findData = await COMPANY.findAll({
       attributes:[[sequelize.literal("6371 * acos(cos(radians("+lat+")) * cos(radians(latitude)) * cos(radians("+lng+") - radians(longitude)) + sin(radians("+lat+")) * sin(radians(latitude)))"),'distance'],'id','companyName','logo1','address1','startTime','endTime','rating',"tags",'totalOrders','totalOrders24'],
       where: {
@@ -40,13 +55,9 @@ app.get('/getCompanies', checkAuth,async (req, res, next) => {
       deliveryType: { [Op.or]: [params.deliveryType,2]},  
       itemType: { [Op.or]: itemType},    
       }, 
-      include:[{model:COUPAN,required:false,attributes:['discount','code','validUpto'],
-      where: {
-        status :1,
-        validupto: {
-          [Op.gte]: newDate
-        }
-      }}
+      include:[{model:COUPAN,required:reqParam,attributes:['discount','code','validUpto'],
+      where: where
+      }
     ] ,
     order: [sequelize.col('distance'),['createdAt','desc']],
     offset: offset, limit: limit

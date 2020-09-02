@@ -379,12 +379,30 @@ newBCond,
         offset: 0, limit: 5,
       })
 
-     //Banners
-    const banners = await BANNERS.findAll({
-      attributes: ['name','url'],
-      where:{companyId :req.parentCompany},
+    //  //Banners
+    // const banners = await BANNERS.findAll({
+    //   attributes: ['name','url'],
+    //   where:{companyId :req.parentCompany},
+    //   order: [
+    //     ['orderby','ASC']
+    //   ], 
+    //   offset: 0, limit: 5
+
+    // })
+
+
+
+     //Restro Offers
+    const restOffers = await COUPAN.findAll({
+      attributes: ['discount','name'],
+      where:{offerType :'overall',
+      status :1,
+      validupto: {
+        [Op.gte]: newDate
+      }},
+      group:['discount'],
       order: [
-        ['orderby','ASC']
+        ['discount','ASC']
       ], 
       offset: 0, limit: 5
 
@@ -442,7 +460,10 @@ dataVendor=dataVendor.slice(0, 8);
       vendors=vendors.slice(0, 6);
 
       userData.vendors = vendors
-      userData.banners = banners
+      userData.restOffers = restOffers
+
+      
+     // userData.banners = banners
       if(bestSeller.length>6) 
       bestSeller=bestSeller.slice(0, 6);
       userData.bestSeller = bestSeller

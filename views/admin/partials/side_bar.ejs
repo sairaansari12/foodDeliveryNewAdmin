@@ -97,12 +97,13 @@
           <span> Orders </span>
         </a>
       </li>
-      <li>
-          <a href="<%- adminpath %>payment">
-              <i data-feather="credit-card"></i>
-              <span> Payment </span>
-          </a>
-      </li>
+
+      
+
+
+
+
+     
       <li>
           <a href="#sidebarRating" data-toggle="collapse">
               <i data-feather="users"></i>
@@ -163,6 +164,10 @@
                 <li>
                     <a href="<%- adminpath %>settings">Settings & Documents</a>
                 </li>
+
+                <li>
+                    <a href="<%- adminpath %>settings/charges">Service Charges</a>
+                </li>
                 <li>
                     <a href="<%- adminpath %>profile/getprofile">Profile</a>
                 </li>
@@ -174,6 +179,8 @@
                     <a href="<%- adminpath %>tags">Tags</a>
                 </li>
 
+            
+
                 <!-- <li>
                     <a href="<%- adminpath %>settings/roles">Staff Roles</a> -->
                 </li>
@@ -184,6 +191,36 @@
         </div>
     </li>
     
+
+    <li>
+        <a href="#paySettings" data-toggle="collapse">
+            <i data-feather="credit-card"></i>
+            <span> Payment </span>
+            <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="paySettings">
+            <ul class="nav-second-level">
+                <li>
+                    <a href="<%- adminpath %>payment">Payment History</a>
+                </li>
+                <li>
+                    <a href="<%- adminpath %>payment/setup">Setup Account </a>
+                </li>
+
+                <li>
+                    <a href="<%- adminpath %>payment/comissionHistory">Comissions History </a>
+                </li>
+
+
+               
+                </ul>
+
+       </li>
+
+
+
+
+
     <li>
         <a href="#sidebarNotification" data-toggle="collapse">
             <i data-feather="bell"></i>

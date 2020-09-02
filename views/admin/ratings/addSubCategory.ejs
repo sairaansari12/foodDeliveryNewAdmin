@@ -276,7 +276,8 @@ function getSubCat(id)
 
             error :function(response)
             {
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });
@@ -319,7 +320,8 @@ function getSubCat(id)
 
             error :function(response)
             {
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });

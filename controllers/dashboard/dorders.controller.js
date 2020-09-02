@@ -722,6 +722,11 @@ app.get('/delete/:id',adminAuth,async(req,res,next) => {
             
           if(numAffectedRows>0)
           {
+
+
+            SUBORDERS.destroy({where:{orderId:req.params.id}})
+            PAYMENT.destroy({where:{orderId:req.params.id}})
+        
            req.flash('successMessage',appstrings.delete_success)
           return res.redirect(adminpath+"orders");
 

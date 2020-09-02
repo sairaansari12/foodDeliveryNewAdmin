@@ -86,6 +86,7 @@
                                                         <th >Order Date</th>
                                                         <th >Contact</th>
                                                         <th>Price (<%-CURRENCY%>)</th>
+                                                        <th >Payment mode</th>
                                                         <th >Order Status</th>
                                                         <th >Order Type</th>
                                                         <th data-hide="all">Address</th>
@@ -203,19 +204,16 @@ for (i = 0; i < coll.length; i++) {
                         }
                         else{
                            
-                            setTimeout(function(){
                                 showToastError(response.message);
-                                window.location.reload();
-                            }, 2000);
+                               
                         }
                     },
 
                     error :function(response)
                     {
-                        setTimeout(function(){
-                            showToastError(response.message);
-                           window.location.reload();
-                        }, 2000);
+                        var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
 
                     }
                 });
@@ -266,8 +264,11 @@ for (i = 0; i < coll.length; i++) {
                         var paymentBg="bg-red"
                         var orderClass = "badge-info";
                         var orderType="Delivery"
+                        var paymentType="Online"
 
                         if(data[t].deliveryType==0) orderType="Pickup"
+                        if(data[t].paymentType==2) paymentType="COD"
+
                         if(data[t].payment && data[t].payment.transactionStatus=="1") {
                           var payemnt = '<a href="javascript:;"  class="btn bg-green font-size-10 pad5A tooltip-button" data-placement="bottom" title="Open modal window"   >'+
                             '<h5><span class="badge bg-soft-success text-success"><i class="mdi mdi-coin"></i>Paid</span></h5></a>';
@@ -307,7 +308,10 @@ if(data[t].progressStatus==0) actionstatus='<button  onclick="acceptReject(\''+d
                         '<td>'+format(new Date(data[t].serviceDateTime))+' </td>'+
                         '<td>'+data[t].user.countryCode +" "+ data[t].user.phoneNumber+'</td>'+
                         '<td>'+data[t].totalOrderPrice  +'</td>'+
+                        '<td>'+paymentType+'</td>'+
+
                         '<td><h5><span class="badge '+orderClass+'">'+status+'</span> '+actionstatus+'</h5></td>'+
+
                         '<td><h5><span class="badge badge-info">'+orderType+'</span></h5></td>'+
 
                         '<td>'+(data[t].address!=null? data[t].address.houseNo+" "+ data[t].address.addressName +" ,"+data[t].address.city:"")+'</td>'+
@@ -343,7 +347,8 @@ if(data[t].progressStatus==0) actionstatus='<button  onclick="acceptReject(\''+d
             {
                 $('#loading1').hide()
 
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });
@@ -381,6 +386,9 @@ if(data[t].progressStatus==0) actionstatus='<button  onclick="acceptReject(\''+d
                         var paymentBg="bg-red"
                         var orderClass = "badge-info";
                         var orderType="Delivery"
+                        var paymentType="Online"
+
+                        if(data[t].paymentType==2) paymentType="COD"
 
                         var actionstatus=""
 if(data[t].progressStatus==0) actionstatus='<button  onclick="acceptReject(\''+data[t].id+'\',2)"  class="btn btn-danger btn-xs btn-icon"><i class="fa fa-times"></i></button>'+
@@ -415,11 +423,13 @@ if(data[t].progressStatus==0) actionstatus='<button  onclick="acceptReject(\''+d
                         }
 
                         row =row+ '<tr id="row_'+data[t].id+'">'+
-                        '<td>'+data[t].orderNo+' </td>'+
+                        '<td><a href="<%-adminpath%>orders/view/'+data[t].id +'">'+data[t].orderNo+' </a> </td>'+
                         '<td>'+data[t].user.firstName+ " "+  data[t].user.lastName+' </td>'+
                         '<td>'+format(new Date(data[t].serviceDateTime))+' </td>'+
                         '<td>'+data[t].user.countryCode +" "+ data[t].user.phoneNumber+'</td>'+
                         '<td>'+data[t].totalOrderPrice  +'</td>'+
+                        '<td>'+paymentType+'</td>'+
+
                         '<td><h5><span class="badge '+orderClass+'">'+status+'</span> '+actionstatus+'</h5></td>'+
                         '<td><h5><span class="badge badge-info">'+orderType+'</span></h5></td>'+
 
@@ -449,7 +459,8 @@ if(data[t].progressStatus==0) actionstatus='<button  onclick="acceptReject(\''+d
             {
                 $('#loading1').hide()
 
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
             }
         });
@@ -533,10 +544,9 @@ if(data[t].progressStatus==0) actionstatus='<button  onclick="acceptReject(\''+d
 
                     error :function(response)
                     {
-                        setTimeout(function(){
-                            showToastError(response.message);
-                           window.location.reload();
-                        }, 1000);
+                        var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
 
                     }
                 });

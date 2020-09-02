@@ -572,6 +572,71 @@ else{
 
 
 
+  app.post('/cashCollected',checkAuth,async (req, res) => {
+    var params=req.body
+
+    try{
+        let responseNull=  commonMethods.checkParameterMissing([params.amount,params.orderId])
+        if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+       
+      
+
+        
+        var userData = await ORDERS.findOne({
+          where: {
+            id: params.orderId }
+        });
+        
+        
+        if(userData)
+        {
+        const updatedResponse = await PAYMENT.update({
+          transactionStatus:1 ,
+          paymentMode:"Cash" ,
+           },
+          { where:{
+        orderId: params.orderId
+           }}
+          );
+       
+
+          STAFFWALLET.create({empId:req.id,payType:0, companyId: req.companyId,amount:params.amount,orderId:params.orderId})
+         
+         var staffValues=await EMPLOYEE.findOne({attributes:['walletBalance'],where:{id:req.id}});
+
+         if(staffValues && staffValues.dataValues)
+          {
+            var oldBalnce=staffValues.dataValues.walletBalance
+             var walletBalance=oldBalnce-parseFloat(params.amount)
+             EMPLOYEE.update({walletBalance:walletBalance},{where:{id:req.id}})
+
+          }
+
+
+
+      if(updatedResponse)
+      return responseHelper.post(res, appstrings.payment_success,null,204);
+
+
+       else{
+        return responseHelper.post(res, appstrings.oops_something,null,400);
+
+      }
+    }
+    else 
+    return responseHelper.post(res, appstrings.no_record,null,204);
+
+         }
+           catch (e) {
+             return responseHelper.error(res, e.message, 400);
+           }
+    
+    
+    
+   
+  });
+
+
      function diff_mins(dt2, dt1) 
  {
 

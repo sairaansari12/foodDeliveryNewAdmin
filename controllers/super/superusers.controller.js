@@ -3,93 +3,127 @@ const express = require('express');
 const app     = express();
 const Op = require('sequelize').Op;
 
-const USER= db.models.users
+const USER= db.models.users;
 
-
+/**
+*@role Get User Page
+*/
 app.get('/',superAuth, async (req, res, next) => {
-    
-    try {
-        const findData = await USER.findAll({
-        where :{companyId :req.companyId},
-        order: [
-          ['createdAt','DESC']
-        ],      
-
-        });
-
-
-
-
-  
-
-     
-        return res.render('super/users/usersListing.ejs',{data:findData});
-
-
-
-      } catch (e) {
-        return responseHelper.error(res, e.message, 400);
+  try {
+    var usertypes = await USERTYPE.findAll({
+      where: {
+        companyId: req.companyId
       }
-
-
+    })
+    return res.render('super/users/usersListing.ejs',{usertypes});
+  } catch (e) {
+    return responseHelper.error(res, e.message, 400);
+  }
 });
 
+/**
+*@role List Users
+*/
+app.post('/list',superAuth,async (req, res, next) => {
 
+  var params=req.body
+  console.log(params);
+   var page =1
+   var limit =20
+   var status=['0','1']
+   var orderby='createdAt'
+   var orderType='ASC'
+
+   if(params.status && params.status!="") status=[params.status]
+
+  if(params.page) page=params.page
+
+  if(params.limit)
+   limit=parseInt(params.limit)
+   var offset=(page-1)*limit
+
+   var where= {
+    companyId:req.companyId,
+    status:  {[Op.or]: status}    
+    }
+
+    if(params.userType && params.userType)
+    where.userType=params.userType;
+
+    if(params.search && params.search!="")
+    {
+     where={ [Op.or]: [
+        {firstName: {[Op.like]: `%${params.search}%`}},
+        {lastName: { [Op.like]: `%${params.search}%` }},
+        {email: { [Op.like]: `%${params.search}%` }},
+        {phoneNumber: { [Op.like]: `%${params.search}%` }},
+        {address: { [Op.like]: `%${params.search}%` }}
+      ],
+      companyId: req.companyId,
+      status:  {[Op.or]: status},
+    }
+  }
+    try{
+       var usertypes = await USERTYPE.findAll({
+        where: {
+          companyId: req.companyId
+        }
+      })
+      var services = await USER.findAndCountAll({
+        where: where,
+        order: [[orderby,orderType]],
+        distinct:true,
+        offset:offset,limit:limit,
+      })
+      return responseHelper.post(res, appstrings.success, services);
+    }
+    catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+});
+
+/**
+*@role Change User Status
+*/
 app.post('/status',superAuth,async(req,res,next) => { 
-    
     var params=req.body
     try{
         let responseNull=  commonMethods.checkParameterMissing([params.id,params.status])
         if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
        
-      
-
        const userData = await USER.findOne({
          where: {
            id: params.id }
        });
-       
-       
-       if(userData)
-       {
-       
-
-    var status=0
-    if(params.status=="0")  status=1
-       const updatedResponse = await USER.update({
-         status: status,
+      if(userData)
+      {
+        var status=0
+        if(params.status=="0")  status=1
+        const updatedResponse = await USER.update({
+          status: status,
     
-       },
-       {
-         where : {
-         id: userData.dataValues.id
-       }
-       });
+        },
+        {
+          where : {
+          id: userData.dataValues.id
+        }
+        });
        
-       if(updatedResponse)
-             {
-    
-           return responseHelper.post(res, appstrings.success,updatedResponse);
-             }
-             else{
-               return responseHelper.post(res, 'Something went Wrong',400);
-    
-             }
-       
-       }
-
-       else{
-        return responseHelper.post(res, appstrings.no_record,204);
-
+        if(updatedResponse)
+        {
+          return responseHelper.post(res, appstrings.success,updatedResponse);
+        }
+        else{
+          return responseHelper.post(res, 'Something went Wrong',400);
+        }
       }
-
-         }
-           catch (e) {
-             return responseHelper.error(res, e.message, 400);
-           }
-    
-    
-    
+      else{
+        return responseHelper.post(res, appstrings.no_record,204);
+      }
+    }
+    catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
 });
 
 

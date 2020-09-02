@@ -163,10 +163,9 @@
                 },
                 error :function(response)
                 {
-                    setTimeout(function(){
-                        
-                       toastr.error(response.message);
-                    }, 2000);
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
 
                     
                     //showToastError(response.message)
@@ -272,7 +271,9 @@ var onlineStatus= '<div class="ribbon ribbon-danger float-right"><i class="mdi m
             {
                 $('#loading1').hide()
 
-                showToastError(response.message)
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
 
             }
         });

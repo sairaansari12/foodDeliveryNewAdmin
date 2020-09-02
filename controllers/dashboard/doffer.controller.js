@@ -6,6 +6,7 @@ const Op = require('sequelize').Op;
 const COUPANs = db.models.coupan
 const CATEGORYs = db.models.categories
 const moment = require('moment');
+const { companyId } = require('../../helpers/common');
 
 
 
@@ -14,7 +15,6 @@ app.get('/',adminAuth, async (req, res, next) => {
   try{
    
     var newDate = moment(new Date()).format("YYYY-MM-DD");
-    console.log(newDate);
     const findData = await COUPAN.findOne({
       where: {
         companyId: req.companyId,
@@ -25,7 +25,6 @@ app.get('/',adminAuth, async (req, res, next) => {
       }
     });
     
-    console.log(findData);
         return res.render('admin/offers/offerListing.ejs',{data:findData});
 
       } catch (e) {
@@ -180,6 +179,8 @@ app.post('/add',adminAuth,async (req, res) => {
 
 
       if (users) {
+
+        COMPANY.update({offer:users.id},{where:{id:req.id}})
 
         responseHelper.post(res, appstrings.add_coupan, null,200);
        

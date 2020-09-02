@@ -22,6 +22,42 @@ app.get('/',adminAuth, async (req, res, next) => {
 
 });
 
+app.get('/setup',adminAuth, async (req, res, next) => {
+    
+  try{
+
+  var chargesData=await COMISSION.findOne({where:{companyId:req.id}})
+  var payData=await PAYMENTSETUP.findOne({where:{companyId:req.id}})
+
+       return res.render('admin/payment/setup.ejs',{chargesData,payData});
+ 
+  }
+ 
+     catch (e) {
+       return responseHelper.error(res, e.message, 400);
+     }
+ 
+ 
+ });
+
+ app.get('/comissionHistory',adminAuth, async (req, res, next) => {
+    
+  try{
+
+
+       return res.render('admin/payment/comissionHistory.ejs');
+ 
+  }
+ 
+     catch (e) {
+       return responseHelper.error(res, e.message, 400);
+     }
+ 
+ 
+ });
+
+
+
 app.post('/list',adminAuth, async (req, res, next) => {
   
 try {
@@ -119,6 +155,90 @@ if(fromDate!="" && toDate!="")
 
 
 });
+
+
+app.post('/comissionHistory',adminAuth, async (req, res, next) => {
+  
+  try {
+    var params=req.body
+    var paidType =  ['0','1','2']
+    var fromDate =  ""
+    var toDate =  ""
+  
+  
+    var page =1
+    var limit =50
+    if(params.page) page=params.page
+    if(params.limit) limit=parseInt(params.limit)
+    var offset=(page-1)*limit
+  
+  
+    if(params.paidType && params.paidType!="")  paidType=[params.paidType]
+  
+    where={companyId: req.companyId,
+      paidType: { [Op.or]: paidType}
+       }
+       where1={companyId: req.companyId,paidType: { [Op.or]: paidType}}
+  
+  
+    if(params.fromDate)fromDate= Math.round(new Date(params.fromDate).getTime())
+    if(params.toDate) toDate=Math.round(new Date(params.toDate).getTime())
+    
+  
+  if(fromDate!="" && toDate!="")
+  {
+    where= {companyId: req.companyId,
+      paidType: { [Op.or]: paidType},
+      createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
+         }
+  
+         where1={companyId: req.companyId,
+          paidType: { [Op.or]: paidType},
+          createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
+             }
+  
+        }
+  
+
+        if(params.search && params.search!="")
+        {
+    
+         where={ [Op.or]: [
+            {amount: {[Op.like]: `%${params.search}%`}},
+            {comission: { [Op.like]: `%${params.search}%` }
+          }
+          ],
+          companyId: req.companyId,
+          paidType: { [Op.or]: paidType},
+        }
+    
+      }
+        
+
+
+
+
+
+        const findData = await COMISSIONHISTORY.findAndCountAll({
+          order: [
+            ['createdAt', 'DESC'],  
+        ],
+        where :where,
+        offset: offset, limit: limit ,
+  
+      });
+  
+  
+ 
+      return responseHelper.post(res, appstrings.success, findData);
+  
+    } catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+  
+  
+  });
 
 
 app.post('/search',adminAuth, async (req, res, next) => {
@@ -260,6 +380,67 @@ app.post('/status',adminAuth,async(req,res,next) => {
     
     
 });
+
+app.post('/setup',adminAuth,async(req,res,next) => { 
+    
+  var params=req.body
+
+  try{
+      let responseNull=  commonMethods.checkParameterMissing([params.accountNo,params.acHolderName,params.branchIFSC])
+      if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+     
+    
+      var updatedResponse=null
+if(params.paymentId && params.paymentId!="")
+{
+  updatedResponse = await PAYMENTSETUP.update({merchantKey:params.mKey,
+    accountNo:params.accountNo,
+    acHolderName:params.acHolderName,
+    branchIFSC:params.branchIFSC,
+    branchName:params.branchName,
+
+
+        },
+      {where: {
+         id: params.paymentId }
+     });
+     
+    }
+    else{
+      updatedResponse = await PAYMENTSETUP.create({
+        accountNo:params.accountNo,
+    acHolderName:params.acHolderName,
+    branchIFSC:params.branchIFSC,
+    branchName:params.branchName,
+        companyId: req.id
+      });
+      
+
+    }
+    
+    
+     if(updatedResponse)
+           {
+  
+         return responseHelper.post(res, appstrings.success,null);
+           }
+           else{
+             return responseHelper.post(res, appstrings.oops_something,400);
+  
+           }
+     
+  
+    
+       }
+         catch (e) {
+           return responseHelper.error(res, e.message, 400);
+         }
+  
+  
+  
+});
+
+
 
 
 module.exports = app;

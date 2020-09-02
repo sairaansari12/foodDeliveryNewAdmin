@@ -24,6 +24,13 @@ paymentMode: {
    
 },
 
+
+paymentType: {
+  type: DataTypes.INTEGER(10),
+  defaultValue: 1   
+},
+
+
 //0-Not recieved //1 Super Admin, 2//Transferred to vendor
 paymentState: {
   type: DataTypes.INTEGER(10),

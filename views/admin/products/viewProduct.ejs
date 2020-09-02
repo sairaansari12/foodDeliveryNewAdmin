@@ -253,7 +253,8 @@ var status=(data.status)==0?'Inactive':'Active';
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });
@@ -285,7 +286,8 @@ var status=(data.status)==0?'Inactive':'Active';
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });
@@ -319,7 +321,8 @@ var status=(data.status)==0?'Inactive':'Active';
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });
@@ -352,7 +355,8 @@ var status=(data.status)==0?'Inactive':'Active';
                 },
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
 
                 }
             });

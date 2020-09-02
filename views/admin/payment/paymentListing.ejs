@@ -135,10 +135,9 @@
 
             error :function(response)
             {
-                setTimeout(function(){
-                    toastr.error(response.message);
-                   window.location.reload();
-                }, 2000);
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
 
             }
         });
@@ -178,7 +177,7 @@
                         var status = '<span class="badge bg-soft-danger mt-2 text-danger">Failed</span>';
                         var style="display:none" 
                         var style1="display:block" 
-             
+             var paymentState=data[t].paymentState==0?"In admin wallet" :"Transferred to my account"
                         if(data[t].transactionStatus == '1')
                         {
                             var active = 2;
@@ -208,6 +207,8 @@
                         '<div class="col-sm-4">'+
                         '<p class="mb-1"><b>Order Date:</b> '+format(new Date(data[t].order.createdAt))+'</p>'+
                         '<p class="mb-1"><b>Payment Date:</b> '+format(new Date(data[t].createdAt)) +'</p>'+
+                        '<p class="mb-1"><b>Payment Status:</b> '+paymentState +'</p>'+
+
                         '<p class="mb-0"> <%- CURRENCY %> '+data[t].amount  +'</p>'+
                         '</div><div class="col-sm-2">'+
                         '<div class="text-center mt-3 mt-sm-0">'+
@@ -224,10 +225,9 @@
                     //$('#exe').DataTable();
                 }
                 else{
-                    setTimeout(function(){
+                    
                             toastr.error(response.message);
-                           window.location.reload();
-                        }, 2000);
+                          
                 }
             },
 
@@ -235,10 +235,10 @@
             {
                 $('#loading1').hide()
 
-                setTimeout(function(){
-                            toastr.error(response.message);
-                           window.location.reload();
-                        }, 2000);
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
+                       
 
             }
         });
@@ -317,10 +317,9 @@
                     //$('#exe').DataTable();
                 }
                 else{
-                    setTimeout(function(){
+                   
                             toastr.error(response.message);
-                           window.location.reload();
-                        }, 2000);
+                          
                 }
             },
 
@@ -328,10 +327,10 @@
             {
                 $('#loading1').hide()
 
-                setTimeout(function(){
-                            toastr.error(response.message);
-                           window.location.reload();
-                        }, 2000);
+                var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
+                       
 
             }
         });

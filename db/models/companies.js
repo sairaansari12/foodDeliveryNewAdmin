@@ -230,6 +230,17 @@ tags: {
 
 
 
+tagsIncluded: {
+  type: DataTypes.TEXT(),
+  allowNull: true,
+    get() {
+      if(this.getDataValue('tagsIncluded') && this.getDataValue('tagsIncluded')!="") 
+      return JSON.parse(this.getDataValue('tagsIncluded'))
+      else return [];
+  },
+},
+
+
 
 deviceToken:{
   type: DataTypes.STRING(255),

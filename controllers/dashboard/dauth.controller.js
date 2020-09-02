@@ -122,7 +122,7 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
               [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum'],
               [sequelize.fn('COUNT', sequelize.col('progressStatus')), 'count']],
               include:[{model:ORDERSTATUS,attributes:['statusName']}],
-              where :orderWhere,
+              where :{companyId: companyId,progressStatus: { [Op.or]: progressStatus}},
               group: ['progressStatus'],
           });
           

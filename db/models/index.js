@@ -35,6 +35,7 @@ let modules = [
   require('./document'), 
   require('./services'), 
   require('./faq'), 
+  require('./tags'),
   require('./notifications'), 
   require('./contactus'), 
   require('./cancelReason'), 
@@ -44,12 +45,16 @@ let modules = [
   require('./orderStatus'), 
   require('./companyRatings'), 
   require('./serviceRatings'),
+  require('./subscription'), 
   require('./deals'),
   require('./shipment'),
   require('./instructions'),
   require('./plans'),
   require('./staffRoles'),
   require('./staffRatings'),
+  require('./comission'),
+  require('./comissionHistory'),
+  require('./paymentSetup'),
   require('./tiffin/tiffinServices'),
   require('./tiffin/tiffinMenu'),
   require('./tiffin/tiffinPackages'),
@@ -62,7 +67,9 @@ let modules = [
   require('./recipe/recipeCategories'),
   require('./recipe/recipes'),
   require('./recipe/recipeMedia'),
-  require('./recipe/recipeLike')
+  require('./recipe/recipeLike'),
+  require('./staffWallet')
+
   
 
 

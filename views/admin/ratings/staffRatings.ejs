@@ -253,7 +253,8 @@
     
                     $('#loading1').hide()
     
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
     
                 }
             });
@@ -350,7 +351,8 @@
     
                 error :function(response)
                 {
-                    showToastError(response.message)
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
     
                 }
             });
