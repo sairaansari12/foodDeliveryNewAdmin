@@ -470,11 +470,21 @@ app.get('/chat',superAuth, async (req, res, next) => {
     id : req.session.userData.id
   };
   const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
-  USERS = db.models.users;
-  const findData = await USERS.findAll({ 
-    attributes: ['id','email','firstName'],
-   });
-   return res.render('super/chat/chat.ejs',{findData:findData, token: authToken});
+  
+   return res.render('super/chat/chat.ejs',{ token: authToken, id: req.session.userData.id});
+});
+app.get('/test',superAuth, async (req, res, next) => {
+
+  const credentials = {
+    phoneNumber: req.session.userData.phoneNumber,
+    companyId:   req.companyId,
+    countryCode: req.session.userData.countryCode,
+    userType: req.session.userData.type,
+    id : req.session.userData.id
+  };
+  const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
+  
+   return res.render('super/chat/test.ejs',{ token: authToken, id: req.session.userData.id});
 });
 
 app.get('/recoverPassword', async (req, res, next) => {

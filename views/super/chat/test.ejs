@@ -65,8 +65,8 @@
                                 <div class="card">
                                     <div class="card-body py-2 px-3 border-bottom border-light">
                                         <div class="media py-1">
-                                            <!-- <img src="../assets/images/users/user-5.jpg" class="mr-2 rounded-circle" height="36" alt="Brandon Smith">
-                                            <div class="media-body">
+                                            <!-- <img src="../assets/images/users/user-5.jpg" class="mr-2 rounded-circle" height="36" alt="Brandon Smith"> -->
+                                            <!-- <div class="media-body">
                                                 <h5 class="mt-0 mb-0 font-15">
                                                     <a href="contacts-profile.html" class="text-reset">James Zavel</a>
                                                 </h5>
@@ -173,7 +173,7 @@
     })
    
     $(document).ready(function(){   
-        socket.emit('chatList',{authToken: '<%-token%>', usertype: "admin"});
+        socket.emit('chatList',{authToken: '<%-token%>', usertype: "user"});
         socket.on("chatListRes", data=>{
             console.log("====msgs", data );
             var userData = data;
@@ -198,26 +198,16 @@
                 </a> `  
             }
             $('#chatlist').html(html)
-        })
-    });
-    
-    
-    $('form').submit(function(e) {
-      e.preventDefault();
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin", groupId: groupId})
-      return false;
-    });
-
-    function showmsg(id){
+        });
         var data = {
             authToken: '<%-token%>',
-            receiverId: id
+            receiverId: "25cbf58b-46ba-4ba2-b25d-8f8f653e9f13"
         }
        socket.emit('joinRoom',data);
        socket.on('joinRoomRes',(data)=>{
            console.log("==joinRoomRes", data)
            groupId = data.groupId;
-           socket.emit("chatHistory", {authToken: '<%-token%>', groupId: data.groupId, usertype: "admin"});
+           socket.emit("chatHistory", {authToken: '<%-token%>', groupId: data.groupId, usertype: "user"});
            socket.on("chatHistoryRes", (data)=>{
                console.log("=>chatHistoryRes", data);
                var html = "";
@@ -258,11 +248,21 @@
                             
                     </li>`
                 }
-                
-               }
+            }
                $('#list').html(html)
            })
        });
+    });
+    
+    
+    $('form').submit(function(e) {
+      e.preventDefault();
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "user", groupId: groupId})
+      return false;
+    });
+
+    // function showmsg(id){
+ 
        
-    }
+    // }
 </script>

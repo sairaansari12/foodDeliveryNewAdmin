@@ -71,12 +71,13 @@ module.exports = function (io) {
         if (!authToken) {
           return socket.emit('errorMessage', 'Please Provide JWT Token');
         }
-       
         jwt.verify(authToken, config.jwtToken, async function (err) {
+
           if (err) {
             return socket.emit('errorMessage', 'Invalid User');
           } else {
             const senderId = await common.userId(authToken);
+            // const senderId = "86091af5-38b8-4355-9257-17774e2a98f1";
             if(!groupId) {
             if (!receiverId) {
               return socket.emit('errorMessage', 'Receiver Id is required');
@@ -84,12 +85,14 @@ module.exports = function (io) {
             /*
             Check Sender And Receiver groupExists In our DB
            */
+
             const sender = await users.findOne({
               attributes: ['id'],
               where: {
                 id: senderId
               },
             });
+
             if (!sender) {
               const comp = await companies.findOne({
                 attributes: ['id'],
@@ -256,6 +259,7 @@ module.exports = function (io) {
             return socket.emit('errorMessage', 'Invalid User');
           } else {
             const senderId = await common.userId(authToken);
+            // const senderId = "86091af5-38b8-4355-9257-17774e2a98f1";
             const message = {};
             if(data.usertype == "admin"){
               message.adminId = senderId;
@@ -282,12 +286,18 @@ module.exports = function (io) {
                   }
                 }
               })
+
               if (getUsers) {
                 await Promise.all(
                   getUsers.map(async user => {
                     const users = {};
-                    users.messageId = chatMessage.dataValues.id,
-                      users.userId = user.userId
+                    users.messageId = chatMessage.dataValues.id;
+                    if(data.usertype == "user"){
+                      users.adminId = user.userId;
+                    } else{
+                      users.userId = user.userId;
+                    }
+
                     const messageStatus = await messagesStatus.create(users);
                   })
                 )
@@ -422,8 +432,8 @@ module.exports = function (io) {
             [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-            // [sequelize.literal('user.userName'), 'senderName'],
-            // [sequelize.literal('user.image'), 'senderImage'],
+            [sequelize.literal('user.firstName'), 'senderName'],
+            [sequelize.literal('user.image'), 'senderImage'],
           ],
           where: {
             id: data.id
@@ -442,7 +452,7 @@ module.exports = function (io) {
             model: messagesStatus,
             attributes: ['deliveredAt', 'readAt', 'userId',
               [sequelize.literal('(SELECT image from users where id= userId)'), 'image'],
-              [sequelize.literal('(SELECT userName from users where id= userId)'), 'userName']
+              [sequelize.literal('(SELECT firstName from users where id= userId)'), 'userName']
             ],
   
             required: true
@@ -455,8 +465,8 @@ module.exports = function (io) {
             [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-            // [sequelize.literal('user.userName'), 'senderName'],
-            // [sequelize.literal('user.image'), 'senderImage'],
+            [sequelize.literal('user.firstName'), 'senderName'],
+            [sequelize.literal('user.image'), 'senderImage'],
           ],
           where: {
             id: data.id
@@ -492,7 +502,7 @@ module.exports = function (io) {
               [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
               [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
               [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-              [sequelize.literal('user.userName'), 'senderName'],
+              [sequelize.literal('user.firstName'), 'senderName'],
               [sequelize.literal('user.image'), 'senderImage'],
             ],
             where: {
@@ -546,8 +556,8 @@ module.exports = function (io) {
                   [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                  // [sequelize.literal('user.userName'), 'senderName'],
-                  // [sequelize.literal('user.image'), 'senderImage'],
+                  [sequelize.literal('user.firstName'), 'senderName'],
+                  [sequelize.literal('user.image'), 'senderImage'],
                 ],
                 where: {
                   groupId: groupId
@@ -565,7 +575,7 @@ module.exports = function (io) {
                   model: messagesStatus,
                   attributes: ['deliveredAt', 'readAt', 'userId',
                     [sequelize.literal('(SELECT image from users where id= userId)'), 'image'],
-                    [sequelize.literal('(SELECT userName from users where id= userId)'), 'userName']
+                    [sequelize.literal('(SELECT firstName from users where id= userId)'), 'userName']
                   ],
                 }
                 ],
@@ -577,8 +587,8 @@ module.exports = function (io) {
                   [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                  // [sequelize.literal('user.userName'), 'senderName'],
-                  // [sequelize.literal('user.image'), 'senderImage'],
+                  [sequelize.literal('user.firstName'), 'senderName'],
+                  [sequelize.literal('user.image'), 'senderImage'],
                 ],
                 where: {
                   groupId: groupId
@@ -613,7 +623,7 @@ module.exports = function (io) {
                         [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                        [sequelize.literal('user.userName'), 'senderName'],
+                        [sequelize.literal('user.firstName'), 'senderName'],
                         [sequelize.literal('user.image'), 'senderImage'],
                       ],
                       where: {
@@ -705,14 +715,13 @@ module.exports = function (io) {
                   })
                   var message;
                   if(data.usertype != "admin"){
-                    console.log("=>>>data.usertype", data.usertype)
                     message = await chatMessages.findOne({
                       attributes: ['id', 'senderId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
                         [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                        // [sequelize.literal('user.userName'), 'senderName'],
-                        // [sequelize.literal('user.image'), 'senderImage'],
+                        [sequelize.literal('user.firstName'), 'senderName'],
+                        [sequelize.literal('user.image'), 'senderImage'],
                         [sequelize.literal('group.groupName'), 'groupName'],
                         [sequelize.literal('group.groupIcon'), 'groupIcon'],
                         [sequelize.literal('group.createdBy'), 'createdBy']
@@ -751,7 +760,7 @@ module.exports = function (io) {
                           model: messagesStatus,
                           attributes: ['deliveredAt', 'readAt', 'userId',
                             [sequelize.literal('(SELECT image from users where id= messagesStatuses.userId)'), 'image'],
-                            [sequelize.literal('(SELECT userName from users where id= messagesStatuses.userId)'), 'userName']
+                            [sequelize.literal('(SELECT firstName from users where id= messagesStatuses.userId)'), 'userName']
                           ],
                           required: true
                         }
@@ -763,8 +772,8 @@ module.exports = function (io) {
                         [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                        // [sequelize.literal('user.userName'), 'senderName'],
-                        // [sequelize.literal('user.image'), 'senderImage'],
+                        // [sequelize.literal('companies.companyName'), 'senderName'],
+                        // [sequelize.literal('companies.logo1'), 'senderImage'],
                         [sequelize.literal('group.groupName'), 'groupName'],
                         [sequelize.literal('group.groupIcon'), 'groupIcon'],
                         [sequelize.literal('group.createdBy'), 'createdBy']
@@ -854,7 +863,7 @@ module.exports = function (io) {
                         [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                        [sequelize.literal('user.userName'), 'senderName'],
+                        [sequelize.literal('user.firstName'), 'senderName'],
                         [sequelize.literal('user.image'), 'senderImage'],
                       ],
                       where: {
