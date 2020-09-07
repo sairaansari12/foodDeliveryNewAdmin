@@ -112,6 +112,140 @@ app.get('/changePassword',superAuth, async (req, res, next) => {
    return res.render(superadminfilepath+'changePassword.ejs');
 });
 
+//////////////////////////////////////////////////////
+/////////////////////// Staff Roles //////////////////
+//////////////////////////////////////////////////////
+app.get('/roles',superAuth, async (req, res, next) => {
+    const findData = await STAFFROLE.findAll({
+      where: {
+        companyId: req.companyId
+      }
+    });
+    return res.render('super/settings/roles.ejs',{data:findData});
+});
+/**
+*@role Add New Role
+*/
+app.post('/role/add',superAuth,async (req, res) => {
+  try {
+    const data = req.body;
+    const findData = await STAFFROLE.findOne({
+      where: {
+        companyId: req.companyId,
+        userType: data.name
+      }
+    });
+    if(findData){
+      return responseHelper.post(res,"Already Exist!",null,400);
+    }else{
+      const users = await STAFFROLE.create({
+        userType: data.name,
+        companyId: req.companyId
+      });
+    }
+    return responseHelper.post(res, appstrings.success, null,200);
+  } catch (e) {
+    return responseHelper.error(res, appstrings.oops_something, e.message);
+  }
+
+})
+
+/**
+*@role Delete Staff Role
+*/
+app.get('/role/delete/:id',superAuth,async(req,res,next) => { 
+  try{
+    const numAffectedRows = await STAFFROLE.destroy({
+      where: {
+        id: req.params.id,
+        companyId: req.companyId
+      }
+    })  
+    if(numAffectedRows>0)
+    {
+      req.flash('successMessage',appstrings.delete_success)
+      return res.redirect(superadminpath+"settings/roles");
+    }
+    else {
+      req.flash('errorMessage',appstrings.no_record)
+      return res.redirect(superadminpath+"settings/roles");
+    }
+  }catch (e) {
+    req.flash('errorMessage',appstrings.no_record)
+    return res.redirect(superadminpath+"settings/roles");
+  }
+});
+
+/**
+*@role Add New Role
+*/
+app.post('/role/update',superAuth,async (req, res) => {
+  try {
+    const data = req.body;
+    const findData = await STAFFROLE.findOne({
+      where: {
+        companyId: req.companyId,
+        userType: data.nameedit,
+        id: {
+          [Op.ne]: data.istid
+        }
+      }
+    });
+    if(findData){
+      return responseHelper.post(res,"Already Exist!",null,400);
+    }else{
+      const users = await STAFFROLE.update({
+        userType: data.nameedit
+      },{
+        where: {
+          id: data.istid
+        }
+      });
+    }
+    return responseHelper.post(res, appstrings.success, null,200);
+  } catch (e) {
+    return responseHelper.error(res, appstrings.oops_something, e.message);
+  }
+})
+
+///////////////////////////////////////////////////////
+/////////////////////// User Roles ////////////////////////
+//////////////////////////////////////////////////////
+app.get('/userroles',superAuth, async (req, res, next) => {
+    const findData = await ROLETYPE.findAll({
+      where: {
+        companyId: req.companyId
+      }
+    });
+    return res.render('super/settings/userroles.ejs',{data:findData});
+});
+/**
+*@role Add New Role
+*/
+app.post('/userrole/add',superAuth,async (req, res) => {
+  try {
+    const data = req.body;
+    const findData = await ROLETYPE.findOne({
+      where: {
+        companyId: req.companyId,
+        userType: data.name
+      }
+    });
+    if(findData){
+      return responseHelper.post(res,"Already Exist!",null,400);
+    }else{
+      const users = await ROLETYPE.create({
+        userType: data.name,
+        companyId: req.companyId
+      });
+    }
+    return responseHelper.post(res, appstrings.success, null,200);
+  } catch (e) {
+    return responseHelper.error(res, appstrings.oops_something, e.message);
+  }
+
+})
+
 
 //////////////////////////////////////////////////////
 /////////////////////// Staff Roles //////////////////

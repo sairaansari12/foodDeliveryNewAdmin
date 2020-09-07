@@ -15,6 +15,7 @@ app.get('/',superAuth, async (req, res, next) => {
         ],      
 
         });
+        console.log(findData)
         return res.render('super/company/companyListing.ejs',{data:findData});
 
 
