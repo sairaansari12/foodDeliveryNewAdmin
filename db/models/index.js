@@ -68,7 +68,8 @@ let modules = [
   require('./recipe/recipes'),
   require('./recipe/recipeMedia'),
   require('./recipe/recipeLike'),
-  require('./staffWallet')
+  require('./staffWallet'),
+  require('./permissions')
 
   
 

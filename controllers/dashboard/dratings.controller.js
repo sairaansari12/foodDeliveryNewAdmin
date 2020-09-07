@@ -234,8 +234,8 @@ app.get('/products',adminAuth, async (req, res, next) => {
           if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating) avgRating=dataRating.dataValues.totalRating
           if(dataRating && dataRating.dataValues && dataRating.dataValues.totalNoRating) total=dataRating.dataValues.totalNoRating
   
-       
-return res.render('admin/ratings/productRatings.ejs',{total:total,avgRating,avgRating});
+         var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+return res.render('admin/ratings/productRatings.ejs',{total:total,avgRating,avgRating,permissions});
       } catch (e) {
        return responseHelper.error(res, e.message, 400);
       // req.flash('errorMessage',e.message)
@@ -251,9 +251,10 @@ app.get('/',adminAuth, async (req, res, next) => {
   var params=req.query
     try {
       
-  
+      var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
     var cdata= await commonMethods.getAllCategories(req.companyId)
-return res.render('admin/ratings/ratingsListing.ejs',{catData:cdata});
+return res.render('admin/ratings/ratingsListing.ejs',{catData:cdata,permissions});
       } catch (e) {
        return responseHelper.error(res, e.message, 400);
       // req.flash('errorMessage',e.message)
@@ -307,8 +308,9 @@ app.get('/company/',adminAuth, async (req, res, next) => {
     
   var params=req.query
     try {
-      
-return res.render('admin/ratings/companyRatings.ejs');
+      var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
+return res.render('admin/ratings/companyRatings.ejs',{permissions});
       } catch (e) {
        return responseHelper.error(res, e.message, 400);
      
@@ -489,8 +491,9 @@ app.get('/staff/',adminAuth, async (req, res, next) => {
           if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating) avgRating=dataRating.dataValues.totalRating
           if(dataRating && dataRating.dataValues && dataRating.dataValues.totalNoRating) total=dataRating.dataValues.totalNoRating
   
-       
-return res.render('admin/ratings/staffRatings.ejs',{total:total,avgRating,avgRating});
+          var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
+return res.render('admin/ratings/staffRatings.ejs',{total:total,avgRating,permissions});
       } catch (e) {
        return responseHelper.error(res, e.message, 400);
      

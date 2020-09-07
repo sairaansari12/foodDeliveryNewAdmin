@@ -142,7 +142,7 @@ app.post('/update',superAuth,async (req, res) => {
     var profileImage=""
 
 
-    let responseNull= commonMethods.checkParameterMissing([data.faqId,data.question,data.answer,data.language])
+    let responseNull= commonMethods.checkParameterMissing([data.faqId,data.questionedit,data.answeredit,data.languageedit])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
 
@@ -163,9 +163,9 @@ app.post('/update',superAuth,async (req, res) => {
       
     
       const users = await FAQ.update({
-        question: data.question,
-        answer: data.answer,
-        language: data.language,
+        question: data.questionedit,
+        answer: data.answeredit,
+        language: data.languageedit,
         companyId: req.companyId
        },
 
@@ -200,12 +200,6 @@ companyId: req.companyId
 
 
 
-
-
-
-
-
-
 app.get('/view/:id',superAuth,async(req,res,next) => { 
   
   var id=req.params.id
@@ -213,8 +207,7 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
 
   let responseNull=  common.checkParameterMissing([id])
   if(responseNull) 
-  { req.flash('errorMessage',appstrings.required_field)
-  return res.redirect(superadminpath+"faq");
+  { return responseHelper.error(res, e.message, null);
 }
 
 
@@ -226,14 +219,13 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
       ],      
 
       });
-   
-      return res.render('super/faq/viewFaq.ejs',{data:findData});
+    return responseHelper.post(res, appstrings.success,findData);
+     // return res.render('super/faq/viewFaq.ejs',{data:findData});
 
 
 
     } catch (e) {
-      req.flash('errorMessage',e.message)
-      return res.redirect(superadminpath+"faq");
+      return responseHelper.error(res, e.message, null);
     }
 
 

@@ -2,13 +2,13 @@
 const express = require('express');
 const app     = express();
 
-
-
 app.get('/',superAuth, async (req, res, next) => {
     
     try {
+      console.log("req idf",req.id);
+
         const findData = await NOTIFICATION.findAll({
-        where :{userId :req.id,role:2},
+        where :{userId :req.id,role:1},
         order: [
           ['createdAt','DESC']
         ],      
@@ -16,7 +16,7 @@ app.get('/',superAuth, async (req, res, next) => {
         });
 
         await NOTIFICATION.update({readStatus:1},
-         { where :{userId :req.id,role:2}
+         { where :{userId :req.id,role:1}
           });
         return res.render('super/notification/notificationListing.ejs',{data:findData});
 
@@ -32,11 +32,12 @@ app.get('/new',superAuth, async (req, res, next) => {
     
   try {
       
-    var types=await commonMethods.getUserTypes(req.companyId) 
+    var types=await commonMethods.getUserTypes(req.id) 
 
       return res.render('super/notification/addNotification.ejs',{types:types});
 
     } catch (e) {
+      console.log(e)
       return responseHelper.error(res, e.message, 400);
     }
 
@@ -47,7 +48,7 @@ app.get('/newEmail',superAuth, async (req, res, next) => {
     
   try {
       
-    var types=await commonMethods.getUserTypes(req.companyId) 
+    var types=await commonMethods.getUserTypes(req.id) 
 
       return res.render('super/notification/addEmail.ejs',{types:types});
 
@@ -64,7 +65,7 @@ app.post('/count',superAuth,async(req,res,next) => {
     try{
        
       const findData = await NOTIFICATION.findAll({
-        where :{userId :req.id,role:2,readStatus:0},
+        where :{userId :req.id,role:1,readStatus:0},
         order: [
           ['createdAt','DESC']
         ],      
@@ -108,7 +109,7 @@ app.post('/push',superAuth,async(req,res,next) => {
      {
      
       var androidtokens=userData.reduce((ids, thing) => {
-        if (thing.deviceToken!="") {
+        if ( thing.deviceToken!="") {
           ids.push(thing.deviceToken);
         }
         return ids;
@@ -122,12 +123,12 @@ app.post('/push',superAuth,async(req,res,next) => {
       // }, []);
 
      
-        var pushAndroidData={title:params.title,description:params.description,token:androidtokens,  platform:"android"
-        ,notificationType:"ADMIN_NOTIF",status:0,
-        orderId:"",
-      
-      }
-        //var pushIosData={title:params.title,description:params.description,token:iostokens,  platform:"ios"}
+        var pushAndroidData={title:params.title,description:params.description,token:androidtokens,
+          notificationType:"ADMIN_NOTIF",status:0,
+          orderId:"",
+        
+        }
+       // var pushIosData={title:params.title,description:params.description,token:iostokens,  platform:"ios"}
 
 commonNotification.sendNotification(pushAndroidData)
 //commonNotification.sendNotification(pushIosData)
@@ -175,8 +176,7 @@ app.post('/pushEmail',superAuth,async(req,res,next) => {
       }, []);
 
       
-  console.log(emails)
-if(emails.length>0) commonNotification.sendMail(emails,params.email)
+if(emails.length>0) commonNotification.sendPushMail(params.title,emails,params.email)
 return responseHelper.post(res, appstrings.success,null);
            }
            else
@@ -273,20 +273,17 @@ app.get('/delete/:id',superAuth,async(req,res,next) => {
             
           if(numAffectedRows>0)
           {
-           req.flash('successMessage',appstrings.delete_success)
-          return res.redirect(superadminpath+"notification");
+            return responseHelper.post(res, appstrings.delete_success, null,200);
 
           }
 
           else {
-            req.flash('errorMessage',appstrings.no_record)
-            return res.redirect(superadminpath+"notification");
+            return responseHelper.noData(res, appstrings.no_record);
           }
 
         }catch (e) {
           //return responseHelper.error(res, e.message, 400);
-          req.flash('errorMessage',appstrings.no_record)
-          return res.redirect(superadminpath+"notification");
+          return responseHelper.noData(res, appstrings.no_record);
         }
 });
 
@@ -297,26 +294,23 @@ app.get('/clearAll',superAuth,async(req,res,next) => {
         const numAffectedRows = await NOTIFICATION.destroy({
           where: {
             userId: req.id,
-            role:2
+            role:1
           }
           })  
             
           if(numAffectedRows>0)
           {
-           req.flash('successMessage',appstrings.delete_success)
-          return res.redirect(superadminpath+"notification");
+            return responseHelper.post(res, appstrings.delete_success, null,200);
 
           }
 
           else {
-            req.flash('errorMessage',appstrings.no_record)
-            return res.redirect(superadminpath+"notification");
+            return responseHelper.post(res, appstrings.no_record,null,204);
           }
 
         }catch (e) {
           //return responseHelper.error(res, e.message, 400);
-          req.flash('errorMessage',appstrings.no_record)
-          return res.redirect(superadminpath+"notification");
+          return responseHelper.noData(res, appstrings.no_record);
         }
 });
 

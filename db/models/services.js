@@ -90,9 +90,9 @@ module.exports = function(sequelize, DataTypes) {
 
     
     originalPrice: {
-      type: DataTypes.STRING(30),
+      type: DataTypes.FLOAT(20),
       allowNull: false,
-      defaultValue: "0"
+      defaultValue: 0
     },
 
     
@@ -166,6 +166,14 @@ module.exports = function(sequelize, DataTypes) {
       defaultValue: 1
     },
     
+
+
+    approve: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false,
+      defaultValue: 0
+    },
+
 
     companyId: {
       type: DataTypes.UUID,

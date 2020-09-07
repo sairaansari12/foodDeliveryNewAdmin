@@ -33,7 +33,13 @@
 
                                         <div class="form-group  mb-3">
                                             <label for="product-name">Deal Name <span class="text-danger">*</span></label>
-                                            <input type="text" id="name" autocomplete="off"  minlength="2" maxlength="100" name="name" class="form-control" placeholder="Deal Name">
+                                            <select class="custom-select" id="name" name="name">
+                                                <option value="anniversary">Users Anniversary</option>
+                                                <option value="birthday">Users Birthday</option>
+                                                <option value="restanniversary">Restaurant Anniversary</option>
+                                                <option value="other">Other</option>
+
+                                            </select>
                                         </div>
 
                                         <div class="form-group mb-3">

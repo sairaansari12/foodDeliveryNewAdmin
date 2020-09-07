@@ -124,8 +124,12 @@ var first=1
 var socket = new io('localhost:9062');
 socket.on('connect', function(response) {
     socket.emit('socketFromClient', {orderId: orderId, driverId:driverId, methodName:"getLocation"});
-drawMarkerOnMap(startLat,startLong,startInfo,'source.png')
+  
+    setTimeout(function(){
+                        
+        drawMarkerOnMap(startLat,startLong,startInfo,'source.png')
   drawMarkerOnMap(endLat,endtLong,endtInfo,'destination.png')
+                     }, 2000);
 
 
 });
@@ -183,14 +187,20 @@ function myTimer() {
 
 function drawMarkerOnMap(location_lat, location_longt, vehicleInfo,image) {
 
-
 var infowindow = new google.maps.InfoWindow();
 var marker, i;
 
+
+var icon = {
+    url: '/assets/images/'+image, // url
+    scaledSize: new google.maps.Size(30, 30), // scaled size
+    origin: new google.maps.Point(0,0), // origin
+    anchor: new google.maps.Point(0, 0) // anchor
+};
     marker = new google.maps.Marker({
         position: new google.maps.LatLng(location_lat, location_longt),
         map: map,
-        icon: '/assets/images/'+image
+        icon: icon
     });
 
     google.maps.event.addListener(marker, 'click', (function (marker) {

@@ -109,7 +109,7 @@ app.put('/update',checkAuth,async (req, res, next) => {
   const params = req.body;
 
 
-  let responseNull=  commonMethods.checkParameterMissing([params.cartId,params.serviceId,params.orderPrice,params.quantity,params.orderTotalPrice,params.companyId])
+  let responseNull=  commonMethods.checkParameterMissing([params.cartId,params.quantity])
   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
   
   try{
@@ -124,23 +124,15 @@ app.put('/update',checkAuth,async (req, res, next) => {
     if(cartData)
   {
 
-
+    var orderTotalPrice=parseInt(params.quantity)*parseFloat(cartData.dataValues.orderPrice)
 
 // Write APPLY PROMO CODE HERE//
-
-
-
 
     const orderData = await CART.update(
       
       {
-      serviceId: params.serviceId,
-      orderPrice :params.orderPrice,
-      orderTotalPrice :params.orderTotalPrice,
+      orderTotalPrice :orderTotalPrice,
       quantity :params.quantity,
-      userId: req.id,
-      companyId: params.companyId,
-		
       },
      { where: {id:params.cartId}
       
@@ -148,8 +140,30 @@ app.put('/update',checkAuth,async (req, res, next) => {
       )  
       
       if(orderData) 
+{
 
-      return responseHelper.post(res, appstrings.cart_update_success, null);
+  var countDataq = await CART.findOne({
+    attributes: ['id','companyId','promoCode','userId',
+      [sequelize.fn('sum', sequelize.col('orderTotalPrice')), 'totalSum'],
+      [sequelize.fn('sum', sequelize.col('quantity')), 'totalQunatity'],
+    ],
+   
+  where :{ userId : req.id
+   
+  }});
+   countDataq=JSON.parse(JSON.stringify(countDataq))
+
+  var dataToBesent={}
+  dataToBesent.sum=countDataq.totalSum
+  dataToBesent.totalQunatity=countDataq.totalQunatity
+
+  dataToBesent.orderTotalPrice=orderTotalPrice
+  dataToBesent.quantity=params.quantity
+  dataToBesent.orderPrice=cartData.dataValues.orderPrice
+
+
+      return responseHelper.post(res, appstrings.cart_update_success, dataToBesent);
+}
 
       else return responseHelper.post(res, appstrings.oops_something, null,400);
 

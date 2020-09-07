@@ -30,10 +30,17 @@
                                    
                                     <h5 class="text-uppercase mt-0 mb-3 bg-light p-2">General</h5>
 
-                                        <div class="form-group  mb-3">
-                                            <label for="product-name">Deal Name <span class="text-danger">*</span></label>
-                                            <input type="text" value="<%-data.dealName%>" id="name" autocomplete="off"  minlength="2" maxlength="100" name="name" class="form-control" placeholder="Deal Name">
-                                        </div>
+                                    <div class="form-group  mb-3">
+                                        <label for="product-name">Deal Name <span class="text-danger">*</span></label>
+                                        <select class="custom-select" id="name" name="name">
+                                            <option value="anniversary" <%if(data.dealName=="anniversary"){%> selected <%}%>  >Users Anniversary</option>
+                                            <option value="birthday" <%if(data.dealName=="birthday"){%> selected <%}%>  >Users Birthday</option>
+                                            <option value="restanniversary" <%if(data.dealName=="restanniversary"){%> selected <%}%>  >Restaurant Anniversary</option>
+                                            <option value="other" <%if(data.dealName=="other"){%> selected <%}%> >Other</option>
+
+                                        </select>
+                                    </div>
+                                  
 
                                         <div class="form-group  mb-3">
                                             <label for="product-name">Deal Code <span class="text-danger">*</span></label>

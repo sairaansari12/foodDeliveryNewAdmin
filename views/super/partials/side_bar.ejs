@@ -4,26 +4,90 @@
     <li class="menu-title">Navigation</li>
     <li>
       <a href="<%- superadminpath %>">
-        <i data-feather="airplay"></i>
+        <i data-feather="bar-chart-2"></i>
         <span> Dashboard </span>
       </a>
     </li>
     <li>
       <a href="<%- superadminpath %>company">
-        <i data-feather="airplay"></i>
+        <i data-feather="trello"></i>
         <span> Restaurants </span>
       </a>
     </li>
     <li>
       <a href="<%- superadminpath %>users">
-        <i data-feather="airplay"></i>
+        <i data-feather="users"></i>
         <span> Users </span>
       </a>
     </li>
 
     <li>
+      <a href="#sidebarCrm" data-toggle="collapse">
+          <i data-feather="users"></i>
+          <span> Staff </span>
+          <span class="menu-arrow"></span>
+      </a>
+      <div class="collapse" id="sidebarCrm">
+          <ul class="nav-second-level">
+              <li>
+                  <a href="<%-superadminpath%>employees/">Staff Listing</a>
+              </li>
+              <li>
+                  <a href="<%-superadminpath%>employees/add">Staff Add</a>
+              </li>
+              <li>
+                  <a href="<%-superadminpath%>employees/map">View On Map</a>
+              </li>
+             
+          </ul>
+      </div>
+  </li>
+  <li>
+    <a href="#sidebarProduct" data-toggle="collapse">
+        <i data-feather="box"></i>
+        <span> Products </span>
+        <span class="menu-arrow"></span>
+    </a>
+    <div class="collapse" id="sidebarProduct">
+        <ul class="nav-second-level">
+           
+            <li>
+                <a href="<%- superadminpath %>products/">All Products</a>
+            </li>
+            <li>
+                <a href="<%- adminpath %>/addons/">Add Ons</a>
+            </li>
+        </ul>
+    </div>
+  </li>
+
+    <li>
+      <a href="#sidebarOffer" data-toggle="collapse">
+          <i data-feather="gift"></i>
+          <span> Coupons & Offers </span>
+          <span class="menu-arrow"></span>
+      </a>
+      <div class="collapse" id="sidebarOffer">
+          <ul class="nav-second-level">
+              <li>
+                  <a href="<%- superadminpath %>coupans">Coupons</a>
+              </li>
+              <li>
+                  <a href="<%- superadminpath %>offers/">Offers</a>
+              </li>
+              <li>
+                  <a href="<%- superadminpath %>/Deals/">Deals</a>
+              </li>
+          </ul>
+      </div>
+    </li>
+
+
+
+
+    <li>
       <a href="#sidebaroSettings" data-toggle="collapse">
-        <i data-feather="settings"></i>
+        <i data-feather="pocket"></i>
         <span> Order Settings </span>
         <span class="menu-arrow"></span>
       </a>
@@ -56,6 +120,13 @@
       <div class="collapse" id="sidebarSettings">
         <ul class="nav-second-level">
           <li>
+            <a href="<%- superadminpath %>banner">Banners</a>
+        </li>
+
+        <li>
+            <a href="<%- superadminpath %>tags">Tags</a>
+        </li>
+          <li>
             <a href="<%- superadminpath %>changePassword">Change Password</a>
           </li>
            <li>
@@ -70,6 +141,56 @@
         </ul>
       </div>
     </li>
+
+    <li>
+      <a href="#sidebarNotification" data-toggle="collapse">
+          <i data-feather="bell"></i>
+          <span> Notifications </span>
+          <span class="menu-arrow"></span>
+      </a>
+      <div class="collapse" id="sidebarNotification">
+          <ul class="nav-second-level">
+              <li>
+                  <a href="<%- superadminpath %>notification">View Notifications</a>
+                  
+              </li>
+
+              <li>
+                <a href="<%- superadminpath %>notification/new">Push New Notification</a>
+                
+            </li>
+
+            <li>
+              <a href="<%- superadminpath %>notification/newEmail">Send New Email</a>
+              
+          </li>
+              
+          </ul>
+      </div>
+  </li>
+
+  <li>
+    <a href="#helpSettings" data-toggle="collapse">
+      <i data-feather="help-circle"></i>
+      <span> Help & Support </span>
+      <span class="menu-arrow"></span>
+    </a>
+    <div class="collapse" id="helpSettings">
+      <ul class="nav-second-level">
+        <li>
+          <a href="<%- superadminpath %>faq">FAQs</a>
+        </li>
+        <li>
+          <a href="<%- superadminpath %>contactus/">Contact us</a>
+        </li>
+        
+      </ul>
+    </div>
+  </li>
+
+
+
+
   </ul>
 </div>
 <!-- End Sidebar -->

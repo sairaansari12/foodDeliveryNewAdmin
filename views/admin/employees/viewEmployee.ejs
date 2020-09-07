@@ -185,7 +185,7 @@
 
                                             <div class="row mb-2">
                                                 <div class="col-lg-12">
-                                                    <form class="form-inline">
+                                                    <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                                         <div class="form-group  mx-sm-1 mb-2">
                                                             <label for="inputPassword2" class="sr-only">Search</label>
                                                             <input type="search" class="form-control" id="search" name="search"
@@ -197,7 +197,7 @@
                                                                 <option value="" />All
                                                                 <%for(var k=0;k<options.length;k++)
                                                             {%>
-                                                                <option value="<%-options[k].id%>"> <%-options[k].statusName%> </option>
+                                                                <option value="<%-options[k].status%>"> <%-options[k].statusName%> </option>
 
 
                                                             <%}%>

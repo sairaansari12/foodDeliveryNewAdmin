@@ -109,7 +109,7 @@ app.post('/update',superAuth,async(req,res,next) => {
 });
 
 app.get('/changePassword',superAuth, async (req, res, next) => {
-   return res.render(superadminfilepath+'changePassword.ejs');
+   return res.render(superadminfilepath+'dashboard/changePassword.ejs');
 });
 
 //////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ app.post('/role/update',superAuth,async (req, res) => {
 /////////////////////// User Roles ////////////////////////
 //////////////////////////////////////////////////////
 app.get('/userroles',superAuth, async (req, res, next) => {
-    const findData = await ROLETYPE.findAll({
+    const findData = await USERTYPE.findAll({
       where: {
         companyId: req.companyId
       }
@@ -225,7 +225,7 @@ app.get('/userroles',superAuth, async (req, res, next) => {
 app.post('/userrole/add',superAuth,async (req, res) => {
   try {
     const data = req.body;
-    const findData = await ROLETYPE.findOne({
+    const findData = await USERTYPE.findOne({
       where: {
         companyId: req.companyId,
         userType: data.name
@@ -234,7 +234,7 @@ app.post('/userrole/add',superAuth,async (req, res) => {
     if(findData){
       return responseHelper.post(res,"Already Exist!",null,400);
     }else{
-      const users = await ROLETYPE.create({
+      const users = await USERTYPE.create({
         userType: data.name,
         companyId: req.companyId
       });
@@ -253,7 +253,7 @@ app.post('/userrole/add',superAuth,async (req, res) => {
 app.post('/userrole/update',superAuth,async (req, res) => {
   try {
     const data = req.body;
-    const findData = await ROLETYPE.findOne({
+    const findData = await USERTYPE.findOne({
       where: {
         companyId: req.companyId,
         userType: data.nameedit,
@@ -265,7 +265,7 @@ app.post('/userrole/update',superAuth,async (req, res) => {
     if(findData){
       return responseHelper.post(res,"Already Exist!",null,400);
     }else{
-      const users = await ROLETYPE.update({
+      const users = await USERTYPE.update({
         userType: data.nameedit
       },{
         where: {
@@ -285,7 +285,7 @@ app.post('/userrole/update',superAuth,async (req, res) => {
 */
 app.get('/userrole/delete/:id',superAuth,async(req,res,next) => { 
   try{
-    const numAffectedRows = await ROLETYPE.destroy({
+    const numAffectedRows = await USERTYPE.destroy({
       where: {
         id: req.params.id,
         companyId: req.companyId

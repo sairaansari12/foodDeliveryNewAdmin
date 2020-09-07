@@ -1,4 +1,5 @@
 const express = require('express');
+const { monthsShort } = require('moment');
 const app = express();
 
 
@@ -79,7 +80,18 @@ app.post('/contactus', checkAuth,async (req, res, next) => {
     })
 
 
-   if(findData) return responseHelper.post(res, appstrings.query_save,null);
+    
+var notifUserData={title:appstrings.contact_title+" , Date: "+commonMethods.formatAMPM(new Date()),
+description:appstrings.contact_title +" Info : "+commonMethods.short(params.query,70),
+userId:req.parentCompany,
+orderId:"",
+role:1}
+
+   if(findData) {
+    commonNotification.insertNotification(notifUserData)
+
+    return responseHelper.post(res, appstrings.query_save,null);
+   }
    else  return responseHelper.post(res, appstrings.oops_something,null, 400);
 
 }

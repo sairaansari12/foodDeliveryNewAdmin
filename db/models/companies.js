@@ -198,7 +198,10 @@ totalOrders:
 {
   type: DataTypes.STRING(100),
   defaultValue: 0,
-
+  get() {
+   
+    return this.getDataValue('totalOrders').toString()
+},
 },
 
 

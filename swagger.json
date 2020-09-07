@@ -364,12 +364,7 @@
        "parameters": [
          { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
          { "name": "cartId",  "in": "formData",  "required":true ,"type":"string"},
-         { "name": "addressId",  "in": "formData",  "required":true ,"type":"string"},
-         { "name": "serviceId",  "in": "formData",  "required":true ,"type":"string"},
-         { "name": "companyId",  "in": "formData",  "required":true ,"type":"string"},
-         { "name": "orderPrice",  "in": "formData",  "required":true ,"type":"string"},
-         { "name": "quantity",  "in": "formData",  "required":true ,"type":"string" },
-         { "name": "orderTotalPrice",  "in": "formData",  "required":true ,"type":"string"}
+         { "name": "quantity",  "in": "formData",  "required":true ,"type":"string" }
          
 
     ],

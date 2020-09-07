@@ -71,7 +71,6 @@ var data=await CATEGORY.findOne({
 
 
 
-console.log(">>>>>>>>>>>>>>>>>",req.parentCompany)
     //Banners
     const banners = await BANNERS.findAll({
       attributes: ['name','url'],
@@ -379,22 +378,22 @@ newBCond,
         offset: 0, limit: 5,
       })
 
-    //  //Banners
-    // const banners = await BANNERS.findAll({
-    //   attributes: ['name','url'],
-    //   where:{companyId :req.parentCompany},
-    //   order: [
-    //     ['orderby','ASC']
-    //   ], 
-    //   offset: 0, limit: 5
+     //Banners
+    const banners = await BANNERS.findAll({
+      attributes: ['name','url'],
+      where:{companyId :req.parentCompany},
+      order: [
+        ['orderby','ASC']
+      ], 
+      offset: 0, limit: 5
 
-    // })
+    })
 
 
 
      //Restro Offers
     const restOffers = await COUPAN.findAll({
-      attributes: ['discount','name'],
+      attributes: ['discount','name','thumbnail'],
       where:{offerType :'overall',
       status :1,
       validupto: {
@@ -456,6 +455,8 @@ dataVendor=dataVendor.slice(0, 8);
       //Combining Data
       userData.deals = deals
       userData.offers = offers
+      userData.banners = banners
+
       if(vendors.length>6) 
       vendors=vendors.slice(0, 6);
 
@@ -679,7 +680,7 @@ var catArray=[categoryId]
        where: {
       'userId':  req.id,
    },
-    attributes:['id'],
+    attributes:['id','quantity','orderPrice','orderTotalPrice'],
    required: false,
    }  
 
@@ -725,14 +726,15 @@ var catArray=[categoryId]
 for(var p=0;p<services.length;p++)
 {
 
-   if(services[p].cart) services[p].cart=services[p].cart.id
-   else services[p].cart=""
+  //  if(services[p].cart) services[p].cart=services[p].cart.id
+  //  else services[p].cart=""
 
    if(services[p].favourite) services[p].favourite=services[p].favourite.id
    else services[p].favourite=''
 
    if(services[p].offer >0 && (new Date(services[p].validUpto) < new Date()))
-   {services[p].price=services[p].originalPrice
+   {
+     services[p].price=parseFloat(services[p].originalPrice)
    services[p].offer=0}
 
 }
@@ -849,7 +851,7 @@ app.post('/search', checkAuth,async (req, res, next) => {
      else services[p].favourite=''
   
      if(services[p].offer >0 && (new Date(services[p].validUpto) < new Date()))
-     {services[p].price=services[p].originalPrice
+     {services[p].price=parseFloat(services[p].originalPrice)
      services[p].offer=0}
   
   }

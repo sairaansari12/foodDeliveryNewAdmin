@@ -38,7 +38,7 @@
                             <div class="card-box">
                                 <div class="row">
                                     <div class="col-lg-8">
-                                        <form class="form-inline">
+                                        <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                             <div class="form-group">
                                                 <label for="inputPassword2" class="sr-only">Search</label>
                                                 <input type="search" class="form-control" id="search" placeholder="Search...">
@@ -201,8 +201,14 @@
  var itemType= ""
   getFilter(currentPage);
 
-  $('#search').on( 'keyup', function () {
-       setTimeout(function(){getFilter(1) },1500);
+ 
+           var permissions=JSON.parse('<%-JSON.stringify(permissions)%>');
+var statusR=(permissions && permissions.pApproved=="1") ?"inline" :"none";
+  $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getFilter(1)
+    }   
     });
 function getFilter(page)
 {
@@ -230,8 +236,9 @@ function getFilter(page)
                          var ratings=getRating(value.rating)
                          var type=(value.itemType)==0?'<span class="font-success">Veg</span>':'Non-Veg'
                          var status=(value.status)==0?'<span class="badge bg-soft-danger mt-2 text-danger float-right">Inactive</span>':  '<span class="badge bg-soft-success mt-2 text-success float-right">Active</span>';
-                         var dot=(value.itemType)==1?'<i class="mdi mdi-circle text-danger mdi-spin"></i>':'<i class="mdi mdi-spin mdi-circle text-success"></i>'
+                        
 
+                         var dot=(value.itemType)==1?'<i class="mdi mdi-circle text-danger mdi-spin"></i>':'<i class="mdi mdi-spin mdi-circle text-success"></i>'
 
 
                          html=html+`<div class="col-md-4">
@@ -403,8 +410,15 @@ function getFilter(page)
     }
 
 
-    function productStatusChange(id,status)
+    function productStatusChange(id,status,approve)
     {
+
+        if((status=="0" &&  permissions.pApproved=="0")  || approve=="0")
+{
+    showToastError("You don't have permissions to change status ,please contact to admin ")
+
+return;
+}
         var confirm1= (status=="1") ? "Disable" : "Enable"
 
         if( confirm('Are you sure you want to '+confirm1+' this?'))

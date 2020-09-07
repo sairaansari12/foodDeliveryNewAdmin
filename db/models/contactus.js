@@ -51,6 +51,13 @@ email: {
       defaultValue: 1
     },
 
+    readStatus: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false,
+      defaultValue: 0
+    },
+
+
   
     createdAt: {
       type: DataTypes.DATE(),

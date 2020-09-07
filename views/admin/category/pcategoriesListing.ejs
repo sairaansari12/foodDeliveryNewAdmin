@@ -506,21 +506,31 @@ $("#addCat").validate({
 
     }
 
-$('#search').on( 'keyup', function () {
 
-       setTimeout(function(){getproducts(cProductId,cProductdataC,cProductName) }, 1500);
+    $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+        getproducts(cProductId,cProductdataC,cProductName) 
+    }  
     });
 
-    $('#searchDiv1').on( 'keyup', function () {
-       setTimeout(function(){
+  
+
+    $('#searchDiv1').on( 'keyup', function (event) {
+        event.preventDefault();
+    if (event.keyCode === 13) {
            var pId=$('#parDiv1').val()
-        getSubCat(pId,'1','bgDiv'+pId,'',null,$('#searchDiv1').val()) }, 1500);
+        getSubCat(pId,'1','bgDiv'+pId,'',null,$('#searchDiv1').val()) }
     });
 
-    $('#searchDiv2').on( 'keyup', function () {
-       setTimeout(function(){
+
+
+    $('#searchDiv2').on( 'keyup', function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
         var pId=$('#parDiv2').val()
-        getSubCat(pId,'2','bgDiv'+pId,'',null,$('#searchDiv2').val()) }, 1500);
+        getSubCat(pId,'2','bgDiv'+pId,'',null,$('#searchDiv2').val()) 
+    }
     });
 
  

@@ -3,33 +3,21 @@ const express = require('express');
 const app     = express();
 const Op = require('sequelize').Op;
 
+const COUPAN = db.models.coupan
+const CATEGORY = db.models.categories
+var moment = require('moment')
 
 
 
 
 app.get('/',superAuth, async (req, res, next) => {
     
-  var compId=req.query.compId
-  if(compId==undefined || compId=="") compId=req.companyId
   try{
    
-    //var newDate = moment(new Date()).format("MM/DD/YYYY");
-    const findData = await COUPAN.findAll({
-      where: {
-        companyId: compId,
-        
-      },
-      include:[ {
-        model: CATEGORY,
-        as: 'category',
-        attributes: ['name','icon','thumbnail'],
-        required: false
-      }]
-    });
     
-    var compData= await commonMethods.getAllCompanies(req.companyId)
-
-        return res.render('super/coupans/coupanListing.ejs',{data:findData,compData:compData});
+    
+   
+        return res.render('super/coupans/coupanListing.ejs');
 
       } catch (e) {
         return responseHelper.error(res, e.message, 400);
@@ -39,13 +27,124 @@ app.get('/',superAuth, async (req, res, next) => {
 });
 
 
+app.post('/list',superAuth, async (req, res, next) => {
+  try {
+  
+    var params=req.body
+    var newDate = moment(new Date()).format("YYYY/MM/DD hh:mm:ss");
+
+ 
+    var page =1
+    var limit =20
+    var orderby='createdAt'
+    var orderType='ASC'
+    var status=['0','1']
+    var filterType={[Op.gte]: newDate}
+
+
+ 
+
+           
+    if(params.filterType && params.filterType==0) 
+      filterType={[Op.lt]: newDate}
+  
+      if(params.status && params.status!="") status=[params.status]
+
+
+    if(params.orderByInfo &&   params.orderByInfo.orderby) {
+     orderby=params.orderByInfo.orderby
+     orderType=params.orderByInfo.orderType
+ 
+   }
+
+ 
+   if(params.categoryId) categoryId=params.categoryId
+ 
+   if(params.page) page=params.page
+ 
+   if(params.limit)
+    limit=parseInt(params.limit)
+    var offset=(page-1)*limit
+ 
+
+
+
+
+    var where= {
+      companyId:req.id,
+      status:  {[Op.or]: status},
+      offerType:'coupon',
+      validupto: filterType,
+      
+      } 
+     
+ 
+ 
+     if(params.search && params.search!="")
+     {
+ 
+      where={ [Op.or]: [
+         {name: {[Op.like]: `%${params.search}%`}},
+         {description: { [Op.like]: `%${params.search}%` }},
+         {code: { [Op.like]: `%${params.search}%` }},
+         {discount: { [Op.like]: `%${params.search}%` }},
+         {minimumAmount: { [Op.like]: `%${params.search}%` }},
+         {validupto: { [Op.like]: `%${params.search}%` }}
+       ],
+       companyId:req.companyId,
+       status:  {[Op.or]: status},
+       offerType:'coupon',
+       validupto: filterType
+
+     }
+ 
+   }
+     
+   
+
+
+      var findData = await COUPAN.findAndCountAll({
+        order: [
+          ['createdAt', 'DESC'],  
+        ],
+        include:[ {
+          model: CATEGORY,
+          as: 'category',
+          attributes: ['name','icon','thumbnail'],
+          required: false
+        },
+        {
+          model: USERTYPE,
+          attributes: ['id','userType'],
+          required: false
+        },
+      ],
+        where :where,
+        offset: offset, limit: limit ,
+        order: [[orderby,orderType]]
+
+      });
+  
+    return responseHelper.post(res, appstrings.success, findData);
+  
+
+  } catch (e) {
+    console.log(e)
+    return responseHelper.error(res, e.message, 400);
+  }
+});
+
+
+
+
+
+
 app.get('/add',superAuth, async (req, res, next) => {
     
   try{
-    var cdata= await commonMethods.getAllParentCategories(req.companyId)
-    var types=await commonMethods.getUserTypes(req.companyId) 
+    var types=await commonMethods.getUserTypes(req.id) 
 
-    return res.render('super/coupans/addCoupan.ejs',{catData:cdata,types:types});
+    return res.render('super/coupans/addCoupan.ejs',{types:types});
 
     } catch (e) {
       return responseHelper.error(res, e.message, 400);
@@ -129,7 +228,7 @@ app.post('/add',superAuth,async (req, res) => {
       ImageFile = req.files.icon;    
       if(ImageFile)
       {
-         icon = Date.now() + '_' + ImageFile.name;
+         icon = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
 
       ImageFile.mv(config.UPLOAD_DIRECTORY +"coupans/icons/"+ icon, function (err) {
           //upload file
@@ -138,16 +237,16 @@ app.post('/add',superAuth,async (req, res) => {
       });
 
     }
-      ImageFile1 = req.files.thumbnail;    
-      if(ImageFile1)
-      {
-      thumbnail = Date.now() + '_' + ImageFile1.name;
-      ImageFile1.mv(config.UPLOAD_DIRECTORY +"coupans/thumbnails/"+ thumbnail, function (err) {
-          //upload file
-          if (err)
-          return responseHelper.error(res, err.message, 400);   
-      });
-    }
+    //   ImageFile1 = req.files.thumbnail;    
+    //   if(ImageFile1)
+    //   {
+    //   thumbnail = Date.now() + '_' + ImageFile1.name;
+    //   ImageFile1.mv(config.UPLOAD_DIRECTORY +"coupans/thumbnails/"+ thumbnail, function (err) {
+    //       //upload file
+    //       if (err)
+    //       return responseHelper.error(res, err.message, 400);   
+    //   });
+    // }
       }
 
 
@@ -169,12 +268,13 @@ app.post('/add',superAuth,async (req, res) => {
       const users = await COUPAN.create({
         name: data.name,
         type: data.type,
+        offerType: "coupon",
         usageLimit: data.usageLimit,
         code: data.code,
         discount: data.discount,
         icon: icon,
         validupto:data.validupto,
-        thumbnail: thumbnail,
+        thumbnail: icon,
         description:data.description,
         companyId: req.companyId,
         categoryId:data.categoryId,
@@ -218,37 +318,28 @@ app.post('/update',superAuth,async (req, res) => {
 
     if (req.files) {
 
-      ImageFile = req.files.icon;    
-      if(ImageFile)
-      {
-         icon = Date.now() + '_' + ImageFile.name;
+        ImageFile = req.files.icon;    
+        if(ImageFile)
+        {
+           icon = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
 
-      ImageFile.mv(config.UPLOAD_DIRECTORY +"coupans/icons/"+ icon, function (err) {
-          //upload file
-          if (err)
-          return responseHelper.error(res, err.meessage, 400);   
-      });
+        ImageFile.mv(config.UPLOAD_DIRECTORY +"coupans/thumbnails/"+ icon, function (err) {
+            //upload file
+            if (err)
+            return responseHelper.error(res, err.meessage, 400);   
+        });
 
-    }
-    
-      ImageFile1 = req.files.thumbnail;    
-      if(ImageFile1)
-      {
-      thumbnail = Date.now() + '_' + ImageFile1.name;
-      ImageFile1.mv(config.UPLOAD_DIRECTORY +"coupans/thumbnails/"+ thumbnail, function (err) {
-          //upload file
-          if (err)
-          return responseHelper.error(res, err.message, 400);   
-      });
-    }
       }
+    
+    }
 
 
     const user = await COUPAN.findOne({
       attributes: ['id'],
 
       where: {
-        id: data.coupanId
+        id: data.coupanId,
+        companyId: req.companyId
 
       }
     });
@@ -259,7 +350,6 @@ app.post('/update',superAuth,async (req, res) => {
     if (user) {
     
       if(icon=="") icon=user.dataValues.icon
-      if(thumbnail=="") thumbnail=user.dataValues.thumbnail
 
 
       const users = await COUPAN.update({
@@ -269,18 +359,14 @@ app.post('/update',superAuth,async (req, res) => {
         discount: data.discount,
         icon: icon,
         usageLimit: data.usageLimit,
-        thumbnail: thumbnail,
+        thumbnail: icon,
         description:data.description,
+        companyId: req.companyId,
         validupto:data.validupto,
         minimumAmount:data.minimumAmount,
         categoryId:data.categoryId
-
-
-
-
        },
        {where:{
-
         id: data.coupanId
        }}
        
@@ -331,11 +417,11 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
 
    
       const findData = await COUPAN.findOne({
-      where :{id: id }
+      where :{companyId :req.companyId, id: id }
       });
    
-      var cdata= await commonMethods.getAllParentCategories(req.companyId)
-      var types=await commonMethods.getUserTypes(req.companyId) 
+      var cdata= await commonMethods.getAllCategories(req.companyId)
+      var types=await commonMethods.getUserTypes(req.parentCompany) 
 
       return res.render('super/coupans/viewCoupan.ejs',{data:findData,catData:cdata,types:types});
 
@@ -358,7 +444,7 @@ app.get('/delete/:id',superAuth,async(req,res,next) => {
   let responseNull=  common.checkParameterMissing([req.params.id])
   if(responseNull) 
   { req.flash('errorMessage',appstrings.required_field)
-  return res.redirect(superadminpath+"coupans");
+  return res.redirect(supersuperadminpath+"coupans");
 }
 
   try{

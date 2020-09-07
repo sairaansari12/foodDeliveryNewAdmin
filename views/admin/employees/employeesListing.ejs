@@ -51,7 +51,7 @@
 
                                     
                                     <div class="col-lg-10">
-                                        <form class="form-inline">
+                                        <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                             <div class="form-group">
                                                 <label for="inputPassword2" class="sr-only">Search</label>
                                                 <input type="search" class="form-control" id="search" placeholder="Search...">
@@ -191,8 +191,11 @@
 
   getFilter(currentPage);
 
-  $('#search').on( 'keyup', function () {
-       setTimeout(function(){getFilter(1) },1500);
+  $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getFilter(1)
+    }   
     });
 function getFilter(page)
 {

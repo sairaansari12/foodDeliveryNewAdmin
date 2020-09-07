@@ -44,7 +44,7 @@
                                     <div class="card-body">
                                         <div class="row mb-2">
                                             <div class="col-lg-12">
-                                                <form class="form-inline">
+                                                <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                                     
                                                     <div class="form-group mx-sm-2 mb-2">
                                                         <select class="custom-select" id="status-select">
@@ -78,7 +78,7 @@
                 
                                         <div id="accordion" class="table-responsive">
                                             <table id="demo-foo-pagination"
-                                            class="table  nowrap dataTable no-footer w-100 toggle-arrow-tiny">
+                                            data-page-size="30"  class="table  nowrap dataTable no-footer w-100 toggle-arrow-tiny">
                                                 <thead class="thead-light">
                                                     <tr>
                                                         <th >Order ID</th>
@@ -176,8 +176,11 @@ for (i = 0; i < coll.length; i++) {
 
     </script>
 <script>
-    $('#search').on( 'keyup', function () {
-       setTimeout(function(){getSearch(1) },800);
+  $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getSearch(1)
+    }   
     });
     $("#toDate").flatpickr();
     function changeStatus()
@@ -231,7 +234,7 @@ for (i = 0; i < coll.length; i++) {
     function getFilter(currentPage)
     {
         currentPage=currentPage
-        var limit=40
+        var limit=30
         $('#loading1').show()
         var status=$('#status-select').val();
         var fromDate=""

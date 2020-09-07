@@ -21,18 +21,17 @@ function isAdminAuth(req, res, next) {
 app.get('/', async (req, res, next) => {
     if(req.session.userData){
        //var data=await  getDashboardData("2020-04-10","2020-04-17",null,null,req.session.companyId)
-        // return res.render(adminfilepath+'index.ejs',{data:null});
-        return res.render(adminfilepath+'dashboard.ejs',{data:null});
+        return res.render(adminfilepath+'dashboard/dashboard.ejs',{data:null});
 
     }
 
-    return res.render(adminfilepath+'login.ejs');
+    return res.render(adminfilepath+'dashboard/login.ejs');
 });
 
 
 app.get('/login', async (req, res, next) => {
   
-  return res.render(adminfilepath+'login.ejs');
+  return res.render(adminfilepath+'/dashboard/login.ejs');
 });
 
 async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,companyId,parentCompany)
@@ -350,7 +349,7 @@ app.get('/logout',async(req,res,next) => {
     }
    // req.flash('successMessage',"Logout Success.");
     //return res.redirect(adminpath);
-    return res.render(adminfilepath+'logout.ejs');
+    return res.render(adminfilepath+'dashboard/logout.ejs');
 
     });
 });
@@ -463,19 +462,19 @@ app.post('/changePassword',adminAuth,async(req,res,next) => {
 });
 
 app.get('/changePassword',adminAuth, async (req, res, next) => {
-   return res.render(adminfilepath+'changePassword.ejs');
+   return res.render(adminfilepath+'dashboard/changePassword.ejs');
 });
 
 app.get('/recoverPassword', async (req, res, next) => {
-  return res.render(adminfilepath+'recoverPassword.ejs');
+  return res.render(adminfilepath+'dashboard/recoverPassword.ejs');
 });
 
 app.get('/forgotPassword', async (req, res, next) => {
-  return res.render(adminfilepath+'forgotPassword.ejs');
+  return res.render(adminfilepath+'dashboard/forgotPassword.ejs');
 });
 
 app.get('/dashboard', async (req, res, next) => {
-  return res.render(adminfilepath+'dashboard.ejs');
+  return res.render(adminfilepath+'dashboard/dashboard.ejs');
 });
 module.exports = app;
 

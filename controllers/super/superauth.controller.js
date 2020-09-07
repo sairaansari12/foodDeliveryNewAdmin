@@ -29,24 +29,22 @@ app.get('/', async (req, res, next) => {
 
         });
        //var data=await  getDashboardData("2020-04-10","2020-04-17",null,null,req.session.companyId)
-        // return res.render(superadminfilepath+'index.ejs',{data:null});
-        return res.render(superadminfilepath+'dashboard.ejs',{data:null,findData});
+        return res.render(superadminfilepath+'dashboard/dashboard.ejs',{data:null,findData});
 
     }
 
-    return res.render(superadminfilepath+'login.ejs');
+    return res.render(superadminfilepath+'dashboard/login.ejs');
 });
 
 
 app.get('/login', async (req, res, next) => {
   
-  return res.render(superadminfilepath+'login.ejs');
+  return res.render(superadminfilepath+'dashboard/login.ejs');
 });
 
 async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,companyId,parentCompany)
 {
     try {
-        console.log("safsdfsdfsjsa",parentCompany)
         var fromDate =  ""
         var toDate =  ""
         var date = new Date();
@@ -344,7 +342,7 @@ app.get('/logout',async(req,res,next) => {
     }
    // req.flash('successMessage',"Logout Success.");
     //return res.redirect(superadminpath);
-    return res.render(superadminfilepath+'logout.ejs');
+    return res.render(superadminfilepath+'dashboard/logout.ejs');
 
     });
 });
@@ -457,15 +455,15 @@ app.post('/changePassword',superAuth,async(req,res,next) => {
 });
 
 app.get('/changePassword',superAuth, async (req, res, next) => {
-   return res.render(superadminfilepath+'changePassword.ejs');
+   return res.render(superadminfilepath+'dashboard/changePassword.ejs');
 });
 
 app.get('/recoverPassword', async (req, res, next) => {
-  return res.render(superadminfilepath+'recoverPassword.ejs');
+  return res.render(superadminfilepath+'dashboard/recoverPassword.ejs');
 });
 
 app.get('/forgotPassword', async (req, res, next) => {
-  return res.render(superadminfilepath+'forgotPassword.ejs');
+  return res.render(superadminfilepath+'dashboard/forgotPassword.ejs');
 });
 
 app.get('/dashboard', async (req, res, next) => {
@@ -476,7 +474,7 @@ app.get('/dashboard', async (req, res, next) => {
         ],      
 
         });
-  return res.render(superadminfilepath+'dashboard.ejs',{findData});
+  return res.render(superadminfilepath+'dashboard/dashboard.ejs',{findData});
 });
 
 /*

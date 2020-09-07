@@ -85,6 +85,25 @@ transporter.sendMail(mailOptions, function(error, info){
 
 
 
+sendPushMail :function (title,emails,data)
+{
+   
+    var mailOptions = {
+     from: config.REMINDER_MAIL,
+     to: emails,
+     subject: title,
+     // forceEmbeddedImages: true,
+     html: data
+};
+transporter.sendMail(mailOptions, function(error, info){
+ if (error) {
+     console.log(error);
+     } 
+ });
+     
+
+},
+
 sendForgotPasswordMail :function (emails,data)
 {
     var index = fs.readFileSync('html/forgot.html', 'utf8');

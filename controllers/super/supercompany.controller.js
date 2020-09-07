@@ -2,20 +2,21 @@
 const express = require('express');
 const app     = express();
 const hashPassword = require('../../helpers/hashPassword');
+const Op = require('sequelize').Op;
 
 
 
 app.get('/',superAuth, async (req, res, next) => {
     
     try {
-        const findData = await COMPANY.findAll({
-        where :{parentId :req.id},
-        order: [
-          ['companyName','ASC']
-        ],      
+        // const findData = await COMPANY.findAll({
+        // where :{parentId :req.id},
+        // order: [
+        //   ['companyName','ASC']
+        // ],      
 
-        });
-        return res.render('super/company/companyListing.ejs',{data:findData});
+        // });
+        return res.render('super/company/companyListing.ejs');
 
 
 
@@ -98,6 +99,162 @@ app.get('/add',superAuth, async (req, res, next) => {
 
 });
 
+
+app.get('/permissions',superAuth, async (req, res, next) => {
+    
+  var params=req.query
+  try{
+  
+    const permissions = await PERMISSIONS.findOne({
+      where: {
+        companyId: params.id }
+    });
+    return res.render('super/company/permissions.ejs',{permissions});
+
+    } catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+
+
+});
+
+
+app.post('/permissions',superAuth,async (req, res) => {
+  try {
+   
+    var data=req.body
+
+    //console.log(data)
+
+    const user = await PERMISSIONS.findOne({
+      where :{companyId :data.companyId }
+    });
+
+    if (user) {
+
+      
+      //update Record
+      const users = await PERMISSIONS.update({
+          productReviewDelete: data.pReviewDelete=="on"?"1":"0",
+          staffReviewDelete: data.sReviewDelete=="on"?"1":"0",
+          restroReviewDelete: data.rReviewDelete=="on"?"1":"0",
+          pApproved: data.pApproved=="on"?"1":"0",
+
+        },
+        {
+          where :{companyId :data.companyId }
+        }
+      );
+     
+      if(users)responseHelper.post(res, appstrings.update_success,null, 200);
+
+       else responseHelper.error(res, appstrings.oops_something, 400);
+    }
+else{
+  const users = await PERMISSIONS.create({
+    productReviewDelete: data.pReviewDelete=="on"?"1":"0",
+    staffReviewDelete: data.sReviewDelete=="on"?"1":"0",
+    restroReviewDelete: data.rReviewDelete=="on"?"1":"0",
+    pApproved: data.pApproved=="on"?"1":"0",
+
+    companyId:data.companyId
+  } 
+);
+
+responseHelper.post(res, appstrings.update_success,null, 200);
+}
+
+
+
+  } catch (e) {
+    return responseHelper.error(res, appstrings.oops_something, e.message);
+  }
+
+})
+
+
+
+app.post('/list',superAuth,async (req, res, next) => {
+
+  var params=req.body
+  
+   var page =1
+   var limit =20
+   var status=['0','1']
+   var orderby='createdAt'
+   var orderType='ASC'
+
+   if(params.status && params.status!="") status=[params.status]
+   if(params.orderByInfo &&   params.orderByInfo.orderby) {
+    orderby=params.orderByInfo.orderby
+    orderType=params.orderByInfo.orderType
+
+  }
+
+
+  if(params.page) page=params.page
+
+  if(params.limit)
+   limit=parseInt(params.limit)
+   var offset=(page-1)*limit
+
+   var where= {
+    parentId:req.id,
+    status:  {[Op.or]: status}    
+    }
+
+ 
+
+
+    if(params.search && params.search!="")
+    {
+
+     where={ [Op.or]: [
+        {companyName: {[Op.like]: `%${params.search}%`}},
+        {address1: { [Op.like]: `%${params.search}%` }},
+        {email: { [Op.like]: `%${params.search}%` }},
+        {phoneNumber: { [Op.like]: `%${params.search}%` }},
+        {countryCode: { [Op.like]: `%${params.search}%` }}
+
+
+      ],
+      parentId: req.id,
+      status:  {[Op.or]: status},
+    }
+
+  }
+    
+  
+
+      
+
+
+    try{
+
+
+      var services = await COMPANY.findAndCountAll({
+      where: where,
+      order: [[orderby,orderType]],
+      offset:offset,limit:limit,
+
+      })
+
+
+
+      return responseHelper.post(res, appstrings.success, services);
+
+  
+
+    }
+    catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+
+});
+
+
+
+
 app.post('/add',superAuth,async (req, res) => {
   try {
     const data = req.body;
@@ -107,11 +264,12 @@ app.post('/add',superAuth,async (req, res) => {
     var logo3 = "";
 
 
-    let responseNull= commonMethods.checkParameterMissing([data.companyName,data.email,data.address,data.phoneNumber,data.password])
+    let responseNull= commonMethods.checkParameterMissing([data.companyName,data.email,data.address,data.phoneNumber,data.password,data.chargesType])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
     const newPassword = await hashPassword.generatePass(data.password);
 
+  
     //Uploading Comapny Images
     if (req.files) {
       var ImageFile = req.files.logo1;
@@ -146,8 +304,11 @@ app.post('/add',superAuth,async (req, res) => {
       }
     }
     const user = await COMPANY.findOne({
-      where :{companyName: data.companyName,
-        email: data.email }
+      where :{ [Op.or]: [
+        {companyName: data.companyName},
+        {email:  data.email},
+        {phoneNumber: data.phoneNumber}
+      ]}
     });
     if (!user) {
       //update Record
@@ -162,11 +323,35 @@ app.post('/add',superAuth,async (req, res) => {
         password:newPassword,
         parentId: req.id,
         tags: '',
+        itemType:data.itemType,
+        deliveryType:data.deliveryType,
+        startTime:data.startTime,
+        endTime:data.endTime,
         phoneNumber: data.phoneNumber,
         countryCode: data.countryCode,
         latitude: data.latitude,
         longitude: data.longitude,
       });
+
+if(users)
+{
+COMISSION.create({
+  companyId:users.id,
+  chargesPercent:data.charges,
+  chargesAmount:data.fullAmount,
+  chargesType:data.chargesType,
+  installments:data.installments
+})
+
+PERMISSIONS.create({
+  companyId:users.id
+})
+
+
+
+
+}
+
       return responseHelper.post(res, appstrings.company_add, null,200);
     }
       else  responseHelper.post(res, appstrings.already_exists, 204);
@@ -251,12 +436,23 @@ app.post('/update',superAuth,async (req, res) => {
           countryCode: data.countryCode,
           latitude: data.latitude,
           longitude: data.longitude,
+          itemType:data.itemType,
+          deliveryType:data.deliveryType,
+          startTime:data.startTime,
+          endTime:data.endTime,
         },
         {
           where :{id :data.companyId }
         }
       );
       if (users) {
+
+        COMISSION.update({
+          chargesPercent:data.charges,
+          chargesAmount:data.fullAmount,
+          chargesType:data.chargesType,
+          installments:data.installments
+        },{where:{companyId:data.companyId}})
         responseHelper.post(res, appstrings.update_success, null,200);
       }
      else  responseHelper.error(res, appstrings.oops_something, 400);
@@ -285,8 +481,12 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
    
       const findData = await COMPANY.findOne({
       where :{id: id }});
+
+      const chargesData = await COMISSION.findOne({
+        where :{companyId: id }});
+     
    
-      return res.render('super/company/viewCompany.ejs',{data:findData});
+      return res.render('super/company/viewCompany.ejs',{data:findData,chargesData});
 
 
 
@@ -301,41 +501,40 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
 
 
 
-app.get('/delete/:id',superAuth,async(req,res,next) => { 
+app.post('/delete',superAuth,async(req,res,next) => { 
    
 
-  let responseNull=  common.checkParameterMissing([req.params.id])
-  if(responseNull) 
-  { req.flash('errorMessage',appstrings.required_field)
-  return res.redirect(superadminpath+"company");
-}
+  let responseNull=  common.checkParameterMissing([req.body.id])
+  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+
+
 
   try{
         //console.log(pool.format('DELETE FROM `reminders` WHERE `reminder_id` = ?', [req.params.id]));
         const numAffectedRows = await COMPANY.destroy({
           where: {
-            id: req.params.id
+            id: req.body.id
           }
           })  
             
           if(numAffectedRows>0)
           {
-           req.flash('successMessage',appstrings.delete_success)
-          return res.redirect(superadminpath+"company");
-
-          }
+          // req.flash('successMessage',appstrings.delete_success)
+         return responseHelper.post(res, appstrings.delete_success,null,200);
+        }
 
           else {
-            req.flash('errorMessage',appstrings.no_record)
-            return res.redirect(superadminpath+"company");
+            return responseHelper.post(res, appstrings.no_record,null,400);
+           // return res.redirect(adminpath+"category");
           }
 
         }catch (e) {
-          //return responseHelper.error(res, e.message, 400);
-          req.flash('errorMessage',appstrings.no_record)
-          return res.redirect(superadminpath+"company");
+          return responseHelper.error(res, e.message, 400);
+          //req.flash('errorMessage',appstrings.no_record)
+          //return res.redirect(adminpath+"category");
         }
 });
+
 
 
 

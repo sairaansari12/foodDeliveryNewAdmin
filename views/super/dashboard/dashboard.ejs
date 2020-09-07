@@ -52,16 +52,34 @@
                     <!-- Start Content-->
                     <div class="container-fluid">
                         
-                        <!-- start page title -->
+                      
+
+
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box">
+                                    <div class="page-title-right">
+                                        <form class="form-inline" onkeypress="return event.keyCode != 13">
+                                            <div class="form-group">
+                                                <div class="input-group input-group-sm">
+                                                    <input type="text" class="form-control border-0" placeholder="Select date in range" id="range-datepicker">
+                                                    <div class="input-group-append">
+                                                        <span  onclick="getFilter()"  class="input-group-text bg-secondary border-secondary text-white">
+                                                            <i class="mdi mdi-calendar-range"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a href="javascript: void(0);"  onclick="window.location.reload()" class="btn btn-secondary btn-sm ml-2">
+                                                <i class="mdi mdi-autorenew"></i>
+                                            </a>
+                                            
+                                        </form>
+                                    </div>
                                     <h4 class="page-title">Dashboard</h4>
                                 </div>
                             </div>
-                        </div>     
-                        <!-- end page title --> 
-
+                        </div>   
                         <div class="row">
 
                             <div class="col-md-12 col-xl-3">
@@ -669,7 +687,7 @@
                 var toDate=""
                 var rangeDatePicker=[]
                 var cid= $('#cname').val();
-
+                var rangeDatePicker=$('#range-datepicker').val().split("to");
                 if(rangeDatePicker.length>1){ fromDate=rangeDatePicker[0];
                 toDate=rangeDatePicker[1];}
                 // if(countLoad>0)

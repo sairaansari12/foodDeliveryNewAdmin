@@ -20,7 +20,7 @@
                             <div class="page-title-box">
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="<%- adminpath %>">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="<%- superadminpath %>">Dashboard</a></li>
 
                                         <li class="breadcrumb-item active">Employee</li>
                                     </ol>
@@ -44,7 +44,7 @@
                         <div class="col-md-12">
                             <div class="row mb-2">
                                 <div class="col-lg-12">
-                                    <form class="form-inline">
+                                    <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                         <div
                                             class="col-md-3 form-bordered   text-transform-upr font-size-12 font-bold  font-purple pad10A">
                                             <b>Total ORDERS :</b><span id="totalOrders">0</span> </div>
@@ -97,7 +97,7 @@
                             <div class="card-body" id="justified-tabs-1">
                                 <div class="row mb-2">
                                     <div class="col-lg-12">
-                                        <form class="form-inline">
+                                        <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                             <div class="form-group mb-2">
                                                 <label for="inputPassword2" class="sr-only">Search</label>
                                                 <input type="search" class="form-control" id="search" name="search"
@@ -299,7 +299,7 @@
                                         $(".overlay").show();
                                         $.ajax({
                                             type: 'POST',
-                                            url: '<%-adminpath%>employees/update',
+                                            url: '<%-superadminpath%>employees/update',
                                             dataType: 'json',
                                             data: form_data,
                                             contentType: false,
@@ -311,7 +311,7 @@
 
                                                     showToastSuccess(response.message)
 
-                                                    window.location.href = "<%-adminpath%>employees/view/" + id;
+                                                    window.location.href = "<%-superadminpath%>employees/view/" + id;
 
                                                 } else {
                                                     showToastError(response.message)
@@ -344,7 +344,7 @@
 
                                         $.ajax({
                                             type: 'POST',
-                                            url: '<%-adminpath%>orders/status',
+                                            url: '<%-superadminpath%>orders/status',
                                             dataType: 'json',
                                             data: { 'id': id, 'status': status },
                                             success: function (response) {
@@ -392,7 +392,7 @@
                                     //alert(fromDate)
                                     $.ajax({
                                         type: 'POST',
-                                        url: '<%-adminpath%>employees/orders',
+                                        url: '<%-superadminpath%>employees/orders',
                                         dataType: 'json',
                                         data: { 'fromDate': fromDate, 'progressStatus': status, 'toDate': toDate, 'page': currentPage, 'limit': limit, 'empId': '<%-data.id%>' },
                                         success: function (response) {
@@ -434,8 +434,8 @@
                                                         '                </span>' +
                                                         '            </a>' + ' </td>' +
                                                         '<td>' +
-                                                        '<a href="<%-adminpath%>orders/view/' + data[t].id + '" class="action-icon"> <i class="mdi mdi-eye"></i></a>' +
-                                                        '<a onclick="return confirm(\'Are you sure you want to delete this?\');"  href="<%-adminpath%>orders/delete/' + data[t].id + '" data-id="' + data[t].id + '" title="" class="action-icon"> <i class="mdi mdi-delete"></i></a>' +
+                                                        '<a href="<%-superadminpath%>orders/view/' + data[t].id + '" class="action-icon"> <i class="mdi mdi-eye"></i></a>' +
+                                                        '<a onclick="return confirm(\'Are you sure you want to delete this?\');"  href="<%-superadminpath%>orders/delete/' + data[t].id + '" data-id="' + data[t].id + '" title="" class="action-icon"> <i class="mdi mdi-delete"></i></a>' +
                                                         '</td>' +
 
                                                         '        </tr>';
@@ -479,7 +479,7 @@
                                     //alert(fromDate)
                                     $.ajax({
                                         type: 'POST',
-                                        url: '<%-adminpath%>orders/search',
+                                        url: '<%-superadminpath%>orders/search',
                                         dataType: 'json',
                                         data: { 'search': search, 'page': currentPage, 'limit': limit },
                                         success: function (response) {
@@ -546,14 +546,14 @@
                                                         '                </a>' +
                                                         '                <ul class="dropdown-menu float-right">' +
                                                         '                    <li>' +
-                                                        '                        <a href="<%-adminpath%>orders/view/' + data[t].id + '" title="">' +
+                                                        '                        <a href="<%-superadminpath%>orders/view/' + data[t].id + '" title="">' +
                                                         '                            <i class="glyph-icon icon-edit mrg5R"></i>' +
                                                         '                            View' +
                                                         '                        </a>' +
                                                         '                    </li>' +
                                                         '                    <li class="divider"></li>' +
                                                         '                    <li>' +
-                                                        '                        <a onclick="return confirm(\'Are you sure you want to delete this?\');"  href="<%-adminpath%>orders/delete/' + data[t].id + '" data-id="' + data[t].id + '" class="font-red" title="">' +
+                                                        '                        <a onclick="return confirm(\'Are you sure you want to delete this?\');"  href="<%-superadminpath%>orders/delete/' + data[t].id + '" data-id="' + data[t].id + '" class="font-red" title="">' +
                                                         '                            <i class="glyph-icon icon-archive mrg5R"></i>' +
                                                         '                            Delete' +
                                                         '                        </a>' +

@@ -147,9 +147,9 @@ getTiffinAvgRating :function(tiffinId)
 
 },
 
-getUserTypes :function(companyId)
+getUserTypes :async function(companyId)
 {
-  const data =  USERTYPE.findAll({
+  const data =  await USERTYPE.findAll({
   where: {
     companyId:  companyId,status:1}
   })

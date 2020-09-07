@@ -111,7 +111,7 @@ function getNotification()
 {
  $.ajax({
             type: 'POST',
-            url: '<%-adminpath%>notification/count',
+            url: '<%-superadminpath%>notification/count',
             dataType: 'json',
             data: {},
             success: function (response) {

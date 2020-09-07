@@ -433,7 +433,7 @@
                 $("#loading1").show();
                 $.ajax({
                     type: 'POST',
-                    url: '<%-adminpath%>employees/add',
+                    url: '<%-superadminpath%>employees/add',
                     dataType: 'json',
                     data: form_data,
                     contentType: false,
@@ -445,9 +445,9 @@
 
                             showToastSuccess(response.message)
 
-                            // window.location.href = "<%-adminpath%>employees/view/" + id;
+                            // window.location.href = "<%-superadminpath%>employees/view/" + id;
                             setTimeout(function(){
-                                window.location.href = "<%-adminpath%>employees";
+                                window.location.href = "<%-superadminpath%>employees";
 
 
                             },1000)
@@ -501,7 +501,7 @@
     //         $('#loading1').show()
     //         $.ajax({
     //             type: 'POST',
-    //             url: '<%-adminpath%>employees/add',
+    //             url: '<%-superadminpath%>employees/add',
     //             dataType: 'json',
     //             data: form_data,
     //             contentType: false,
@@ -513,7 +513,7 @@
 
     //                     showToastSuccess(response.message)
 
-    //                     window.location.href = "<%-adminpath%>employees";
+    //                     window.location.href = "<%-superadminpath%>employees";
 
     //                 } else {
     //                     showToastError(response.message)

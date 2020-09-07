@@ -27,10 +27,10 @@ appstrings=require('./language/strings.json')['en']
 const cors = require('cors');
 const session     = require('express-session');
 adminpath="/api/company/"
-adminfilepath="admin/dashboard/"
+adminfilepath="admin/"
 
 superadminpath="/api/admin/"
-superadminfilepath="super/dashboard/"
+superadminfilepath="super/"
 
 CURRENCY="Rs."
 responseHelper = require("./helpers/responseHelper");

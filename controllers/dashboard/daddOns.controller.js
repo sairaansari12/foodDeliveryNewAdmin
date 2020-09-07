@@ -3,9 +3,6 @@ const express = require('express');
 const app     = express();
 const Op = require('sequelize').Op;
 
-const SERVICES = db.models.services
-const CATEGORY = db.models.categories
-const FAVOURITES = db.models.favourites
 
 
 

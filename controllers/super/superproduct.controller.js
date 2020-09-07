@@ -1,0 +1,259 @@
+
+const express = require('express');
+const app     = express();
+const Op = require('sequelize').Op;
+const fs = require('fs');
+
+
+
+
+app.post('/list',superAuth,async (req, res, next) => {
+
+  var params=req.body
+  
+   var lat=0
+   var lng=0
+   var page =1
+   var limit =20
+   var itemType=['0','1']
+   var orderby='createdAt'
+   var orderType='ASC'
+   var companyId =req.id
+   if(params.itemType && params.itemType!="") itemType=[params.itemType]
+   if(params.lat) lat=parseFloat(params.lat)
+   if(params.lng) lng=parseInt(params.lng)
+   if(params.orderByInfo &&   params.orderByInfo.orderby) {
+    orderby=params.orderByInfo.orderby
+    orderType=params.orderByInfo.orderType
+
+  }
+  if(params.companyId) companyId=params.companyId
+
+
+
+  if(params.page) page=params.page
+
+  if(params.limit)
+   limit=parseInt(params.limit)
+   var offset=(page-1)*limit
+
+   var where= {
+    companyId:companyId,
+    itemType:  {[Op.or]: itemType},
+    productType:1
+    
+    }
+
+    
+
+
+    if(params.search && params.search!="")
+    {
+
+     where={ [Op.or]: [
+        {name: {[Op.like]: `%${params.search}%`}},
+        {description: { [Op.like]: `%${params.search}%` }},
+        {price: { [Op.like]: `%${params.search}%` }
+      }
+      ],
+      companyId: companyId,
+      itemType:  {[Op.or]: itemType},
+      productType:1
+    }
+
+  }
+    
+  
+
+      
+
+
+    try{
+
+
+      var services = await SERVICES.findAndCountAll({
+        where: where,
+      order: [[orderby,orderType]],
+      offset:offset,limit:limit,
+
+      })
+
+
+
+      return responseHelper.post(res, appstrings.success, services);
+
+  
+
+    }
+    catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+
+});
+
+app.get('/',superAuth, async (req, res, next) => {
+  try {
+    
+    var  restro =await COMPANY.findAll({where:{parentId:req.id}})
+
+     return res.render('super/products/productListing.ejs',{restro});
+
+    } catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+
+
+});
+
+app.post('/status',superAuth,async(req,res,next) => { 
+    
+    var params=req.body
+    try{
+        let responseNull=  commonMethods.checkParameterMissing([params.id,params.status])
+        if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+       
+    
+       const userData = await SERVICES.findOne({
+         where: {
+           id: params.id }
+       });
+       
+       
+       if(userData)
+       {
+       
+
+    var status=0
+    if(params.status=="0")  status=1
+       const updatedResponse = await SERVICES.update({
+         status: status,
+    
+       },
+       {
+         where : {
+         id: userData.dataValues.id
+       }
+       });
+       
+       if(updatedResponse)
+             {
+    
+           return responseHelper.post(res, appstrings.success,updatedResponse);
+             }
+             else{
+               return responseHelper.post(res, 'Something went Wrong',400);
+    
+             }
+       
+       }
+
+       else{
+        return responseHelper.post(res, appstrings.no_record,204);
+
+      }
+
+         }
+           catch (e) {
+             console.log(e)
+             return responseHelper.error(res, e.message, 400);
+           }
+    
+    
+    
+});
+
+app.get('/view/:id',superAuth,async(req,res,next) => { 
+  
+  var id=req.params.id
+  try {
+
+  let responseNull=  common.checkParameterMissing([id])
+  if(responseNull) 
+  { req.flash('errorMessage',appstrings.required_field)
+  return res.redirect(superadminpath+"products/");
+}
+      var findData = await SERVICES.findOne({
+      where :{id: id }
+      
+
+  
+      });
+      var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
+      dataAddons=[]
+
+    if(findData) {
+      findData=JSON.parse(JSON.stringify(findData))
+if(findData.addOnIds && findData.addOnIds!="")
+       dataAddons=await SERVICES.findAll({
+        attributes: ['id','name','productType','description','price','icon','thumbnail','type','price','duration','includedServices','excludedServices','createdAt','status','originalPrice','offer','offerName','rating','totalRatings','popularity'],
+         where: {
+          id: { [Op.or]: findData.addOnIds},
+         }
+       });
+
+
+   
+
+      return res.render('super/products/viewProduct.ejs',{data:findData,addOns:dataAddons,permissions});
+      }
+
+
+        return res.redirect(superadminpath+"products/");
+
+      
+
+
+    } catch (e) {
+      console.log(e)
+      req.flash('errorMessage',e.message)
+      return res.redirect(superadminpath+"products/");
+    }
+
+
+ 
+});
+
+app.post('/delete',superAuth,async(req,res,next) => { 
+   
+
+  let responseNull=  common.checkParameterMissing([req.body.id])
+  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+
+
+
+  try{
+        //console.log(pool.format('DELETE FROM `reminders` WHERE `reminder_id` = ?', [req.params.id]));
+        const numAffectedRows = await SERVICES.destroy({
+          where: {
+            id: req.body.id
+          }
+          })  
+            
+          if(numAffectedRows>0)
+          {
+          // req.flash('successMessage',appstrings.delete_success)
+         return responseHelper.post(res, appstrings.delete_success,null,200);
+        }
+
+          else {
+            return responseHelper.post(res, appstrings.no_record,null,400);
+           // return res.redirect(superadminpath+"category");
+          }
+
+        }catch (e) {
+          return responseHelper.error(res, e.message, 400);
+          //req.flash('errorMessage',appstrings.no_record)
+          //return res.redirect(superadminpath+"category");
+        }
+});
+
+
+
+
+
+
+module.exports = app;
+
+//Edit User Profile

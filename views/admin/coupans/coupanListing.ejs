@@ -46,7 +46,7 @@
                                            
                                             <div class="col-lg-12">
                                                 
-                                                <form class="form-inline">
+                                                <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                                     <div class="form-group">
                                                         <label for="inputPassword2" class="sr-only">Search</label>
                                                         <input type="text" id="search" class="form-control" placeholder="Search...">
@@ -128,28 +128,27 @@
         var confirm1= (status=="1") ? "Inactive" : "Active"
         if( confirm('Are you sure you want to '+confirm1+' this?'))
         {
+            $('#loading1').show()
+
             $.ajax({
                 type: 'POST',
                 url: '<%-adminpath%>coupans/status',
                 dataType: 'json',
                 data: {'id':id,'status':status},
                 success: function (response) {
+                    $('#loading1').hide()
+
                     if (response.code == '200') {
+
+                        getFilter(1)
                         if(status == "1")
                         {
-                           $('#block_status_'+id).hide()
-                           $('#unblock_status_'+id).show()
-                           setTimeout(function(){
-                                toastr.success("Coupon inactive successfully");
-                            }, 2000);
+                           showToastSuccess("Coupon inactive successfully");
 
                         
                         }else{
-                            $('#block_status_'+id).show()
-                            $('#unblock_status_'+id).hide()
-                            setTimeout(function(){
-                                toastr.success("Coupon active successfully");
-                            }, 2000);
+                            showToastSuccess("Coupon inactive successfully");
+
                         }
                     }
                     else{
@@ -163,6 +162,7 @@
                 },
                 error :function(response)
                 {
+                    $('#loading1').hide()
                     var errorResponse=JSON.parse(response.responseText)
                  showToastError(errorResponse.message)
 
@@ -171,7 +171,7 @@
                     //showToastError(response.message)
 
                 }
-            });
+             });
         }
     }
 
@@ -329,10 +329,13 @@ var onlineStatus= '<div class="ribbon ribbon-danger float-right"><i class="mdi m
     }
 
     var currentPage=1
-    getFilter(currentPage)
-    $('#search').on( 'keyup', function () {
-       setTimeout(function(){getFilter(1) },800);
+    $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getFilter(1)
+    }   
     });
+    
     $( "#status-select" ).change(function() {
         var currentPage=1
         getFilter(currentPage)

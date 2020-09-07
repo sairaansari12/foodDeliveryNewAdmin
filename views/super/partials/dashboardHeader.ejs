@@ -5,6 +5,37 @@
 
  
             <li class="dropdown notification-list topbar-dropdown">
+                <a class="nav-link dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                    <i class="fe-bell noti-icon"></i>
+                    <span class="badge badge-danger rounded-circle noti-icon-badge"  style="display:none" id="notif_count"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right dropdown-lg">
+
+                    <!-- item-->
+                    <div class="dropdown-item noti-title">
+                        <h5 class="m-0">
+                            <span class="float-right">
+                                <a href="" class="text-dark">
+                                    <small></small>
+                                </a>
+                            </span>Notification
+                        </h5>
+                    </div>
+
+                    <div class="noti-scroll"  id="append_notification" data-simplebar>
+
+                    
+                    </div>
+
+                    <!-- All-->
+                    <a href="<%adminpath%>notification" class="dropdown-item text-center text-primary notify-item notify-all">
+                        View all
+                        <i class="fe-arrow-right"></i>
+                    </a>
+
+                </div>
+            </li>
+            <li class="dropdown notification-list topbar-dropdown">
                 <a class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light"
                     data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                     <img  onError="this.onerror=null;this.src='/assets/images/products/no-image.jpg';" src="<%- userData.logo1 %>" alt="user-image" class="rounded-circle">

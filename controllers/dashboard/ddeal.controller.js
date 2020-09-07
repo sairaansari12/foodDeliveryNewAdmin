@@ -3,9 +3,6 @@ const express = require('express');
 const app     = express();
 const Op = require('sequelize').Op;
 
-const COUPAN = db.models.coupan
-const CATEGORY = db.models.categories
-const DEAL = db.models.deals
 
 app.get('/',adminAuth, async (req, res, next) => {
     
@@ -287,7 +284,7 @@ app.post('/update',adminAuth,async (req, res) => {
         icon:icon,
         description:data.description,
         companyId: req.companyId,
-        validupto:data.validupto
+        validUpto:data.validupto
        },
        {where:{
         id: data.dealId

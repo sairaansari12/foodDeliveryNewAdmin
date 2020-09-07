@@ -1,3 +1,4 @@
+
 /* jshint indent: 2 */
 const common = require('../../helpers/common');
 

@@ -303,6 +303,9 @@ var allNames=[]
 
      }
 
+     var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
+
     // console.log(allNames)
 
      var dataExist= await SERVICES.findAll({
@@ -321,7 +324,12 @@ var allNames=[]
       var data=rows[k]
 
       var itemType=((data[3]+"").toLowerCase()=='veg') ?"0" :"1"
-      var status=((data[13]+"").toLowerCase()=='active') ?"1" :"0"
+
+if(permissions && permissions.dataValues && permissions.dataValues.pApproved=="1")
+ status=((data[13]+"").toLowerCase()=='active') ?"1" :"0"
+
+    else  status="0"
+
       dataPush={categoryId:data[1],
         categoryId:data[1],
         name:data[2],
@@ -336,6 +344,7 @@ var allNames=[]
       incluedServices:data[11],
       excludedServices:data[12],
       status:status,
+      approve:status,
       companyId:cId,
       rating:(data[14]!=null)?data[14]:0,
       totalRatings:(data[15]!=null)?data[15]:0,
@@ -493,7 +502,9 @@ app.post('/list',adminAuth,async (req, res, next) => {
 app.get('/',adminAuth, async (req, res, next) => {
   try {
     
-     return res.render('admin/products/productListing.ejs',{});
+    var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
+     return res.render('admin/products/productListing.ejs',{permissions});
 
     } catch (e) {
       return responseHelper.error(res, e.message, 400);
@@ -637,6 +648,11 @@ app.post('/add',adminAuth,async (req, res) => {
       }
 
 
+    var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+var status=(permissions && permissions.dataValues && permissions.dataValues.pApproved=="1")?1 :0
+
+
+
     const user = await SERVICES.findOne({
       attributes: ['id'],
 
@@ -672,6 +688,8 @@ app.post('/add',adminAuth,async (req, res) => {
         offerName :data.offerName,
         originalPrice :data.originalPrice,
         validUpto :validUpto,
+        status:status,
+        approve:status
 
 
        });
@@ -811,6 +829,8 @@ app.get('/view/:id',adminAuth,async(req,res,next) => {
 
   
       });
+      var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
       dataAddons=[]
 
     if(findData) {
@@ -826,7 +846,7 @@ if(findData.addOnIds && findData.addOnIds!="")
 
    
 
-      return res.render('admin/products/viewProduct.ejs',{data:findData,addOns:dataAddons});
+      return res.render('admin/products/viewProduct.ejs',{data:findData,addOns:dataAddons,permissions});
       }
 
 

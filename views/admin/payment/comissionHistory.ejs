@@ -46,7 +46,7 @@
                                     <div class="card-body">
                                         <div class="row mb-2">
                                             <div class="col-lg-12">
-                                                <form class="form-inline">
+                                                <form  onkeypress="return event.keyCode != 13" class="form-inline">
                                                     <!--<div class="form-group mb-2">
                                                         <label for="inputPassword2" class="sr-only">Search</label>
                                                         <input type="search" class="form-control" id ="search" name="search" placeholder="Search...">
@@ -116,10 +116,12 @@
     <%- include('../partials/script'); -%>
     <%- include('../partials/commonJs'); -%>
 <script>
-    $('#search').on( 'keyup', function () {
-       setTimeout(function(){getFilter(1) },800);
+    $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getFilter(1)
+    }   
     });
- 
     $('#empId').val(getURLParameter('empId'))
 
   

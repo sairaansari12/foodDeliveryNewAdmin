@@ -57,7 +57,7 @@
                                             <div class="card-box">
                                                 <div class="row">
                                                     <div class="col-lg-12">
-                                                        <form class="form-inline">
+                                                        <form  onkeypress="return event.keyCode != 13" class="form-inline">
 
                                                        
                                                      
@@ -213,7 +213,8 @@
 </script>
 
 <script>
-
+            var permissions=JSON.parse('<%-JSON.stringify(permissions)%>');
+var deleteR=(permissions && permissions.restroReviewDelete=="1") ?"inline" :"none";
    var currentPage=1
    var orderByInfo={'orderby':'rating',orderType:'DESC'}
   
@@ -222,6 +223,8 @@
      function getList(currentPage)
      {
         
+
+
       currentPage=currentPage
       var limit=100
       var fromDate=""
@@ -275,19 +278,7 @@
                     
                     $("#apex-bar").html("")
 
-                    chart=new ApexCharts(document.querySelector("#apex-bar"),options).render();
-
-
-
-
-
-
-
-  
-  
-  
-  
-                      
+                    chart=new ApexCharts(document.querySelector("#apex-bar"),options).render()   
                               
                   }
                   else{
@@ -308,13 +299,17 @@
           });
       }
     
-  $('#search').on( 'keyup', function () {
-         setTimeout(function(){getList(1) },800);
-  } );
-  
+      $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getList(1)
+    }   
+    });
   
   function setData(data)
           {
+
+
               var myvar=""
               for(var t=0;t<data.length;t++) {
       
@@ -337,7 +332,7 @@
                                                       <h5 class="mt-0">
                                                           <a href="#" class="text-dark">${name}</a>
                                                        
-                                                          <a   href="javascript: void(0);"  onclick="deleteReview('${data[t].id}')"  class="btn btn-danger waves-effect float-right waves-light mr-2"><i class="mdi mdi-delete-circle"></i>&nbsp;&nbsp;Delete</a>
+                                                          <a   href="javascript: void(0);"  style="display :${deleteR}" onclick="deleteReview('${data[t].id}')"  class="btn btn-danger waves-effect float-right waves-light mr-2"><i class="mdi mdi-delete-circle"></i>&nbsp;&nbsp;Delete</a>
 
                                                           <div class="float-right col-md-7  mt-2">
 
@@ -488,9 +483,12 @@
              $("#append_pagination").html(fd)  
       }
     
-  $('#search').on( 'keyup', function () {
-             setTimeout(function(){getList(1) },1000);
-      } );
+      $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getList(1)
+    }   
+    });
       
   function sorting()
       {

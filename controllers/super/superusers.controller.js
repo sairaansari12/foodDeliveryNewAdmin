@@ -3,31 +3,36 @@ const express = require('express');
 const app     = express();
 const Op = require('sequelize').Op;
 
-const USER= db.models.users;
 
-/**
-*@role Get User Page
-*/
+
+
+
 app.get('/',superAuth, async (req, res, next) => {
-  try {
-    var usertypes = await USERTYPE.findAll({
-      where: {
-        companyId: req.companyId
+    
+    try {
+       
+
+      
+       return res.render(superadminfilepath+'users/usersListing.ejs');
+
+
+      } catch (e) {
+        return responseHelper.error(res, e.message, 400);
       }
-    })
-    return res.render('super/users/usersListing.ejs',{usertypes});
-  } catch (e) {
-    return responseHelper.error(res, e.message, 400);
-  }
+
+
 });
 
-/**
-*@role List Users
-*/
+
+
+
+
+
+
 app.post('/list',superAuth,async (req, res, next) => {
 
   var params=req.body
-  console.log(params);
+  
    var page =1
    var limit =20
    var status=['0','1']
@@ -35,6 +40,12 @@ app.post('/list',superAuth,async (req, res, next) => {
    var orderType='ASC'
 
    if(params.status && params.status!="") status=[params.status]
+   if(params.orderByInfo &&   params.orderByInfo.orderby) {
+    orderby=params.orderByInfo.orderby
+    orderType=params.orderByInfo.orderType
+
+  }
+
 
   if(params.page) page=params.page
 
@@ -43,170 +54,259 @@ app.post('/list',superAuth,async (req, res, next) => {
    var offset=(page-1)*limit
 
    var where= {
-    companyId:req.companyId,
+    companyId:req.id,
     status:  {[Op.or]: status}    
     }
 
-    if(params.userType && params.userType)
-    where.userType=params.userType;
+ 
+
 
     if(params.search && params.search!="")
     {
+
      where={ [Op.or]: [
         {firstName: {[Op.like]: `%${params.search}%`}},
         {lastName: { [Op.like]: `%${params.search}%` }},
         {email: { [Op.like]: `%${params.search}%` }},
         {phoneNumber: { [Op.like]: `%${params.search}%` }},
+        {countryCode: { [Op.like]: `%${params.search}%` }},
         {address: { [Op.like]: `%${params.search}%` }}
+
+
       ],
-      companyId: req.companyId,
+      companyId: req.id,
       status:  {[Op.or]: status},
     }
+
   }
+    
+  
+
+      
+
+
     try{
-       var usertypes = await USERTYPE.findAll({
-        where: {
-          companyId: req.companyId
-        }
+
+
+      var services = await USERS.findAndCountAll({
+      where: where,
+      order: [[orderby,orderType]],
+      offset:offset,limit:limit,
+
       })
-      var services = await USER.findAndCountAll({
-        where: where,
-        order: [[orderby,orderType]],
-        distinct:true,
-        offset:offset,limit:limit,
-      })
+
+
+
       return responseHelper.post(res, appstrings.success, services);
+
+  
+
     }
     catch (e) {
       return responseHelper.error(res, e.message, 400);
     }
+
 });
 
-/**
-*@role Change User Status
-*/
+
+
 app.post('/status',superAuth,async(req,res,next) => { 
+    
     var params=req.body
     try{
         let responseNull=  commonMethods.checkParameterMissing([params.id,params.status])
         if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
        
-       const userData = await USER.findOne({
+      
+
+       const userData = await USERS.findOne({
          where: {
            id: params.id }
        });
-      if(userData)
-      {
-        var status=0
-        if(params.status=="0")  status=1
-        const updatedResponse = await USER.update({
-          status: status,
-    
-        },
-        {
-          where : {
-          id: userData.dataValues.id
-        }
-        });
        
-        if(updatedResponse)
-        {
-          return responseHelper.post(res, appstrings.success,updatedResponse);
-        }
-        else{
-          return responseHelper.post(res, 'Something went Wrong',400);
-        }
-      }
-      else{
+       
+       if(userData)
+       {
+       
+
+    var status=0
+    if(params.status=="0")  status=1
+       const updatedResponse = await USERS.update({
+         status: status,
+    
+       },
+       {
+         where : {
+         id: userData.dataValues.id
+       }
+       });
+       
+       if(updatedResponse)
+             {
+    
+           return responseHelper.post(res, appstrings.success,updatedResponse);
+             }
+             else{
+               return responseHelper.post(res, 'Something went Wrong',400);
+    
+             }
+       
+       }
+
+       else{
         return responseHelper.post(res, appstrings.no_record,204);
+
       }
-    }
-    catch (e) {
-      return responseHelper.error(res, e.message, 400);
-    }
+
+         }
+           catch (e) {
+             return responseHelper.error(res, e.message, 400);
+           }
+    
+    
+    
 });
 
 
-app.post('/adduser',superAuth,async (req, res) => {
+
+app.post('/add',superAuth,async (req, res) => {
+
   try {
     const data = req.body;
-   var profileImage=""
+    var profileImage="",idProof="",coverImage=""
+    var assignedServices=[]
+
 
     let responseNull= commonMethods.checkParameterMissing([data.phoneNumber,data.countryCode,data.firstName,data.email])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
 
-    if (req.files) {
 
-      ImageFile = req.files.image;    
-      if(ImageFile)
-      {
-        profileImage = Date.now() + '_' + ImageFile.name;
-
-      ImageFile.mv(config.UPLOAD_DIRECTORY +"users/"+ profileImage, function (err) {
-          //upload file
-          if (err)
-          return responseHelper.error(res, err.message, 400);   
-        });
-
-    }
-  }
-
-
-    const user = await USER.findOne({
+    const user = await USERS.findOne({
       attributes: ['phoneNumber'],
       where: {
         phoneNumber: data.phoneNumber,
         countryCode: data.countryCode,
-        companyId: req.companyId
-
       }
     });
 
 
 
     if (!user) {
+
+
+
+      if (req.files) {
+
+        ImageFile = req.files.image;    
+        if(ImageFile)
+        {
+          profileImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+  
+        ImageFile.mv(config.UPLOAD_DIRECTORY +"users/images/"+ profileImage, function (err) {
+            //upload file
+            if (err)
+            return responseHelper.error(res, err.meessage, 400);   
+          });
+  
+      }
+
+      ImageFile1 = req.files.idProof;    
+      if(ImageFile1)
+      {
+        idProof = Date.now() + '_' + ImageFile1.name.replace(/\s/g, "");
+      ImageFile1.mv(config.UPLOAD_DIRECTORY +"employees/proofs/"+ idProof, function (err) {
+          //upload file
+          if (err)
+          responseHelper.error(res, appstrings.err.meessage, 400);   
+           });
+    }
       
-      const users = await USER.create({
+
+    ImageFile2 = req.files.coverImage;    
+    if(ImageFile2)
+    {
+      coverImage = Date.now() + '_' + ImageFile2.name.replace(/\s/g, "");
+    ImageFile2.mv(config.UPLOAD_DIRECTORY +"employees/images/"+ coverImage, function (err) {
+        //upload file
+        if (err)
+        {
+          console.log(err)
+        return responseHelper.error(res, err.message, 400);   
+        }
+      });
+  }
+
+
+
+        }
+
+      
+      const users = await USERS.create({
         firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
+        dob: data.dob,
         address: data.address,
         phoneNumber: data.phoneNumber,
         countryCode: data.countryCode,
         platform: 'web',
-        image:profileImage,
-        companyId: req.companyId
+        image : profileImage,
+        companyId: req.id
        });
+
+
 
 
       if (users) {
 
-        responseHelper.post(res, appstrings.add_success, null,200);
+        responseHelper.post(res, appstrings.add_emp_success, null,200);
+        //req.flash('successMessage',appstrings.add_emp_success);
+        //return res.redirect(adminpath+"employees");
+
+
        
       }
-     else  responseHelper.error(res, appstrings.oops_something, 400);
-
+     else 
+      responseHelper.error(res, appstrings.oops_something, 400);
 
     }
-      else  responseHelper.error(res, appstrings.already_exists, 400);
-
-    
+      else  
+      responseHelper.error(res, appstrings.already_exists, 400);
 
   } catch (e) {
-    return responseHelper.error(res, 'Error While Creating User', e.message);
+     return responseHelper.error(res, e.message,400);
+    //return req.flash('errorMessage',appstrings.oops_something)
+
   }
 
 })
 
 
+app.get('/add',superAuth, async (req, res, next) => {
+    
+  try{
+  
+   
+    return res.render(superadminfilepath+'users/addUser.ejs');
+
+    } catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+
+
+});
+
+
 app.post('/update',superAuth,async (req, res) => {
+
   try {
     const data = req.body;
     var profileImage=""
 
-
     let responseNull= commonMethods.checkParameterMissing([data.userId,data.phoneNumber,data.countryCode,data.firstName,data.email])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+
 
 
     if (req.files) {
@@ -214,20 +314,25 @@ app.post('/update',superAuth,async (req, res) => {
       ImageFile = req.files.image;    
       if(ImageFile)
       {
-        profileImage = Date.now() + '_' + ImageFile.name;
+        profileImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
 
       ImageFile.mv(config.UPLOAD_DIRECTORY +"users/"+ profileImage, function (err) {
           //upload file
           if (err)
-          return responseHelper.error(res, err.message, 400);   
+         return responseHelper.error(res, err.message, 400);   
       });
 
     }
+
+ 
   }
+ 
+    
+      
 
 
 
-    const user = await USER.findOne({
+    const user = await USERS.findOne({
       attributes: ['phoneNumber'],
       where: {
         id:data.userId,
@@ -239,32 +344,37 @@ app.post('/update',superAuth,async (req, res) => {
 
 
     if (user) {
-      
+
       if(profileImage=="") profileImage=user.dataValues.image
-      const users = await USER.update({
+
+      
+      const users = await USERS.update({
         firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         address: data.address,
-        image:profileImage,
+        dob: data.dob,
+        anniversaryDate:(data.anniversaryDate && data.anniversaryDate!="")?data.anniversaryDate:null ,
         phoneNumber: data.phoneNumber,
         countryCode: data.countryCode,
+        maritalStatus: data.maritalStatus,
+        image : profileImage,
        },
 
       { where:
        {
 id: data.userId,
-companyId: req.companyId
        }
       }
        
        );
 
 
-      if (users) {
+      if (users) 
 
         responseHelper.post(res, appstrings.update_success, null,200);
        
-      }
+      
      else  responseHelper.error(res, appstrings.oops_something, 400);
 
 
@@ -287,7 +397,7 @@ companyId: req.companyId
 
 
 
-app.get('/view/:id',superAuth,async(req,res,next) => { 
+app.get('/view/:id',superAuth,async(req,res) => { 
   
   var id=req.params.id
   try {
@@ -299,48 +409,24 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
 }
 
 
-   
-      const findData = await USER.findOne({
-      where :{companyId :req.companyId, id: id },
+    
+      const findData = await USERS.findOne({
+      where :{companyId :req.id, id: id },
       order: [
         ['createdAt','DESC']
       ],      
 
       });
    
-
-
-      where={companyId: req.companyId,userId : id}
   
+    var pStatus= await ORDERSTATUS.findAll({companyId:req.parentCompany});
 
-      const orderData = await ORDERS.findAll({
-        order: [
-          ['createdAt', 'DESC'],  
-      ],
-      where :where,
-      
-      include: [
-        {model: db.models.address , attributes: ['id','addressName','addressType','houseNo','latitude','longitude','town','landmark','city'] } ,
-        {model: USER , attributes: ['id','firstName','lastName',"phoneNumber","countryCode","image"]},
-        {model: SUBORDERS , attributes: ['id','serviceId','quantity'],
-        include: [{
-          model: SERVICES,
-          attributes: ['id','name','description','price','icon','thumbnail','type','price','duration'],
-          required: false
-        }]
-        }
-      
-      ]
-    });
-
-
-
-
-      return res.render('super/users/viewUser.ejs',{data:findData,orders:orderData});
+      return res.render(superadminfilepath+'users/viewUser.ejs',{data:findData,options:pStatus});
 
 
 
     } catch (e) {
+      console.log(e)
       req.flash('errorMessage',e.message)
       return res.redirect(superadminpath+"users");
     }
@@ -351,43 +437,144 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
 
 
 
-app.get('/delete/:id',superAuth,async(req,res,next) => { 
+app.post('/orders',superAuth,async(req,res) => { 
+  
+  try {
+    var params=req.body
+    var pStatus= await ORDERSTATUS.findAll({companyId:req.id});
+    var progressStatus = pStatus.map(user => user.status);    var fromDate =  ""
+    var toDate =  ""
+  
+  
+    var page =1
+    var limit =50
+    if(params.page) page=params.page
+    if(params.limit) limit=parseInt(params.limit)
+    var offset=(page-1)*limit
+  
+  
+    if(params.progressStatus && params.progressStatus!="")  progressStatus=[params.progressStatus]
+  
+    where={userId: params.userId,
+    progressStatus: { [Op.or]: progressStatus}
+       }
+    
+  
+       where1={userId: params.userId,progressStatus: { [Op.or]: progressStatus}}
+    if(params.fromDate)fromDate= Math.round(new Date(params.fromDate).getTime())
+    if(params.toDate) toDate=Math.round(new Date(params.toDate).getTime())
+    
+  
+  if(fromDate!="" && toDate!="")
+  {
+    where= {userId: params.userId,
+      progressStatus: { [Op.or]: progressStatus},
+      createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
+         }
+  
+         where1={userId: params.userId,
+          progressStatus: { [Op.or]: progressStatus},
+          createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
+             }
+  
+        }
+  
+        const findData = await ORDERS.findAndCountAll({
+          order: [
+            ['createdAt', 'DESC'],  
+        ],
+        where :where,
+        
+        include: [
+          {model: db.models.address , attributes: ['id','addressName','addressType','houseNo','latitude','longitude','town','landmark','city'] } ,
+          {model: ASSIGNMENT , attributes: ['id'],where:{jobStatus :[1,3]} },
+          {model: USER , attributes: ['id','firstName','lastName',"phoneNumber","countryCode","image"]},
+          {model: ORDERSTATUS , attributes: ['id','statusName']},
+
+  
+          {model: SUBORDERS , attributes: ['id','serviceId','quantity'],
+          include: [{
+            model: SERVICES,
+            attributes: ['id','name','description','price','icon','thumbnail','type','price','duration'],
+            required: false
+          }]
+          }
+        
+        ],
+        offset: offset, limit: limit ,
+        distinct:true,
+
+      });
+  
+      var countDataq = await ORDERS.findAll({
+        attributes: ['progressStatus',
+          [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum'],
+          [sequelize.fn('COUNT', sequelize.col('progressStatus')), 'count'],
+         
+  
+        ],
+        group: ['progressStatus'],
+      where :where1,
+      include: [
+        {model: ASSIGNMENT , attributes: ['id'],where:{jobStatus :[1,3]} }],
+
+    
+    });
+  
+  
+  
+   
+  
+      var userDtaa={}
+      userDtaa.data=findData
+      userDtaa.counts=countDataq
+     
+  
+      return responseHelper.post(res, appstrings.success, userDtaa);
+  
+    } catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+  
+  
+  });
+
+
+  app.post('/delete',superAuth,async(req,res,next) => { 
    
 
-  let responseNull=  common.checkParameterMissing([req.params.id])
-  if(responseNull) 
-  { req.flash('errorMessage',appstrings.required_field)
-  return res.redirect(superadminpath+"users");
-}
-
-  try{
-        //console.log(pool.format('DELETE FROM `reminders` WHERE `reminder_id` = ?', [req.params.id]));
-        const numAffectedRows = await USER.destroy({
-          where: {
-            id: req.params.id
+    let responseNull=  common.checkParameterMissing([req.body.id])
+    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+  
+  
+  
+    try{
+          //console.log(pool.format('DELETE FROM `reminders` WHERE `reminder_id` = ?', [req.params.id]));
+          const numAffectedRows = await USERS.destroy({
+            where: {
+              id: req.body.id
+            }
+            })  
+              
+            if(numAffectedRows>0)
+            {
+            // req.flash('successMessage',appstrings.delete_success)
+           return responseHelper.post(res, appstrings.delete_success,null,200);
           }
-          })  
-            
-          if(numAffectedRows>0)
-          {
-           req.flash('successMessage',appstrings.delete_success)
-          return res.redirect(superadminpath+"users");
-
+  
+            else {
+              return responseHelper.post(res, appstrings.no_record,null,400);
+             // return res.redirect(adminpath+"category");
+            }
+  
+          }catch (e) {
+            return responseHelper.error(res, e.message, 400);
+            //req.flash('errorMessage',appstrings.no_record)
+            //return res.redirect(adminpath+"category");
           }
-
-          else {
-            req.flash('errorMessage',appstrings.no_record)
-            return res.redirect(superadminpath+"users");
-          }
-
-        }catch (e) {
-          //return responseHelper.error(res, e.message, 400);
-          req.flash('errorMessage',appstrings.no_record)
-          return res.redirect(superadminpath+"users");
-        }
-});
-
-
+  });
+  
 
 
 module.exports = app;

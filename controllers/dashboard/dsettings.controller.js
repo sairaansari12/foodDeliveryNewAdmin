@@ -24,7 +24,12 @@ app.get('/', adminAuth,async (req, res, next) => {
         const findData = await DOCUMENT.findOne({
           where :{companyId :req.id }
         });
-        return res.render('admin/settings/settings.ejs',{data:findData});
+
+        const compData = await COMPANY.findOne({
+          where :{id :req.id }
+        });
+
+        return res.render('admin/settings/settings.ejs',{data:findData,compData});
       } catch (e) {
           console.log(e)
         req.flash('errorMessage',e.message)
@@ -34,26 +39,38 @@ app.get('/', adminAuth,async (req, res, next) => {
 });
 
 
+app.get('/restSettings', adminAuth,async (req, res, next) => {
+  try {
+     
 
+      const compData = await COMPANY.findOne({
+        where :{id :req.id }
+      });
 
+      return res.render('admin/settings/restSettings.ejs',{compData});
+    } catch (e) {
+        console.log(e)
+      req.flash('errorMessage',e.message)
+      return res.redirect(adminpath);
+    }
 
+});
 
 
 app.post('/update',adminAuth,async(req,res,next) => { 
   
   var params=req.body
-  var documentId=params.documentId
     try{
 
-      const findData = await DOCUMENT.findOne({
+      const findData = await COMPANY.findOne({
         where: {
-          companyId: req.companyId
+          id: req.id
         }
       });
       if(findData)
       {
     
-       var response= await DOCUMENT.update({ 
+       var response= await COMPANY.update({ 
           aboutus: params.aboutus,
           aboutusLink:  params.aboutusLink,
           privacyContent:  params.privacyContent,
@@ -116,8 +133,33 @@ app.post('/update',adminAuth,async(req,res,next) => {
     }
 });
 
+
+app.post('/updateRestSettings',adminAuth,async(req,res,next) => { 
+  
+  var params=req.body
+    try{
+
+       var response= await COMPANY.update({ 
+          deliveryType: params.deliveryType,
+          itemType:  params.itemType,
+          startTime: params.startTime,
+          endTime:  params.endTime,
+        },
+        {
+          where: { 
+            id: req.id
+          }
+        }) ; 
+        return responseHelper.post(res, appstrings.update_success,null,200);
+      
+    }catch (e) {
+      console.log(e)
+        return responseHelper.error(res, e.message);
+    }
+});
+
 app.get('/changePassword',adminAuth, async (req, res, next) => {
-   return res.render(adminfilepath+'changePassword.ejs');
+   return res.render(adminfilepath+'dashboard/changePassword.ejs');
 });
 
 ///////////////////////////////////////////////////////

@@ -57,6 +57,7 @@ const jwt = require('jsonwebtoken');
  COMISSION=db.models.comission
  COMISSIONHISTORY=db.models.comissionHistory
  PAYMENTSETUP=db.models.paymentSetup
+ PERMISSIONS=db.models.permissions
 
  
 

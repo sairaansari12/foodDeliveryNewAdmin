@@ -26,7 +26,7 @@
                                         <li class="breadcrumb-item active">Add</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title">Add Company</h4>
+                                <h4 class="page-title">Add Restaurant</h4>
                             </div>
                         </div>
                     </div>
@@ -80,10 +80,29 @@
                                                 <li class="nav-item">
                                                     <a href="#basictab4" data-toggle="tab"
                                                         class="nav-link rounded-0 pt-2 pb-2">
-                                                        <i class="mdi mdi-face-profile mr-1"></i>
+                                                        <i class="mdi mdi-image mr-1"></i>
                                                         <span class="d-none d-sm-inline">MEDIA INFO</span>
                                                     </a>
                                                 </li>
+
+
+                                                <li class="nav-item">
+                                                    <a href="#basictab5" data-toggle="tab"
+                                                        class="nav-link rounded-0 pt-2 pb-2">
+                                                        <i class="mdi mdi-currency mr-1"></i>
+                                                        <span class="d-none d-sm-inline">CHARGES INFO</span>
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a href="#basictab6" data-toggle="tab"
+                                                        class="nav-link rounded-0 pt-2 pb-2">
+                                                        <i class="mdi mdi-face-profile mr-1"></i>
+                                                        <span class="d-none d-sm-inline">MORE INFO</span>
+                                                    </a>
+                                                </li>
+
+
                                                 <li class="nav-item">
                                                     <i class="mdi mdi-checkbox-marked-circle-outline mr-1"></i>
                                                     <button type="submit"
@@ -219,20 +238,169 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div class="form-group row mb-3">
-                                                                <label class="col-md-3 col-form-label"
-                                                                    for="image">Upload
-                                                                    Image3: <span class="text-danger">*</span></label>
-                                                                <div class="col-md-3">
-                                                                    <input class="custom-file-input1" id="logo3"
-                                                                        type="file" name="logo3">
-
-                                                                </div>
-                                                            </div>
+                                                           
 
                                                         </div> <!-- end col -->
                                                     </div> <!-- end row -->
                                                 </div>
+
+
+
+
+                                                <div class="tab-pane" id="basictab5">
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                           <h5 class=" mt-0 mb-3 text-muted bg-light p-2">
+                                                           The transaction fee for each payment option is based on your subscription plan
+                    
+                                                        
+                                                        </h5>
+                    
+                                                        <label for="">
+                                                           You will recieve payment from admin 
+                                                         </label>
+                                                           <div class="radio  radio-primary mb-4">
+                                                      
+                    
+                                                            
+                                                            <% 
+                                                            var tags=[{id:0,name:'Monthly'}, {id:1,name:'Quarterly'},{id:2,name:'Yearly'}]
+                                                            
+                                                            for(var p =0;p<tags.length;p++){ %>
+                                                            <input id="checkbox<%-p%>"   value="<%-tags[p].id%>" class="ml-2" name="installments" type="radio" checked>
+                                                            <label for="checkbox<%-p%>">
+                                                                <%-tags[p].name%>
+                                                            </label>
+                    
+                                                       
+                    <%}%>
+                    
+                                                        </div>
+                                                        <label for="">
+                                                            Type of comission
+                                                         </label>
+                                                        <div class="radio  radio-primary mb-4">
+                                                      
+                                                          
+                                                            <% 
+                                                            var dataTypes=[{id:0,name:'Full Amount'}, {id:1,name:'Comission percentage'}]
+                                                            
+                                                            for(var p =0;p<dataTypes.length;p++){ %>
+                                                            <input id="checkboxpp<%-p%>"   value="<%-dataTypes[p].id%>" class="ml-2" name="chargesType" type="radio"  checked >
+                                                            <label for="checkboxpp<%-p%>">
+                                                                <%-dataTypes[p].name%>
+                                                            </label>
+                    
+                                                       
+                    <%}%>
+                    
+                                                        </div>
+                    
+                    
+                                                
+                    
+                                                        <div class="form-group">
+                                                            <label for="">
+                                                               Full Amount <span class="required">*</span>
+                                                            </label>
+                                                            <input  type="number"  min="1" id="fullAmount"    name="fullAmount"   class="form-control" />
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <label for="">
+                                                           Comission Charges <span class="required">*</span>
+                                                        </label>
+                                                        <input  type="number"     min="1" id="charges"   name="charges"  class="form-control" />
+                                                </div>
+                                            </div> <!-- end col -->
+                                                        </div>
+                    
+                                                    </div> <!-- end row -->
+                                                
+
+
+                                                    <div class="tab-pane" id="basictab6">
+                                                        <div class="row">
+                                                            <div class="card-body">
+                                                                        
+                                                            
+                                                                        <div class="form-row form-group">
+                                                                            <div class="form-label col-md-4">
+                                                                                <label for="">
+                                                                                    Open Timing:
+                                                                                    <span class="required">*</span>
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-input col-md-8">
+                                                                                <input  required type="text" id="startTime"  class="form-control"   name="startTime"    />
+                                                            
+                                                                            </div>
+                                                                           
+                                                                        </div>
+                                                            
+                                                                      
+                                                                      
+                                                        
+                                                                        <div class="form-row form-group">
+                                                                            <div class="form-label col-md-4">
+                                                                                <label for="">
+                                                                                    Close Timings:
+                                                                                    <span class="required">*</span>
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-input col-md-8">
+                                                                                <input  required type="text" id="endTime"   class="form-control" name="endTime"  />
+                                                            
+                                                                            </div>
+                                                                           
+                                                                        </div>
+                                                                        <div class="form-row form-group">
+                                                                            <div class="form-label col-md-4">
+                                                                                <label for="">
+                                                                                   Delivery Types:
+                                                                                    <span class="required">*</span>
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-input radio radio-primary  mb-2 col-md-8">
+                                                                                <% var tags=[{id:0,name:'Pickup'}, {id:1,name:'Delivery'},{id:2,name:'Both'}]
+                                                                                
+                                                                                for(var p =0;p<tags.length;p++){ %>
+                                                                                <input id="checkboxdel<%-p%>"   value="<%-tags[p].id%>" class="ml-2" name="deliveryType" type="radio"  >
+                                                                                <label for="checkboxdel<%-p%>">
+                                                                                    <%-tags[p].name%>
+                                                                                </label>    
+                                                                                <%}%>        
+                                                                            </div>
+                                                                           
+                                                                        </div>
+                                                                        <div class="form-row form-group">
+                                                                            <div class="form-label col-md-4">
+                                                                                <label for="">
+                                                                                    Food Type:
+                                                                                    <span class="required">*</span>
+                                                                                </label>
+                                                                            </div>
+                                                                            
+                                                                            <div class="form-input  radio radio-primary  mb-2 col-md-8">
+                                                                                <% var tags=[{id:0,name:'Veg'}, {id:1,name:'Non-Veg'},{id:2,name:'Both'}]
+                                                                                
+                                                                                for(var p =0;p<tags.length;p++){ %>
+                                                                                <input id="checkboxitem<%-p%>"   value="<%-tags[p].id%>" class="ml-2" name="itemType" type="radio"   >
+                                                                                <label for="checkboxitem<%-p%>">
+                                                                                    <%-tags[p].name%>
+                                                                                </label>    
+                                                                                <%}%>        
+                                                                            </div>
+                                                                           
+                                                                     
+                                                                        
+                                                            
+                                                                      </div>
+                        
+                                                        </div> <!-- end row -->
+                                                    </div>
+                                                    </div>
+
 
                                                 <div class="tab-pane" id="basictab3">
                                                     <div class="row">
@@ -243,7 +411,7 @@
                                                             </div>
                                                         </div> <!-- end col -->
                                                     </div> <!-- end row -->
-                                                </div>
+                                               
                                             </div> <!-- tab-content -->
                                         </div> <!-- end #basicwizard-->
                                     </form>
@@ -270,6 +438,8 @@
 
 
 <script type="text/javascript">
+ $("#startTime").flatpickr({enableTime:!0,noCalendar:!0,dateFormat:"h:i K"});
+$("#endTime").flatpickr({enableTime:!0,noCalendar:!0,dateFormat:"h:i K"});
 $(function() { 
         $('#sidebar-menu ul li').find('a[href*="<%-superadminpath%>company"]').parent().addClass('menuitem-active');
         $('#sidebar-menu ul li a[href^="<%-superadminpath%>company"]').addClass('active');
@@ -333,11 +503,26 @@ $(function() {
             },
 
             submitHandler: function (form) {
-           
+              var chargesType=  $("input[name='chargesType']:checked").val()
+              var fullAmount=  $("#fullAmount").val()
+              var charges=  $("#charges").val()
+
+if(chargesType==0 && fullAmount=="")
+{showToastError("Please enter full amount")
+return;
+}
+
+if(chargesType==1 && charges=="")
+{
+showToastError("Please enter comission charges value")
+return;
+}
+
                 $('#basictab1').removeClass('active')
                 $('#basictab2').removeClass('active')
                 $('#basictab4').removeClass('active')
-
+                $('#basictab5').removeClass('active')
+                $('#basictab6').removeClass('active')
                 $('#basictab3').addClass('active')
 
 

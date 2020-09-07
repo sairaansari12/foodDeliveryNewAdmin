@@ -101,7 +101,7 @@
                                 <div class="card-box">
                                     <div class="row">
                                         <div class="col-lg-12">
-                                            <form class="form-inline">
+                                            <form onkeypress="return event.keyCode != 13" class="form-inline">
                                                 <div class="form-group">
                                                     <label for="inputPassword2" class="sr-only">Search</label>
                                                     <input type="search" class="form-control" id="search" placeholder="Search  rating & review">
@@ -193,6 +193,8 @@
     </script>
     
     <script>
+    var permissions=JSON.parse('<%-JSON.stringify(permissions)%>');
+var deleteR=(permissions && permissions.staffReviewDelete=="1") ?"inline" :"none";
      var currentPage=1
      var orderByInfo={'orderby':'rating',orderType:'DESC'}
      if(getURLParameter('id') && getURLParameter('id')!="")$('#mainStat').show()
@@ -284,7 +286,7 @@
                                                         <b class="font-14" >Rating On:</b>  <span class="text-muted">${format(new Date(data[t].createdAt))}</span>
                                                       </br>
 
-                                                      <a   href="javascript: void(0);"  onclick="deleteReview('${data[t].id}')"  class="btn btn-danger waves-effect float-right waves-light"><i class="mdi mdi-delete-circle"></i>&nbsp;&nbsp;Delete</a>
+                                                      <a    style="display:${deleteR}"  href="javascript: void(0);"  onclick="deleteReview('${data[t].id}')"  class="btn btn-danger waves-effect float-right waves-light"><i class="mdi mdi-delete-circle"></i>&nbsp;&nbsp;Delete</a>
 
                                                         <b>${getRating(data[t].rating)}</b>
                             
@@ -415,10 +417,12 @@
       
     
     
-     
-    $('#search').on( 'keyup', function () {
-           setTimeout(function(){getList(1) },1000);
-    } );
+    $('#search').on( 'keyup', function (event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+     getList(1)
+    }   
+    });
     
     function sorting()
     {

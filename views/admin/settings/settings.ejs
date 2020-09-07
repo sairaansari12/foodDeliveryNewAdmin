@@ -148,6 +148,10 @@
                             </form>
                 
                           </div>
+
+                        
+
+
                           <div id="menu1" class="tab-pane fade">
                             <h3 class="mb-3">About Us Details</h3>
                             
@@ -484,6 +488,95 @@
         
         
         <script>
+
+$('#restForm').validate({
+            rules: {
+                startTime: {
+                    required: true,
+                },
+                endTime: {
+                    required: true,
+                },
+                deliveryType: {
+                    required: true,
+                    email: true,
+                },
+                itemType: {
+                    required: true,
+                   // minlength: 5
+                }
+                
+            
+            },
+            messages: {
+                startTime: {
+                    required: "Please enter start time",
+                   // email: "Please enter a vaild email address"
+                },
+                endTime: {
+                    required: "Please enter end time",
+                    //minlength: "Your password must be at least 5 characters long"
+                }
+               
+            
+            },
+
+            submitHandler: function (form) {
+           
+
+            var tempform = $('#restForm');
+
+                var form_data = new FormData(tempform[0]);
+                $("#loading1").show();
+                $.ajax({
+                    type: 'POST',
+                    url: '<%-adminpath%>settings/updateRest',
+                    dataType: 'json',
+                    data: form_data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (response) {
+                        $("#loading1").hide();
+                        if (response.code == 200) {
+
+                            showToastSuccess(response.message)                            
+
+
+                        } else {
+                            showToastError(response.message)
+                        }
+                    },
+
+                    error: function (response) {
+                        $("#loading1").hide();
+                        var errorResponse = JSON.parse(response.responseText)
+                        showToastError(errorResponse.message)
+
+
+                    }
+               
+
+
+                }); 
+        }
+   
+        });
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
             tinymce.init({
               selector: '#aboutusTiny',plugins: "autoresize"
             });
@@ -527,7 +620,8 @@
         
         
         
-        
+
+       
             var tempform = $('#'+formName);
                tempform .parsley('validate' );
               if(tempform.parsley('isValid' ))
