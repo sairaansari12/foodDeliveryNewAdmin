@@ -68,7 +68,14 @@ let modules = [
   require('./recipe/recipes'),
   require('./recipe/recipeMedia'),
   require('./recipe/recipeLike'),
-  require('./staffWallet')
+  require('./staffWallet'),
+  require('./chat/groups.js'),
+  require('./chat/groupMembers.js'),
+  require('./chat/chatMessages.js'),
+  require('./chat/textMessages.js'),
+  require('./chat/mediaMessages.js'),
+  require('./chat/messagesStatus.js'),
+  require('./chat/clearedMessages.js'),
 
   
 

@@ -4,6 +4,8 @@ const app     = express();
 const hashPassword = require('../../helpers/hashPassword');
 const COMPANY= db.models.companies
 const Op = require('sequelize').Op;
+const jwt = require('jsonwebtoken');
+
 
 function isAdminAuth(req, res, next) {
     // if(req.session.userData){
@@ -265,7 +267,7 @@ app.post('/dashboard', superAuth,async (req, res, next) => {
   
 });
 app.post('/login',async(req,res,next) => { 
-  
+  console.log("====super auth")
     var params=req.body
         try{
             		const userData = await COMPANY.findOne({
@@ -458,6 +460,21 @@ app.post('/changePassword',superAuth,async(req,res,next) => {
 
 app.get('/changePassword',superAuth, async (req, res, next) => {
    return res.render(superadminfilepath+'changePassword.ejs');
+});
+app.get('/chat',superAuth, async (req, res, next) => {
+  const credentials = {
+    phoneNumber: req.session.userData.phoneNumber,
+    companyId:   req.companyId,
+    countryCode: req.session.userData.countryCode,
+    userType: req.session.userData.type,
+    id : req.session.userData.id
+  };
+  const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
+  USERS = db.models.users;
+  const findData = await USERS.findAll({ 
+    attributes: ['id','email','firstName'],
+   });
+   return res.render('super/chat/chat.ejs',{findData:findData, token: authToken});
 });
 
 app.get('/recoverPassword', async (req, res, next) => {
