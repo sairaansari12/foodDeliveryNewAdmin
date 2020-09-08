@@ -44,7 +44,7 @@
                             <div class="col-xl-3 col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h6 class="font-13 text-muted text-uppercase mb-2">Contacts</h6>
+                                        <h6  class="font-13 text-muted text-uppercase mb-2">Contacts</h6>
                                         <!-- users -->
                                         <div class="row">
                                             <div class="col">
@@ -55,12 +55,14 @@
                                         </div>
                                         <!-- end users -->
                                     </div> <!-- end card-body-->
+                                    <!-- <button onclick="">Prev</button>
+                                    <button onclick="next()">Next</button> -->
                                 </div> <!-- end card-->
                             </div>
                             <!-- end chat users-->
 
                             <!-- chat area -->
-                            <div class="col-xl-9 col-lg-8">
+                            <div class="col-xl-9 col-lg-8" id="right-chat">
 
                                 <div class="card">
                                     <div class="card-body py-2 px-3 border-bottom border-light">
@@ -110,7 +112,7 @@
                                                             </div>
                                                             <div class="col-sm-auto">
                                                                 <div class="btn-group">
-                                                                    <a class="btn btn-light"><i class="fe-paperclip"></i></a>
+                                                                    <!-- <a class="btn btn-light"><i class="fe-paperclip"></i></a> -->
                                                                     <button type="submit" class="btn btn-success chat-send btn-block"><i class='fe-send'></i></button>
                                                                 </div>
                                                             </div> <!-- end col -->
@@ -149,18 +151,34 @@
 </html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script>
-    var socket = new io('localhost:9062');
+    //live link = http://51.79.40.224:9070/
+    var socket = new io('http://51.79.40.224:9070/');
     var groupId;
     socket.on("newMessage", (data)=>{
+        var date = new Date(); 
+        var hours = date.getHours(); 
+        var minutes = date.getMinutes();  
+        var newformat = hours >= 12 ? 'PM' : 'AM';    
+        hours = hours % 12;     
+        hours = hours ? hours : 12;  
+        minutes = minutes < 10 ? '0' + minutes : minutes; 
+        // console.log("=>>",hours, " ", minutes, newformat) 
+        
         console.log("=>>>newMessage", data);
-        var html = ` <li class="clearfix">
+        if(data.senderId)
+            var odd = data.senderId == '<%-id%>' ? true : false;
+        else     
+            var odd = data.adminId == '<%-id%>' ? true : false;
+        var html = "";
+        if(odd){
+            html = ` <li class="clearfix odd">
                     <div class="chat-avatar">
-                        <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data.senderName}" />
+                        <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data.senderName ? data.senderName : data.adminName}" />
                         <i>10:00</i>
                     </div>
                     <div class="conversation-text">
                         <div class="ctext-wrap">
-                            <i>${data.senderName}</i>
+                            <i>${data.senderName ? data.senderName : data.adminName}</i>
                             <p>
                             ${data.message}
                             </p>
@@ -168,12 +186,32 @@
                     </div>
                     
             </li>`;
+        } else{
+            html = ` <li class="clearfix">
+                    <div class="chat-avatar">
+                        <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data.senderName ? data.senderName : data.adminName}" />
+                        <i>10:00</i>
+                    </div>
+                    <div class="conversation-text">
+                        <div class="ctext-wrap">
+                            <i>${data.senderName ? data.senderName : data.adminName}</i>
+                            <p>
+                            ${data.message}
+                            </p>
+                        </div>
+                    </div>
+                    
+            </li>`;
+        } 
+        
       $('#list').append($(html));
 
     })
    
-    $(document).ready(function(){   
-        socket.emit('chatList',{authToken: '<%-token%>', usertype: "admin"});
+    $(document).ready(function(){  
+      $("#chat img:last-child").remove()
+        $("#right-chat").hide(); 
+        socket.emit('chatList',{authToken: '<%-token%>', usertype: "user"});
         socket.on("chatListRes", data=>{
             console.log("====msgs", data );
             var userData = data;
@@ -187,11 +225,11 @@
                         <div class="media-body" onclick="showmsg('${id}')">
                             <h5 class="mt-0 mb-0 font-14">
                                 <!-- <span class="float-right text-muted font-weight-normal font-12">4:30am</span> -->
-                                ${userData[k].senderName} 
+                                ${data[k].senderName ? data[k].senderName : data[k].adminName}
                             </h5>
                             <p class="mt-1 mb-0 text-muted font-14">
                                <!-- <span class="w-25 float-right text-right"><span class="badge badge-soft-danger">3</span></span> -->
-                                <span class="w-75"> ${userData[k].message}</span>
+                                <span class="w-75"> ${data[k].message}</span>
                             </p>
                         </div>
                     </div>
@@ -204,11 +242,13 @@
     
     $('form').submit(function(e) {
       e.preventDefault();
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin", groupId: groupId})
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin", groupId: groupId});
+        $('#msg').val('');
       return false;
     });
 
     function showmsg(id){
+        $("#right-chat").show();
         var data = {
             authToken: '<%-token%>',
             receiverId: id
@@ -222,8 +262,10 @@
                console.log("=>chatHistoryRes", data);
                var html = "";
                for(var i = 0 ;  i <data.length ; i++){
-                var odd = data[i].senderId == '<%-id%>' ? true : false;
-                
+                   if(data[i].senderId)
+                        var odd = data[i].senderId == '<%-id%>' ? true : false;
+                   else     
+                    var odd = data[i].adminId == '<%-id%>' ? true : false;
                 if(odd){
                     html = html +  ` <li class="clearfix odd">
                             <div class="chat-avatar">
@@ -232,7 +274,7 @@
                             </div>
                             <div class="conversation-text">
                                 <div class="ctext-wrap">
-                                    <i>${data[i].senderName}</i>
+                                    <i>${data[i].senderName ? data[i].senderName : data[i].adminName}</i>
                                     <p>
                                     ${data[i].message}
                                     </p>
@@ -249,7 +291,7 @@
                             </div>
                             <div class="conversation-text">
                                 <div class="ctext-wrap">
-                                    <i>${data[i].senderName}</i>
+                                    <i>${data[i].senderName ? data[i].senderName : data[i].adminName}</i>
                                     <p>
                                     ${data[i].message}
                                     </p>
@@ -264,5 +306,8 @@
            })
        });
        
+    }
+    function next(){
+
     }
 </script>

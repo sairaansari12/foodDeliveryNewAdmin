@@ -36,9 +36,6 @@ chatMessages.belongsTo(users, {
 chatMessages.belongsTo(companies, {
   foreignKey: 'adminId'
 });
-// chatMessages.belongsTo(chatMessages, {
-//   foreignKey: 'actualMessageId'
-// })
 chatMessages.belongsTo(groupMembers, {
   foreignKey: 'groupId'
 })
@@ -174,7 +171,6 @@ module.exports = function (io) {
               socket.join(groupExists.dataValues.id);
 
               socket.emit('joinRoomRes',{ groupId: groupExists.dataValues.id } )
-              // socket.emit('chatHistory',{authToken: token, groupId: data.groupId })
               return socket.emit('joinRoom', { groupId: groupExists.dataValues.id });
             }
           } else {
@@ -183,7 +179,6 @@ module.exports = function (io) {
 
             socket.emit('joinRoomRes',{ groupId: data.groupId } )
 
-            // socket.emit('chatHistory',{authToken: token, groupId: data.groupId })
             return socket.emit('joinRoom', { groupId: data.groupId });
           }
         }
@@ -236,7 +231,6 @@ module.exports = function (io) {
    Send Message   
    */
     socket.on('sendMessage', async (data) => {
-      
       try {
 		    const authToken = data.authToken;
         const type = data.type;
@@ -245,9 +239,11 @@ module.exports = function (io) {
            groupId = data.groupId;
         else
           groupId = groupID;
+
         if (!authToken) {
           return socket.emit('errorMessage', 'Please Provide JWT Token');
         }
+
         if (!type) {
           return socket.emit('errorMessage', 'Message Type is required');
         }
@@ -428,7 +424,7 @@ module.exports = function (io) {
       var detail;
       if(requestData.usertype != 'admin'){
         detail = await chatMessages.findOne({
-          attributes: ['id', 'senderId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+          attributes: ['id', 'senderId','adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
             [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
@@ -461,12 +457,12 @@ module.exports = function (io) {
         })
       } else{
         detail = await chatMessages.findOne({
-          attributes: ['id', 'senderId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+          attributes: ['id', 'senderId','adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
             [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
             [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-            [sequelize.literal('user.firstName'), 'senderName'],
-            [sequelize.literal('user.image'), 'senderImage'],
+            [sequelize.literal('company.companyName'), 'senderName'],
+            [sequelize.literal('company.logo1'), 'senderImage'],
           ],
           where: {
             id: data.id
@@ -587,6 +583,8 @@ module.exports = function (io) {
                   [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
+                  [sequelize.literal('company.companyName'), 'adminName'],
+                  [sequelize.literal('company.logo1'), 'adminImage'],
                   [sequelize.literal('user.firstName'), 'senderName'],
                   [sequelize.literal('user.image'), 'senderImage'],
                 ],
@@ -599,7 +597,10 @@ module.exports = function (io) {
                 }, {
                   model: mediaMessages,
                   attributes: [],
-                }, {
+                },{
+                  model: users,
+                  attributes: [],
+                },{
                   model: companies,
                   attributes: [],
                 }, {
@@ -766,14 +767,17 @@ module.exports = function (io) {
                         }
                       ],
                     })
+                    
                   } else{
                     message = await chatMessages.findOne({
                       attributes: ['id', 'adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
                         [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                        // [sequelize.literal('companies.companyName'), 'senderName'],
-                        // [sequelize.literal('companies.logo1'), 'senderImage'],
+                        [sequelize.literal('company.companyName'), 'adminName'],
+                        [sequelize.literal('company.logo1'), 'adminImage'],
+                        [sequelize.literal('user.firstName'), 'senderName'],
+                        [sequelize.literal('user.image'), 'senderImage'],
                         [sequelize.literal('group.groupName'), 'groupName'],
                         [sequelize.literal('group.groupIcon'), 'groupIcon'],
                         [sequelize.literal('group.createdBy'), 'createdBy']
@@ -804,7 +808,12 @@ module.exports = function (io) {
                         }, {
                           model: mediaMessages,
                           attributes: [],
-                        }, {
+                        },
+                        {
+                          model: users,
+                          attributes: [],
+                        },
+                         {
                           model: companies,
                           attributes: [],
                           required: true

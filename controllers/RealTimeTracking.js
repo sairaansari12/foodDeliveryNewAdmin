@@ -206,83 +206,83 @@ currentLong=  new_lat_long[p].long
 
 
 
-// io.on("connection", function(socket) {
+io.on("connection", function(socket) {
 
-//     console.log("one client is connected..................................");
-//     socket.on("socketFromClient", function(msg) {
-//         console.log(msg);
-//         RECIEVERSocketID = msg.driverId;
-//         socket.join(RECIEVERSocketID);
+    console.log("one client is connected..................................");
+    socket.on("socketFromClient", function(msg) {
+        console.log(msg);
+        RECIEVERSocketID = msg.driverId;
+        socket.join(RECIEVERSocketID);
 
-//         var responseObj = {
-//             "result": "0",
-//             "message": "Success",
-//             "method": msg.methodName
-//         };
-
-
-//         console.log(msg.methodName)
-//         if (msg.methodName && msg.methodName == "updateLocation") {
+        var responseObj = {
+            "result": "0",
+            "message": "Success",
+            "method": msg.methodName
+        };
 
 
-
-//             self.updateLocation(msg.orderId,msg.empId,msg.latLong, function(err, data) {
-
-//                 if (data) {
-//                     responseObj['result'] = 1;
-//                     responseObj['data'] = data;
-//                 } else {
-//                     responseObj['message'] = err;
-//                 }
-//                 io.sockets.emit("responseFromServer", responseObj);
-
-//             })
-
-
-//         }
-
-
-//         if (msg.methodName && msg.methodName == "updateVehicleLocation") {
+        console.log(msg.methodName)
+        if (msg.methodName && msg.methodName == "updateLocation") {
 
 
 
-//             self.updateVehicleLocation(msg.driverId, msg.latitude, msg.longitude, function(err, data) {
+            self.updateLocation(msg.orderId,msg.empId,msg.latLong, function(err, data) {
 
-//                 if (data) {
-//                     responseObj['result'] = 1;
-//                     responseObj['data'] = data;
-//                 } else {
-//                     responseObj['message'] = err;
-//                 }
-//                 console.log("sending...response")
-//                 io.sockets.emit("responseFromServer", responseObj);
+                if (data) {
+                    responseObj['result'] = 1;
+                    responseObj['data'] = data;
+                } else {
+                    responseObj['message'] = err;
+                }
+                io.sockets.emit("responseFromServer", responseObj);
 
-//             })
-
-
-//         }
+            })
 
 
-
-//         if (msg.methodName && msg.methodName == "getLocation") {
-//             self.getLocation(msg.orderId, msg.driverId, function(err, data) {
+        }
 
 
-//                 if (data) {
-//                     responseObj['result'] = 1;
-//                     responseObj['data'] = data;
-//                 } else {
-//                     responseObj['message'] = err;
-//                 }
-
-//                 io.sockets.emit("responseFromServer", responseObj);
-
-//             })
-//         }
+        if (msg.methodName && msg.methodName == "updateVehicleLocation") {
 
 
-//     });
-// });
+
+            self.updateVehicleLocation(msg.driverId, msg.latitude, msg.longitude, function(err, data) {
+
+                if (data) {
+                    responseObj['result'] = 1;
+                    responseObj['data'] = data;
+                } else {
+                    responseObj['message'] = err;
+                }
+                console.log("sending...response")
+                io.sockets.emit("responseFromServer", responseObj);
+
+            })
+
+
+        }
+
+
+
+        if (msg.methodName && msg.methodName == "getLocation") {
+            self.getLocation(msg.orderId, msg.driverId, function(err, data) {
+
+
+                if (data) {
+                    responseObj['result'] = 1;
+                    responseObj['data'] = data;
+                } else {
+                    responseObj['message'] = err;
+                }
+
+                io.sockets.emit("responseFromServer", responseObj);
+
+            })
+        }
+
+
+    });
+});
 
 
 

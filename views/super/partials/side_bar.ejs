@@ -71,9 +71,9 @@
       </div>
     </li>
     <li>
-      <a href="<%- superadminpath %>chat/">
+      <a href="<%- superadminpath %>chat/" onclick="hideImg()">
           <i data-feather="message-square"></i>
-          <span> Chat </span>
+          <span id="chat"> Chat </span>
       </a>
   </li>
   <!-- <li>
@@ -85,3 +85,17 @@
   </ul>
 </div>
 <!-- End Sidebar -->
+<%- include('../partials/script'); -%>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script>
+  $(document).ready(function(){
+    
+  })
+    //live link = http://51.79.40.224:9070/
+    var socket = new io('http://51.79.40.224:9070/');
+    var groupId;
+    socket.on("newMessage", (data)=>{   
+      var html = "<img width='10' src='/dist/assets/images/dot.png' />";
+      $("#chat").append(html);
+    });
+</script>
