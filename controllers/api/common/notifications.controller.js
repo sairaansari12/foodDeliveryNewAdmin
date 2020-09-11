@@ -108,35 +108,36 @@ transporter.sendMail(mailOptions, function(error, info){
 
 sendNotification :function (params)
  {
+
     var tokens=[];
 
-     if(typeof params.token=='string') tokens.push(params.token)
-else  tokens=params.token;
-var title=params.title;
-var description =params.description;
-var count=params.count;
+    if(typeof params.token=='string') tokens.push(params.token)
+    else  tokens=params.token;
+    var title=params.title;
+    var description =params.description;
+    var count=params.count;
 
-for(var k=0;k<tokens.length;k++)
-{
-    var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-        to: tokens[k],
-        //   collapse_key: 'your_collapse_key',
-         "notification": { title: title,
-            body: description},
-        "priority": "high",
-        "data": {
-            notificationType: params.notificationType,
-            message: description,
-            title: title,
-            orderId:params.orderId,
-            body: description,
-            status: params.status,
-            sound: 'default'
-           },
-    };
+    for(var k=0;k<tokens.length;k++)
+    {
+
+        var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+            to: tokens[k],
+            //   collapse_key: 'your_collapse_key',
+            "notification": { title: title,
+                body: description},
+            "priority": "high",
+            "data": {
+                notificationType: params.notificationType,
+                message: description,
+                title: title,
+                orderId:params.orderId,
+                body: description,
+                status: params.status,
+                sound: 'default'
+            },
+        };
 
 //console.log(JSON.stringify(message))
-
         fcm.send(message, function (err, response) {
             if (err) {
                 console.log("FCM  Error >>>>>>>>>> " + err);              
@@ -148,6 +149,38 @@ for(var k=0;k<tokens.length;k++)
         });
 
     }
+    
+},
+sendNotificationChat :function (params)
+ {
+    var title=params.title;
+    var description =params.description;
+    var count=params.count;
+    var message = { 
+        to: params.token,
+        "notification": { title: title,
+            body: description},
+        "priority": "high",
+        "data": {
+            notificationType: params.notificationType,
+            message: description,
+            title: title,
+            orderId:params.orderId,
+            body: description,
+            status: params.status,
+            sound: 'default'
+        },
+    };
+
+    fcm.send(message, function (err, response) {
+        if (err) {
+            console.log("FCM  Error >>>>>>>>>> " + err);              
+
+        } else {
+            console.log("FCM  Success >>>>>>>>>> " + response);
+            
+        }
+    });
     
 },
 

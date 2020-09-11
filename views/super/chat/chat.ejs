@@ -44,6 +44,12 @@
                             <div class="col-xl-3 col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
+                                        <form class="search-bar mb-3">
+                                            <div class="position-relative">
+                                                <input type="text" class="form-control form-control-light" placeholder="Search...">
+                                                <span class="mdi mdi-magnify"></span>
+                                            </div>
+                                        </form>
                                         <h6  class="font-13 text-muted text-uppercase mb-2">Contacts</h6>
                                         <!-- users -->
                                         <div class="row">
@@ -239,7 +245,7 @@
     function getChatlist(){
         socket.emit('chatList',{authToken: '<%-token%>', usertype: "user"});
         socket.on("chatList", data=>{
-            // console.log("=>>>chatList", data)
+            console.log("=>>>chatList", data)
             chatListData = data;
             var userData = data;
             var html = "";

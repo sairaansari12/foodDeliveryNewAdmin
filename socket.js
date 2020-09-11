@@ -286,11 +286,12 @@ module.exports = function (io) {
                   }
                 }
               })
-
+              var receiverUserId;
               if (getUsers) {
                 await Promise.all(
                   getUsers.map(async user => {
                     const users = {};
+                    receiverUserId = user.userId;
                     users.messageId = chatMessage.dataValues.id;
                     if(data.usertype == "user"){
                       users.adminId = user.userId;
@@ -380,7 +381,6 @@ module.exports = function (io) {
                 var newDir = dir.substr("public".length,dir.length)
                 media.media = newDir + mediaPath + timestamp +"."+ data.extension;
                 media.thumbnail = newDir + '/thumbnails/' + timestamp + '.png';
-                console.log("=>>>type 2 media",newDir )
                 const mediaMessage = await mediaMessages.create(media);
                 if (!mediaMessage) {
                   const deleteMessage = await chatMessages.destroy({
@@ -406,7 +406,45 @@ module.exports = function (io) {
               }
               requestData.usertype = data.usertype;
               const messageDetail = await messageDetails(requestData);
+              var toUser;
+              if(data.usertype == 'admin'){
+                toUser = await users.findOne({
+                  attributes: ['deviceToken', 'platform'],
+                  where: {
+                    id: receiverUserId
+                  },
+                });
+                
+              } else{
+                toUser = await companies.findOne({
+                  attributes: ['deviceToken', 'platform'],
+                  where: {
+                    id: receiverUserId
+                  },
+                });
+              }
               io.sockets.in(groupId).emit('newMessage', messageDetail); // emit message in room
+              var notifData = {
+                title: "New Message",
+                description: data.message,
+                userId: receiverUserId,
+                orderId: "",
+                role: data.usertype == 'admin' ? 1 : 2
+              }
+              commonNotification.insertNotification(notifData);  
+              var notifPushUserData={
+                title:"New message",
+                description: data.message,
+                token: toUser.dataValues.deviceToken,  
+                platform: toUser.dataValues.platform,
+                userId : receiverUserId,
+                role : data.usertype == 'admin' ? 1 : 2,
+                orderId: "",
+                notificationType:"CHAT_NEW_MSG",
+                status: 1,
+                readStatus: 0
+              } 
+              commonNotification.sendNotificationChat(notifPushUserData);
             }
           }
         })
@@ -732,7 +770,6 @@ module.exports = function (io) {
                     ]
                   })
                   var message;
-                  if(data.usertype != "admin"){
                     message = await chatMessages.findOne({
                       attributes: ['id', 'senderId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
                         [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
@@ -784,68 +821,7 @@ module.exports = function (io) {
                         }
                       ],
                     })
-                    
-                  } 
-                  // else{
-                  //   message = await chatMessages.findOne({
-                  //     attributes: ['id', 'adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
-                  //       [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
-                  //       [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
-                  //       [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                  //       [sequelize.literal('company.companyName'), 'adminName'],
-                  //       [sequelize.literal('company.logo1'), 'adminImage'],
-                  //       [sequelize.literal('user.firstName'), 'senderName'],
-                  //       [sequelize.literal('user.image'), 'senderImage'],
-                  //       [sequelize.literal('group.groupName'), 'groupName'],
-                  //       [sequelize.literal('group.groupIcon'), 'groupIcon'],
-                  //       [sequelize.literal('group.createdBy'), 'createdBy']
-  
-                  //     ],
-                  //     subQuery: false,
-  
-                  //     where: {
-                  //      groupId: group.groupId
-                  //     },
-                  //     order: [
-                  //       ['id', 'DESC']
-                  //      ],
-                      
-                  //     include: [
-                 
-                  //       {
-                  //         model: groupa,
-                  //         attributes: [],
-                  //       },
-                  //       {
-                  //         model: textMessages,
-                  //         attributes: [],
-                  //       },
-                  //       {
-                  //         model: groupMembers,
-                  //         attributes: ['userId'],
-                  //       }, {
-                  //         model: mediaMessages,
-                  //         attributes: [],
-                  //       },
-                  //       {
-                  //         model: users,
-                  //         attributes: [],
-                  //       },
-                  //        {
-                  //         model: companies,
-                  //         attributes: [],
-                  //         required: true
-                  //       }, {
-                  //         model: messagesStatus,
-                  //         attributes: ['deliveredAt', 'readAt', 'userId',
-                  //           [sequelize.literal('(SELECT logo1 from companies where id= chatMessages.adminId)'), 'image'],
-                  //           [sequelize.literal('(SELECT companyName from companies where id= chatMessages.adminId)'), 'userName']
-                  //         ],
-                  //         required: true
-                  //       }
-                  //     ],
-                  //   })
-                  // }
+                                     
                   
                 if(message.dataValues.senderName == ""){
                   message.dataValues.senderName = "Guest user";
