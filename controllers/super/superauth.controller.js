@@ -462,29 +462,7 @@ app.get('/changePassword',superAuth, async (req, res, next) => {
    return res.render(superadminfilepath+'changePassword.ejs');
 });
 app.get('/chat',superAuth, async (req, res, next) => {
-  const credentials = {
-    phoneNumber: req.session.userData.phoneNumber,
-    companyId:   req.companyId,
-    countryCode: req.session.userData.countryCode,
-    userType: req.session.userData.type,
-    id : req.session.userData.id
-  };
-  const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
-  
-   return res.render('super/chat/chat.ejs',{ token: authToken, id: req.session.userData.id});
-});
-app.get('/test',superAuth, async (req, res, next) => {
-
-  const credentials = {
-    phoneNumber: req.session.userData.phoneNumber,
-    companyId:   req.companyId,
-    countryCode: req.session.userData.countryCode,
-    userType: req.session.userData.type,
-    id : req.session.userData.id
-  };
-  const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
-  
-   return res.render('super/chat/test.ejs',{ token: authToken, id: req.session.userData.id});
+  return res.render('super/chat/chat.ejs',{ token: req.token, id: req.id});
 });
 
 app.get('/recoverPassword', async (req, res, next) => {
