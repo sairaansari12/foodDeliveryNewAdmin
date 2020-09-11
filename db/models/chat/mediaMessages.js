@@ -20,11 +20,11 @@ module.exports = function(sequelize, DataTypes) {
        onDelete: 'CASCADE',
     },
     media: {
-        type: DataTypes.STRING(60),
+        type: DataTypes.STRING(200),
         allowNull: false,
     },
     thumbnail: {
-        type: DataTypes.STRING(60),
+        type: DataTypes.STRING(200),
         allowNull: false,
     },
     createdAt: {

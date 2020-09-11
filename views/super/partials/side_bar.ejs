@@ -92,9 +92,9 @@
     
   })
     //live link = http://51.79.40.224:9070/
-    var socket = new io('http://51.79.40.224:9070/');
-    var groupId;
-    socket.on("newMessage", (data)=>{   
+    var socket = new io('http://localhost:9062/');
+    socket.on("newMessage", (data)=>{ 
+      console.log("=>>>side bar new msg event")  
       var html = "<img width='10' src='/dist/assets/images/dot.png' />";
       $("#chat").append(html);
     });

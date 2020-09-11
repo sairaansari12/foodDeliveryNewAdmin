@@ -106,13 +106,15 @@
                                                         <div class="row">
                                                             <div class="col mb-2 mb-sm-0">
                                                                 <input type="text" class="form-control border-0" placeholder="Enter your text" id="msg">
-                                                                <div class="invalid-feedback">
+                                                                <div id="img" style="text-align: center;"></div>
+                                                                <!-- <div class="invalid-feedback">
                                                                     Please enter your messsage
-                                                                </div>
+                                                                </div> -->
                                                             </div>
                                                             <div class="col-sm-auto">
                                                                 <div class="btn-group">
-                                                                    <!-- <a class="btn btn-light"><i class="fe-paperclip"></i></a> -->
+                                                                    <a onclick="selectFile()" class="btn btn-light"><i class="fe-paperclip"></i></a>
+                                                                    <input onchange="getImage(this)" id="file-upload" type="file" hidden />
                                                                     <button type="submit" class="btn btn-success chat-send btn-block"><i class='fe-send'></i></button>
                                                                 </div>
                                                             </div> <!-- end col -->
@@ -152,56 +154,61 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script>
     //live link = http://51.79.40.224:9070/
-    var socket = new io('http://51.79.40.224:9070/');
-    var groupId;
-    socket.on("newMessage", (data)=>{
-        var date = new Date(); 
-        var hours = date.getHours(); 
-        var minutes = date.getMinutes();  
-        var newformat = hours >= 12 ? 'PM' : 'AM';    
-        hours = hours % 12;     
-        hours = hours ? hours : 12;  
-        minutes = minutes < 10 ? '0' + minutes : minutes; 
-        // console.log("=>>",hours, " ", minutes, newformat) 
-        
-        console.log("=>>>newMessage", data);
+    var socket = new io('http://localhost:9062/');
+    var groupId, base64Img, extension;
+    var chatListData = [];
+    socket.on("newMessage", (data)=>{  
+        getChatlist();     
         if(data.senderId)
             var odd = data.senderId == '<%-id%>' ? true : false;
         else     
             var odd = data.adminId == '<%-id%>' ? true : false;
         var html = "";
+        var sentAt = convertTime(data.sentAt);
         if(odd){
             html = ` <li class="clearfix odd">
                     <div class="chat-avatar">
                         <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data.senderName ? data.senderName : data.adminName}" />
-                        <i>10:00</i>
+                        <i>${sentAt}</i>
                     </div>
                     <div class="conversation-text">
                         <div class="ctext-wrap">
-                            <i>${data.senderName ? data.senderName : data.adminName}</i>
-                            <p>
+                            <i>${data.senderName ? data.senderName : data.adminName}</i>`;
+            if(data.type == 1){
+                html = html + `<p>
                             ${data.message}
                             </p>
                         </div>
-                    </div>
-                    
-            </li>`;
+                    </div>          
+                </li>`
+            }  else{
+                html = html + `<img style="width: 345px;height: 260px;" src="${data.media}" />
+                        </div>
+                    </div>                              
+                </li>`
+            }
         } else{
             html = ` <li class="clearfix">
                     <div class="chat-avatar">
                         <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data.senderName ? data.senderName : data.adminName}" />
-                        <i>10:00</i>
+                        <i>${sentAt}</i>
                     </div>
                     <div class="conversation-text">
                         <div class="ctext-wrap">
-                            <i>${data.senderName ? data.senderName : data.adminName}</i>
-                            <p>
+                            <i>${data.senderName ? data.senderName : data.adminName}</i>`;
+            if(data.type == 1){
+                html = html + `<p>
                             ${data.message}
                             </p>
                         </div>
-                    </div>
-                    
-            </li>`;
+                    </div>          
+                </li>`
+            }  else{
+                html = html + `<img style="width: 345px;height: 260px;" src="${data.media}" />
+                        </div>
+                    </div>                              
+                </li>`
+            }
         } 
         
       $('#list').append($(html));
@@ -211,9 +218,29 @@
     $(document).ready(function(){  
       $("#chat img:last-child").remove()
         $("#right-chat").hide(); 
+        getChatlist();
+    });
+    
+    
+    $('form').submit(function(e) {
+      e.preventDefault();
+      $("#msg").show();
+      $("#img img:last-child").remove();
+      if(base64Img && base64Img != ""){
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin", groupId: groupId});
+        base64Img = "";
+      }else{
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin", groupId: groupId});
+      }
+        
+        $('#msg').val('');
+      return false;
+    });
+    function getChatlist(){
         socket.emit('chatList',{authToken: '<%-token%>', usertype: "user"});
-        socket.on("chatListRes", data=>{
-            console.log("====msgs", data );
+        socket.on("chatList", data=>{
+            // console.log("=>>>chatList", data)
+            chatListData = data;
             var userData = data;
             var html = "";
 
@@ -237,31 +264,34 @@
             }
             $('#chatlist').html(html)
         })
-    });
-    
-    
-    $('form').submit(function(e) {
-      e.preventDefault();
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin", groupId: groupId});
-        $('#msg').val('');
-      return false;
-    });
+    }
 
     function showmsg(id){
         $("#right-chat").show();
-        var data = {
+        
+       var singleChatList = chatListData.find(x=> x.senderId == id || x.adminId == id);
+        if(groupId){
+            var leaveRoomData = {
+                authToken: '<%-token%>',
+                receiverId: id,
+                groupId: groupId
+            }
+            socket.emit("leaveRoom", leaveRoomData);
+        }
+       var data = {
             authToken: '<%-token%>',
-            receiverId: id
+            receiverId: id,
+            groupId: singleChatList.groupId
         }
        socket.emit('joinRoom',data);
-       socket.on('joinRoomRes',(data)=>{
-           console.log("==joinRoomRes", data)
+       socket.on('joinRoom',(data)=>{
            groupId = data.groupId;
            socket.emit("chatHistory", {authToken: '<%-token%>', groupId: data.groupId, usertype: "admin"});
-           socket.on("chatHistoryRes", (data)=>{
-               console.log("=>chatHistoryRes", data);
+           socket.on("chatHistory", (data)=>{
+               console.log("=>chatHistoryRes",  data);
                var html = "";
                for(var i = 0 ;  i <data.length ; i++){
+                   var sentAt = convertTime(data[i].sentAt);
                    if(data[i].senderId)
                         var odd = data[i].senderId == '<%-id%>' ? true : false;
                    else     
@@ -270,35 +300,49 @@
                     html = html +  ` <li class="clearfix odd">
                             <div class="chat-avatar">
                                 <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data[i].senderName}" />
-                                <i>10:00</i>
+                                <i>${sentAt}</i>
                             </div>
-                            <div class="conversation-text">
+                            <div class="conversation-text" style="width: 73% !important">
                                 <div class="ctext-wrap">
                                     <i>${data[i].senderName ? data[i].senderName : data[i].adminName}</i>
-                                    <p>
+                                    `;
+                    if(data[i].type == 1){
+                        html = html + `<p>
                                     ${data[i].message}
                                     </p>
                                 </div>
-                            </div>
-                            
-                    </li>`
-
+                            </div>          
+                        </li>`
+                    }  else{
+                        html = html + `<img style="width: 345px;height: 260px;" src="${data[i].media}" />
+                             </div>
+                            </div>                              
+                        </li>`
+                    }                                
+                               
                 }else{
                     html = html +  ` <li class="clearfix">
                             <div class="chat-avatar">
                                 <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data[i].senderName}" />
-                                <i>10:00</i>
+                                <i>${sentAt}</i>
                             </div>
-                            <div class="conversation-text">
+                            <div class="conversation-text" style="width: 73% !important">
                                 <div class="ctext-wrap">
-                                    <i>${data[i].senderName ? data[i].senderName : data[i].adminName}</i>
-                                    <p>
+                                    <i>${data[i].senderName ? data[i].senderName : data[i].adminName}</i>`;
+                                   
+                    if(data[i].type == 1){
+                        html = html + `<p>
                                     ${data[i].message}
                                     </p>
                                 </div>
-                            </div>
-                            
-                    </li>`
+                            </div>          
+                        </li>`
+                    }  else{
+                        html = html + `<img style="width: 345px;height: 260px;" src="${data[i].media}" />
+                             </div>
+                            </div>                              
+                        </li>`
+                    } 
                 }
                 
                }
@@ -307,7 +351,35 @@
        });
        
     }
-    function next(){
-
+    function selectFile(){
+        $("#file-upload").click();
+    }
+    function getImage(element){
+        var img = element.files[0];
+        extension = element.files[0].name.substring(element.files[0].name.lastIndexOf('.') + 1);
+        var reader = new FileReader();  
+        reader.onloadend = function() {
+            base64Img = reader.result;
+            $("#msg").hide();
+            var html = `<img src="${base64Img}" style="width: 50%;" />`
+            $("#img").html(html);
+        }
+        reader.readAsDataURL(img);
+    }
+    function convertTime(timeStamp){
+        var unixtimestamp = timeStamp;
+        var date = new Date(unixtimestamp*1000);
+        var year = date.getFullYear();
+        var month = date.getMonth();
+        var day = date.getDate();
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var newformat = hours >= 12 ? 'PM' : 'AM';  
+        hours = hours % 12;   
+        hours = hours ? hours : 12;  
+        minutes = minutes < 10 ? '0' + minutes : minutes;  
+        // var convdataTime = month+'/'+day+'/'+year+' '+hours + ':' + minutes+ ' ' + newformat;
+        var convdataTime = hours + ':' + minutes+ ' ' + newformat;
+        return convdataTime;
     }
 </script>

@@ -162,6 +162,8 @@ module.exports = function (io) {
                 if (createMembers) {
                   groupID = createGroup.dataValues.id;
                   socket.join(createGroup.dataValues.id);
+      console.log("=>>join group groupExists", createGroup)
+
                   socket.emit('joinRoomRes',{ groupId:createGroup.dataValues.id } )
                   return socket.emit('joinRoom', { groupId: createGroup.dataValues.id });
                 }
@@ -169,6 +171,7 @@ module.exports = function (io) {
             } else {
               groupID = groupExists.dataValues.id;
               socket.join(groupExists.dataValues.id);
+      console.log("=>>join group groupExists")
 
               socket.emit('joinRoomRes',{ groupId: groupExists.dataValues.id } )
               return socket.emit('joinRoom', { groupId: groupExists.dataValues.id });
@@ -176,6 +179,7 @@ module.exports = function (io) {
           } else {
             groupID = groupId;
             socket.join(groupId);
+            console.log("=>>join group with group id") 
 
             socket.emit('joinRoomRes',{ groupId: data.groupId } )
 
@@ -216,6 +220,8 @@ module.exports = function (io) {
           if (err) {
             return socket.emit('errorMessage', 'Invalid User');
           } else {
+      console.log("=>>leave group")
+
             socket.leave(groupId);
             const senderId = await common.userId(authToken);
             socket.broadcast.to(groupId).emit('leaveRoom', { groupId: groupId, userId: senderId });
@@ -259,13 +265,11 @@ module.exports = function (io) {
             const message = {};
             if(data.usertype == "admin"){
               message.adminId = senderId;
-              // message.senderId = 0;
             }else{  
               message.senderId = senderId;
-              // message.adminId = 0;
-
             }
             message.type = type;
+            message.createdAt = common.timestamp();
             message.groupId = groupId;
             if (data.actualMessageId) {
               message.actualMessageId = data.actualMessageId;
@@ -341,7 +345,7 @@ module.exports = function (io) {
                   )
                 }
                 //////// write base64 string as image,video,audio,document ////////////////
-                await fs.writeFile(dir + mediaPath + timestamp + data.extension, base64String, { encoding: 'base64' }, async function (err) {
+                await fs.writeFile(dir + mediaPath + timestamp +"."+ data.extension, base64String, { encoding: 'base64' }, async function (err) {
                   if (err) {
                     const deleteMessage = await chatMessages.destroy({
                       where: {
@@ -364,7 +368,7 @@ module.exports = function (io) {
                       options.pdf = true;  ////////// here we are generating thumb of pdf and for documents such as word,excel we convert them to pdf and then generate thumb of pdf
                       options.pdf_path = dir + mediaPath
                     }
-                    if (!filePreview.generateSync(dir + mediaPath + timestamp + data.extension, dir + '/thumbnails/' + timestamp + '.png', options)) {
+                    if (!filePreview.generateSync(dir + mediaPath + timestamp, dir + '/thumbnails/' + timestamp + '.png', options)) {
                     } else {
 
                       if (data.extension != '.pdf' && data.type == 7) {  //////// remove pdf file generated from other document
@@ -373,8 +377,10 @@ module.exports = function (io) {
                     };
                   }
                 });
-                media.media = dir + mediaPath + timestamp + data.extension;
-                media.thumbnail = dir + '/thumbnails/' + timestamp + '.png';
+                var newDir = dir.substr("public".length,dir.length)
+                media.media = newDir + mediaPath + timestamp +"."+ data.extension;
+                media.thumbnail = newDir + '/thumbnails/' + timestamp + '.png';
+                console.log("=>>>type 2 media",newDir )
                 const mediaMessage = await mediaMessages.create(media);
                 if (!mediaMessage) {
                   const deleteMessage = await chatMessages.destroy({
@@ -548,12 +554,15 @@ module.exports = function (io) {
             var messages;
             if(data.usertype != 'admin'){
               messages = await chatMessages.findAll({
-                attributes: ['id', 'senderId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+                attributes: ['id', 'senderId','adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
                   [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                   [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
+                  [sequelize.literal('company.companyName'), 'adminName'],
+                  [sequelize.literal('company.logo1'), 'adminImage'],
                   [sequelize.literal('user.firstName'), 'senderName'],
                   [sequelize.literal('user.image'), 'senderImage'],
+                  
                 ],
                 where: {
                   groupId: groupId
@@ -567,7 +576,11 @@ module.exports = function (io) {
                 }, {
                   model: users,
                   attributes: [],
-                }, {
+                },
+                {
+                  model: companies,
+                  attributes: [],
+                },{
                   model: messagesStatus,
                   attributes: ['deliveredAt', 'readAt', 'userId',
                     [sequelize.literal('(SELECT image from users where id= userId)'), 'image'],
@@ -614,10 +627,12 @@ module.exports = function (io) {
   
               })
             }
-           
             if (messages) {
               await Promise.all(
                 messages.map(async message => {
+                  if(message.dataValues.senderName == ""){
+                    message.dataValues.senderName = "Guest user";
+                  }
                   if (message.actualMessageId != 0) {       //  it means this is replied or forwarded message
                     const actualMessage = await chatMessages.findOne({
                       attributes: ['id','senderId' ,'adminId', 'groupId', 'type', 'messageType', 'status', ['createdAt', 'sentAt'],
@@ -625,6 +640,8 @@ module.exports = function (io) {
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
                         [sequelize.literal('user.firstName'), 'senderName'],
+                        // [sequelize.fn('IFNULL', sequelize.col('user.firstName'), 'Guest user'), 'senderName'],
+
                         [sequelize.literal('user.image'), 'senderImage'],
                       ],
                       where: {
@@ -652,10 +669,10 @@ module.exports = function (io) {
               )   
 
               const sortMessages = await messages.slice().sort((a, b) => a.dataValues.sentAt - b.dataValues.sentAt); //// sort message array in asc order of message sent
-              socket.emit('chatHistoryRes',sortMessages )
+              // socket.emit('chatHistoryRes',sortMessages )
               socket.emit('chatHistory',sortMessages )
             } else {
-              socket.emit('chatHistoryRes',[] )
+              // socket.emit('chatHistoryRes',[] )
 
               socket.emit('chatHistory', [])
             }
@@ -768,68 +785,71 @@ module.exports = function (io) {
                       ],
                     })
                     
-                  } else{
-                    message = await chatMessages.findOne({
-                      attributes: ['id', 'adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
-                        [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
-                        [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
-                        [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                        [sequelize.literal('company.companyName'), 'adminName'],
-                        [sequelize.literal('company.logo1'), 'adminImage'],
-                        [sequelize.literal('user.firstName'), 'senderName'],
-                        [sequelize.literal('user.image'), 'senderImage'],
-                        [sequelize.literal('group.groupName'), 'groupName'],
-                        [sequelize.literal('group.groupIcon'), 'groupIcon'],
-                        [sequelize.literal('group.createdBy'), 'createdBy']
+                  } 
+                  // else{
+                  //   message = await chatMessages.findOne({
+                  //     attributes: ['id', 'adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+                  //       [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+                  //       [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
+                  //       [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
+                  //       [sequelize.literal('company.companyName'), 'adminName'],
+                  //       [sequelize.literal('company.logo1'), 'adminImage'],
+                  //       [sequelize.literal('user.firstName'), 'senderName'],
+                  //       [sequelize.literal('user.image'), 'senderImage'],
+                  //       [sequelize.literal('group.groupName'), 'groupName'],
+                  //       [sequelize.literal('group.groupIcon'), 'groupIcon'],
+                  //       [sequelize.literal('group.createdBy'), 'createdBy']
   
-                      ],
-                      subQuery: false,
+                  //     ],
+                  //     subQuery: false,
   
-                      where: {
-                       groupId: group.groupId
-                      },
-                      order: [
-                        ['id', 'DESC']
-                       ],
+                  //     where: {
+                  //      groupId: group.groupId
+                  //     },
+                  //     order: [
+                  //       ['id', 'DESC']
+                  //      ],
                       
-                      include: [
+                  //     include: [
                  
-                        {
-                          model: groupa,
-                          attributes: [],
-                        },
-                        {
-                          model: textMessages,
-                          attributes: [],
-                        },
-                        {
-                          model: groupMembers,
-                          attributes: ['userId'],
-                        }, {
-                          model: mediaMessages,
-                          attributes: [],
-                        },
-                        {
-                          model: users,
-                          attributes: [],
-                        },
-                         {
-                          model: companies,
-                          attributes: [],
-                          required: true
-                        }, {
-                          model: messagesStatus,
-                          attributes: ['deliveredAt', 'readAt', 'userId',
-                            [sequelize.literal('(SELECT logo1 from companies where id= chatMessages.adminId)'), 'image'],
-                            [sequelize.literal('(SELECT companyName from companies where id= chatMessages.adminId)'), 'userName']
-                          ],
-                          required: true
-                        }
-                      ],
-                    })
-                  }
+                  //       {
+                  //         model: groupa,
+                  //         attributes: [],
+                  //       },
+                  //       {
+                  //         model: textMessages,
+                  //         attributes: [],
+                  //       },
+                  //       {
+                  //         model: groupMembers,
+                  //         attributes: ['userId'],
+                  //       }, {
+                  //         model: mediaMessages,
+                  //         attributes: [],
+                  //       },
+                  //       {
+                  //         model: users,
+                  //         attributes: [],
+                  //       },
+                  //        {
+                  //         model: companies,
+                  //         attributes: [],
+                  //         required: true
+                  //       }, {
+                  //         model: messagesStatus,
+                  //         attributes: ['deliveredAt', 'readAt', 'userId',
+                  //           [sequelize.literal('(SELECT logo1 from companies where id= chatMessages.adminId)'), 'image'],
+                  //           [sequelize.literal('(SELECT companyName from companies where id= chatMessages.adminId)'), 'userName']
+                  //         ],
+                  //         required: true
+                  //       }
+                  //     ],
+                  //   })
+                  // }
                   
-
+                if(message.dataValues.senderName == ""){
+                  message.dataValues.senderName = "Guest user";
+                }
                 if(message) {
                   message.dataValues.groupMember = groupDetail.dataValues.groupMembers;
                   message.dataValues.actualMessage = {}
