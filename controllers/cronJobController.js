@@ -4,6 +4,11 @@ const sequelize = require('sequelize')
  var cron = require('node-cron');
  var moment = require('moment')
  const Op = require('sequelize').Op;
+ const groupa = db.models.groups;
+const groupMembers = db.models.groupMembers;
+const chatMessages = db.models.chatMessages;
+const textMessages = db.models.textMessages;
+const mediaMessages = db.models.mediaMessages;
 
  var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -28,20 +33,17 @@ cron.schedule('30 06 * * *',  async() => {
     var findData = await SCHEDULE.findAll({where: {dayParts:{[Op.not]: dayCount}}});
     findData=JSON.parse(JSON.stringify(findData))
 
-for(var t=0;t<findData.length;t++)
-{
-  SCHEDULE.update(
+  for(var t=0;t<findData.length;t++)
+  {
+    SCHEDULE.update(
      {slots: findData[t].permanentSlots},
       {where: {id:findData[t].id}});
  }
-
-
 //Delete older Notifications
-
-NOTIFICATION.destroy({where: {  createdAt: {[Op.lte]: moment().subtract(7, 'days').toDate()
-}}
-});
-
+  NOTIFICATION.destroy({where: {  createdAt: {[Op.lte]: moment().subtract(7, 'days').toDate()}}
+  });
+//delete user admin chat history if last chat time is greater than a week
+deleteChatMsgs();
 
 //UPDate Vendors rating
 updateVendorsRating()
@@ -479,6 +481,38 @@ if(dataPop24 && dataPop24.dataValues && dataPop24.dataValues.count)
         }
   
     
+}
+async function deleteChatMsgs(){
+  const groups= await groupa.findAll({
+    attributes: ['id']
+  });  
+  if(groups){
+    groups.map(async group=>{
+      var message = await chatMessages.findOne({ 
+        attributes: ['id'],
+        where: {
+          [Op.and]: [
+            {
+              groupId: group.id
+            },
+            {
+              createdAt: {[Op.lte]: moment().subtract(7, 'days').toDate()},
+            }
+          ]
+         },
+         order: [
+           ['createdAt', 'DESC']
+          ],
+      });
+      if(message){
+        chatMessages.destroy({
+          where:{
+            groupId : group.id
+          }
+        })
+      }
+    });
+  } 
 }
 
 

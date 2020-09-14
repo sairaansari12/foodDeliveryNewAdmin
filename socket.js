@@ -6,7 +6,7 @@ const fs = require('fs');
 const config = require('config');
 const common = require('./helpers/common');
 const jwt = require('jsonwebtoken');
-
+var moment = require('moment')
 
 const users = db.models.users;
 const companies = db.models.companies;
@@ -65,6 +65,8 @@ module.exports = function (io) {
         const authToken = data.authToken;
         const receiverId = data.receiverId;
         const groupId = data.groupId;
+        const orderId = data.orderId;
+        console.log("===>joinroom orderId==>", orderId)
         if (!authToken) {
           return socket.emit('errorMessage', 'Please Provide JWT Token');
         }
@@ -74,7 +76,6 @@ module.exports = function (io) {
             return socket.emit('errorMessage', 'Invalid User');
           } else {
             const senderId = await common.userId(authToken);
-            // const senderId = "86091af5-38b8-4355-9257-17774e2a98f1";
             if(!groupId) {
             if (!receiverId) {
               return socket.emit('errorMessage', 'Receiver Id is required');
@@ -126,24 +127,37 @@ module.exports = function (io) {
             /*
             Check if these two users have communicated with each other or not
           */
-            const groupExists = await groups.findOne({
-              attributes: ['id', 'name'],
-              where: {
-                [Op.or]: [
-                  {
-                    name: `${senderId}_${receiverId}`,
-                  },
-                  {
-                    name: `${receiverId}_${senderId}`,
-                  }
-                ]
-              },
-            })
-
+         var groupExists;
+         if(orderId){
+          groupExists = await groups.findOne({
+            attributes: ['id', 'name'],
+            where: {
+              name: orderId
+            },
+          })
+         }else{
+          groupExists = await groups.findOne({
+            attributes: ['id', 'name'],
+            where: {
+              [Op.or]: [
+                {
+                  name: `${senderId}_${receiverId}`,
+                },
+                {
+                  name: `${receiverId}_${senderId}`,
+                }
+              ]
+            },
+          })
+         }
             if (!groupExists) {
-
               const groupData = {};
-              groupData.name = `${senderId}_${receiverId}`;
+              if(orderId){
+                groupData.name = orderId;
+              }else{
+                groupData.name = `${senderId}_${receiverId}`;
+              }
+              
               groupData.createdBy = senderId;
               const createGroup = await groups.create(groupData);
               if (createGroup) {
@@ -162,27 +176,18 @@ module.exports = function (io) {
                 if (createMembers) {
                   groupID = createGroup.dataValues.id;
                   socket.join(createGroup.dataValues.id);
-      console.log("=>>join group groupExists", createGroup)
-
-                  socket.emit('joinRoomRes',{ groupId:createGroup.dataValues.id } )
                   return socket.emit('joinRoom', { groupId: createGroup.dataValues.id });
                 }
               }
             } else {
               groupID = groupExists.dataValues.id;
               socket.join(groupExists.dataValues.id);
-      console.log("=>>join group groupExists")
-
-              socket.emit('joinRoomRes',{ groupId: groupExists.dataValues.id } )
               return socket.emit('joinRoom', { groupId: groupExists.dataValues.id });
             }
           } else {
+            console.log("==== group id already")
             groupID = groupId;
             socket.join(groupId);
-            console.log("=>>join group with group id") 
-
-            socket.emit('joinRoomRes',{ groupId: data.groupId } )
-
             return socket.emit('joinRoom', { groupId: data.groupId });
           }
         }
@@ -293,7 +298,6 @@ module.exports = function (io) {
                     const users = {};
                     receiverUserId = user.userId;
                     users.messageId = chatMessage.dataValues.id;
-                    console.log("======data.usertype=====",data )
                     if(data.usertype == "user" || data.extraType == "vendor"){
                       users.adminId = user.userId;
                     } else{
@@ -431,7 +435,7 @@ module.exports = function (io) {
                 userId: receiverUserId,
                 orderId: "",
                 role: data.usertype == 'admin' ? 1 : 2
-              }
+              } 
               commonNotification.insertNotification(notifData);  
               var notifPushUserData={
                 title:"New message",
@@ -735,6 +739,7 @@ module.exports = function (io) {
     Get Chat in a specific group   
     */
     socket.on('chatList', async (data) => {
+      
       try {
         const authToken = data.authToken;
         let limit = 10;   // number of records per page
@@ -790,7 +795,7 @@ module.exports = function (io) {
                         [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
                         [sequelize.literal('user.firstName'), 'senderName'],
                         [sequelize.literal('user.image'), 'senderImage'],
-                        [sequelize.literal('group.groupName'), 'groupName'],
+                        [sequelize.literal('group.name'), 'orderid'],
                         [sequelize.literal('group.groupIcon'), 'groupIcon'],
                         [sequelize.literal('group.createdBy'), 'createdBy']
   
@@ -800,7 +805,7 @@ module.exports = function (io) {
                        groupId: group.groupId
                       },
                       order: [
-                        ['id', 'DESC']
+                        ['createdAt', 'DESC']
                        ],
                       
                       include: [
@@ -833,7 +838,37 @@ module.exports = function (io) {
                         }
                       ],
                     });
-                                                       
+
+                   var adminMsg = await chatMessages.findOne({
+                      attributes: ['id', 'senderId', 'groupId','createdAt',
+                        [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+                      ],
+                      subQuery: false,
+                      where: {
+                       groupId: group.groupId
+                      },
+                      order: [
+                        ['createdAt', 'DESC']
+                       ],
+                      
+                      include: [
+                        {
+                          model: textMessages,
+                          attributes: [],
+                        },{
+                          model: companies,
+                          attributes: [],
+                          required: true
+                        }
+                      ],
+                    });
+                //  console.log("=====adminMsg====", adminMsg) 
+                 if(adminMsg && message){
+                  if(adminMsg.dataValues.createdAt > message.dataValues.sentAt){
+                    message.dataValues.message = adminMsg.dataValues.message;
+                    message.dataValues.sentAt = adminMsg.dataValues.createdAt;
+                  }
+                 }                                     
                 if(message && message.dataValues.senderName == ""){
                   message.dataValues.senderName = "Guest user";
                 }
@@ -849,7 +884,7 @@ module.exports = function (io) {
                       [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
                       [sequelize.literal('company.companyName'), 'senderName'],
                       [sequelize.literal('company.logo1'), 'senderImage'],
-                      [sequelize.literal('group.groupName'), 'groupName'],
+                      [sequelize.literal('group.name'), 'orderId'],
                       [sequelize.literal('group.groupIcon'), 'groupIcon'],
                       [sequelize.literal('group.createdBy'), 'createdBy']
 
@@ -871,7 +906,7 @@ module.exports = function (io) {
                       ]
                     },
                     order: [
-                      ['id', 'DESC']
+                      ['createdAt', 'DESC']
                      ],
                     
                     include: [
@@ -904,26 +939,64 @@ module.exports = function (io) {
                       }
                     ],
                   });
-                  messages.push(message)
+                  var adminMsg = await chatMessages.findOne({
+                    attributes: ['id', 'senderId', 'groupId','createdAt',
+                      [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+                    ],
+                    subQuery: false,
+                    where: {
+                      [Op.and]: [
+                        {
+                          groupId: group.groupId
+                        },
+                        {
+                          adminId: senderId,
+                        }
+                      ]
+                    },
+                    order: [
+                      ['createdAt', 'DESC']
+                     ],
+                    
+                    include: [
+                      {
+                        model: textMessages,
+                        attributes: [],
+                      },{
+                        model: companies,
+                        attributes: [],
+                        required: true
+                      }
+                    ],
+                  });
+                  if(adminMsg && message){
+                    if(adminMsg.dataValues.createdAt > message.dataValues.sentAt){
+                      message.dataValues.message = adminMsg.dataValues.message;
+                      message.dataValues.sentAt = adminMsg.dataValues.createdAt;
+                    }
+                  }     
+                  if(message)
+                    messages.push(message)
                 }
 
                 })
               )
          
             if (messages) {
+              
               await Promise.all(
                 messages.map(async message => {
-                 if(message.sentAt) {
+                 if(message && message.sentAt) {
                    message.actualTime = message.sentAt;
                  }
-                 if(message.dataValues) {
+                 if(message && message.dataValues) {
                   message.actualTime = message.dataValues.sentAt;
                  }
 
                 })
               )
              let sortMessages = await messages.slice().sort(
-               (a, b) => b.actualTime - a.actualTime); //// sort message array in asc order of message sent
+               (a, b) =>  b.actualTime - a.actualTime); //// sort message array in asc order of message sent
               socket.emit('chatList', {msg: sortMessages, page: pages,count: dataCount.count})
 
             }
