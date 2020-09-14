@@ -6,6 +6,14 @@ const COMPANY= db.models.companies
 const Op = require('sequelize').Op;
 const jwt = require('jsonwebtoken');
 
+const users = db.models.users;
+const groupa = db.models.groups;
+const groupMembers = db.models.groupMembers;
+const chatMessages = db.models.chatMessages;
+const textMessages = db.models.textMessages;
+const mediaMessages = db.models.mediaMessages;
+const messagesStatus = db.models.messagesStatus;
+
 
 function isAdminAuth(req, res, next) {
     // if(req.session.userData){
@@ -267,7 +275,6 @@ app.post('/dashboard', superAuth,async (req, res, next) => {
   
 });
 app.post('/login',async(req,res,next) => { 
-  console.log("====super auth")
     var params=req.body
         try{
             		const userData = await COMPANY.findOne({
@@ -471,6 +478,108 @@ app.get('/chat',superAuth, async (req, res, next) => {
   };
   const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });
   return res.render('super/chat/chat.ejs',{ token: authToken, id: req.id});
+});
+app.get('/chatListSearch', superAuth,async (req, res, next) => {
+  const groupsM= await groupMembers.findAll({
+    attributes: ['groupId'],
+    where: {
+      userId: req.id
+    }
+  })
+  if(groupsM) {
+    const messages = [];
+    await Promise.all(
+      groupsM.map(async group => {
+        const groupDetail = await groupa.findOne({
+          attributes: ['groupName','groupIcon','createdBy','createdAt'],
+          where: {
+            id: group.groupId
+          },
+          include: [
+      
+            {
+              model: groupMembers,
+              attributes: ['userId'],
+            }
+          ]
+        })
+      var message;
+      message = await chatMessages.findOne({
+        attributes: ['id', 'senderId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+          [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+          [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
+          [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
+          [sequelize.literal('user.firstName'), 'senderName'],
+          [sequelize.literal('user.image'), 'senderImage'],
+          [sequelize.literal('group.groupName'), 'groupName'],
+          [sequelize.literal('group.groupIcon'), 'groupIcon'],
+          [sequelize.literal('group.createdBy'), 'createdBy']
+
+        ],
+        subQuery: false,
+
+        where: {
+          groupId: group.groupId
+        },
+        order: [
+          ['id', 'DESC']
+          ],
+        
+        include: [
+    
+          {
+            model: groupa,
+            attributes: [],
+          },
+          {
+            model: textMessages,
+            attributes: [],
+          },
+          {
+            model: groupMembers,
+            attributes: ['userId'],
+          }, {
+            model: mediaMessages,
+            attributes: [],
+          }, {
+            model: users,
+            attributes: [],
+            where: {
+              [Op.or]: {
+                firstName: { [Op.like]: '%' + req.query.text + '%' },
+                lastName: { [Op.like]: '%' + req.query.text + '%' }
+              }
+            },
+            required: true
+          }, {
+            model: messagesStatus,
+            attributes: ['deliveredAt', 'readAt', 'userId',
+              [sequelize.literal('(SELECT image from users where id= messagesStatuses.userId)'), 'image'],
+              [sequelize.literal('(SELECT firstName from users where id= messagesStatuses.userId)'), 'userName']
+            ],
+            required: true
+          }
+        ],
+      })                       
+      if(message && message.dataValues.senderName == ""){
+        message.dataValues.senderName = "Guest user";
+      }
+      if(message) {
+        message.dataValues.groupMember = groupDetail.dataValues.groupMembers;
+        message.dataValues.actualMessage = {}
+        messages.push(message)
+      }
+    })
+    )
+    if (messages) {
+      let sortMessages = await messages.slice().sort(
+        (a, b) => b.actualTime - a.actualTime); //// sort message array in asc order of message sent
+        return responseHelper.post(res, appstrings.success,sortMessages,200);
+
+    }
+  } else {
+    return responseHelper.post(res, appstrings.success,[],200);
+  }
 });
 
 app.get('/recoverPassword', async (req, res, next) => {

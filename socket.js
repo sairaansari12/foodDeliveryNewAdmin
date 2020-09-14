@@ -293,7 +293,8 @@ module.exports = function (io) {
                     const users = {};
                     receiverUserId = user.userId;
                     users.messageId = chatMessage.dataValues.id;
-                    if(data.usertype == "user"){
+                    console.log("======data.usertype=====",data )
+                    if(data.usertype == "user" || data.extraType == "vendor"){
                       users.adminId = user.userId;
                     } else{
                       users.userId = user.userId;
@@ -736,6 +737,8 @@ module.exports = function (io) {
     socket.on('chatList', async (data) => {
       try {
         const authToken = data.authToken;
+        let limit = 10;   // number of records per page
+        let offset = 0;
         if (!authToken) {
           return socket.emit('errorMessage', 'Please Provide JWT Token');
         }
@@ -744,13 +747,23 @@ module.exports = function (io) {
             return socket.emit('errorMessage', 'Invalid User');
           } else {
             const senderId = await common.userId(authToken);
-
-            const groupsM= await groupMembers.findAll({
-              attributes: ['groupId'],
+            groupMembers.findAndCountAll({
               where: {
                 userId: senderId
               }
             })
+            .then(async (dataCount) => {
+              let page = data.pageNumber;      // page number
+              let pages = Math.ceil(dataCount.count / limit);
+              offset = limit * (page - 1);
+              const groupsM= await groupMembers.findAll({
+                attributes: ['groupId'],
+                limit,
+                offset,
+                where: {
+                  userId: senderId
+                }
+              });           
 
             if(groupsM) {
               const messages = [];
@@ -783,7 +796,6 @@ module.exports = function (io) {
   
                       ],
                       subQuery: false,
-  
                       where: {
                        groupId: group.groupId
                       },
@@ -820,10 +832,9 @@ module.exports = function (io) {
                           required: true
                         }
                       ],
-                    })
-                                     
-                  
-                if(message.dataValues.senderName == ""){
+                    });
+                                                       
+                if(message && message.dataValues.senderName == ""){
                   message.dataValues.senderName = "Guest user";
                 }
                 if(message) {
@@ -831,75 +842,77 @@ module.exports = function (io) {
                   message.dataValues.actualMessage = {}
                   messages.push(message)
                 } else {
-              
-                messages.push({
-                    "id": "",
-                    "senderId": "",
-                    "groupId": group.groupId,
-                    "actualMessageId": "0",
-                    "messageType": 0,
-                    "type": 0,
-                    "status": 0,
-                    "sentAt": groupDetail.dataValues.createdAt,
-                    "message": "",
-                    "media": "",
-                    "thumbnail": "",
-                    "senderName": "",
-                    "senderImage": "",
-                    "groupName": groupDetail.dataValues.groupName,
-                    "groupIcon": groupDetail.dataValues.groupIcon,
-                    "groupMember": groupDetail.dataValues.groupMembers,
-                    "messagesStatuses": [],
-                    "createdBy": groupDetail.dataValues.createdBy,
-                    "actualMessage": {}
-                })
+                  message = await chatMessages.findOne({
+                    attributes: ['id','adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+                      [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+                      [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
+                      [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
+                      [sequelize.literal('company.companyName'), 'senderName'],
+                      [sequelize.literal('company.logo1'), 'senderImage'],
+                      [sequelize.literal('group.groupName'), 'groupName'],
+                      [sequelize.literal('group.groupIcon'), 'groupIcon'],
+                      [sequelize.literal('group.createdBy'), 'createdBy']
+
+                    ],
+                    subQuery: false,
+                    // where: {
+                    //  groupId: group.groupId
+                    // },
+                    where: {
+                      [Op.and]: [
+                        {
+                          groupId: group.groupId
+                        },
+                        {
+                          adminId: {
+                            [Op.ne]: senderId
+                          },
+                        }
+                      ]
+                    },
+                    order: [
+                      ['id', 'DESC']
+                     ],
+                    
+                    include: [
+               
+                      {
+                        model: groupa,
+                        attributes: [],
+                      },
+                      {
+                        model: textMessages,
+                        attributes: [],
+                      },
+                      {
+                        model: groupMembers,
+                        attributes: ['userId'],
+                      }, {
+                        model: mediaMessages,
+                        attributes: [],
+                      }, {
+                        model: companies,
+                        attributes: [],
+                        required: true
+                      }, {
+                        model: messagesStatus,
+                        attributes: ['deliveredAt', 'readAt', 'userId',
+                          [sequelize.literal('(SELECT logo1 from companies where id= messagesStatuses.userId)'), 'image'],
+                          [sequelize.literal('(SELECT companyName from companies where id= messagesStatuses.userId)'), 'userName']
+                        ],
+                        required: true
+                      }
+                    ],
+                  });
+                  messages.push(message)
                 }
+
                 })
               )
          
             if (messages) {
               await Promise.all(
                 messages.map(async message => {
-                //  message.actualMessage = {}
-                 // console.log(message)
-                  if (message.actualMessageId != 0) {       //  it means this is replied or forwarded message
-                    const actualMessage = await chatMessages.findOne({
-                      attributes: ['id', 'senderId', 'groupId', 'type', 'messageType', 'status', ['createdAt', 'sentAt'],
-                        [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
-                        [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
-                        [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
-                        [sequelize.literal('user.firstName'), 'senderName'],
-                        [sequelize.literal('user.image'), 'senderImage'],
-                      ],
-                      where: {
-                        id: message.actualMessageId
-                      },
-                      include: [{
-                        model: textMessages,
-                        attributes: [],
-                      }, {
-                        model: mediaMessages,
-                        attributes: [],
-                      }, {
-                        model: users,
-                        attributes: [],
-                        required: true
-                      },
-                       {
-                        model: groupa,
-                        attributes: ['groupName'],
-                      },
-                      ],
-                    })
-                    if (actualMessage) {
-                      message.dataValues.actualMessage = actualMessage;
-                    }
-                  } 
-                 else {
-                  // console.log(message)
-                   message.actualMessage = {};
-                 
-                 }
                  if(message.sentAt) {
                    message.actualTime = message.sentAt;
                  }
@@ -911,8 +924,7 @@ module.exports = function (io) {
               )
              let sortMessages = await messages.slice().sort(
                (a, b) => b.actualTime - a.actualTime); //// sort message array in asc order of message sent
-              socket.emit('chatListRes',sortMessages )
-              socket.emit('chatList', sortMessages)
+              socket.emit('chatList', {msg: sortMessages, page: pages,count: dataCount.count})
 
             }
 
@@ -920,6 +932,8 @@ module.exports = function (io) {
               socket.emit('chatList', [])
 
             }
+          })
+
 
           }
         })
@@ -1124,6 +1138,50 @@ module.exports = function (io) {
         }
         return socket.emit('errorMessage', errorMessage);
       }
-    })
-  })
+    });
+    /*
+    Get Admin data for chat   
+    */
+   socket.on('getAdmin', async (data) => {
+    try {
+      const { authToken } = data;
+      if (!authToken) {
+        return socket.emit('errorMessage', 'Please Provide JWT Token');
+      }
+      const adminData = await companies.findAll({
+        attributes: ['id','companyName','logo1'],
+        where: {
+          role: 1
+        }
+      });
+      var resData = [];
+      adminData.map(ele=>{
+       var data ={
+          id: ele.id,
+          name: ele.companyName,
+          image: ele.logo1
+        }
+        resData.push(data)
+      })
+      if(adminData){
+        socket.emit('getAdmin',resData )
+      }else{
+        socket.emit('getAdmin',[] )
+      }
+
+    }catch (err) {
+      if (err.hasOwnProperty('original')) {
+        errorMessage = err.original.sqlMessage;
+      } else if (err.hasOwnProperty('message')) {
+        errorMessage = err.message;
+      } else {
+        errorMessage = failure;
+      }
+      return socket.emit('errorMessage', errorMessage);
+    }
+   });
+  });
+
+   
+
 }    

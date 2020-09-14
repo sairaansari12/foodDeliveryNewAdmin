@@ -417,7 +417,6 @@ app.get('/delete/:id',adminAuth,async(req,res,next) => {
 
 
 
-
 module.exports = app;
 
 //Edit User Profile

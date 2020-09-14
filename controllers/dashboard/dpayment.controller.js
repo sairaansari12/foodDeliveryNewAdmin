@@ -25,7 +25,6 @@ app.get('/',adminAuth, async (req, res, next) => {
 app.get('/setup',adminAuth, async (req, res, next) => {
     
   try{
-
   var chargesData=await COMISSION.findOne({where:{companyId:req.id}})
   var payData=await PAYMENTSETUP.findOne({where:{companyId:req.id}})
 
@@ -434,11 +433,11 @@ if(params.paymentId && params.paymentId!="")
        }
          catch (e) {
            return responseHelper.error(res, e.message, 400);
-         }
-  
-  
+         } 
   
 });
+
+
 
 
 

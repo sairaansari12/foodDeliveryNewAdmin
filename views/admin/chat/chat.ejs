@@ -2,16 +2,6 @@
 <html lang="en">
     <head>
         <style>
-            .pagination1{
-                text-align: center;
-                padding-bottom: 10px;
-            }
-            .pagination1 a {
-                color: black;
-                cursor: pointer;
-                padding: 4px 9px;
-                background: #f3f2f2;
-            }
 
         </style>
 
@@ -57,13 +47,7 @@
                             <div class="col-xl-3 col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
-                                        <form class="search-bar mb-3">
-                                            <div class="position-relative">
-                                                <input onkeyup="search(event)" type="text" class="form-control form-control-light" placeholder="Search...">
-                                                <span class="mdi mdi-magnify"></span>
-                                            </div>
-                                        </form>
-                                        <h6  class="font-13 text-muted text-uppercase mb-2">Contacts</h6>
+                                        <h6  class="font-13 text-muted text-uppercase mb-2">Admin</h6>
                                         <!-- users -->
                                         <div class="row">
                                             <div class="col">
@@ -74,13 +58,7 @@
                                         </div>
                                         <!-- end users -->
                                     </div> <!-- end card-body-->
-                                    <!-- <button onclick="next(-1)">Prev</button>
-                                    <button onclick="next(1)">Next</button> -->
-                                    <div class="pagination1" id="pagination1">
-                                        <a onclick="next(-1)" >&laquo;</a>
-                                        <a id="pagenumber"></a>
-                                        <a onclick="next(1)">&raquo;</a>
-                                    </div>
+                                    
                                 </div> <!-- end card-->
                             </div>
                             <!-- end chat users-->
@@ -179,13 +157,10 @@
 <script>
     //live link = http://51.79.40.224:9070/
     var socket = new io('http://localhost:9062/');
-    var groupId, base64Img, extension, currentPage = 1, totalPage, totalRows, isVendor = false;
+    var groupId, base64Img, extension, currentPage = 0;
     var chatListData = [];
     socket.on("newMessage", (data)=>{  
-        var pageData = {
-            pageNumber: currentPage
-        }
-        getChatlist(pageData);     
+            
         if(data.senderId)
             var odd = data.senderId == '<%-id%>' ? true : false;
         else     
@@ -243,14 +218,9 @@
     })
    
     $(document).ready(function(){  
-        $("#pagenumber").html(currentPage);
-        $("#pagination1").hide();
       $("#chat img:last-child").remove();
         $("#right-chat").hide(); 
-        var pageData = {
-            pageNumber: currentPage
-        }
-        getChatlist(pageData);
+        getAdmin();
     });
     
     
@@ -259,46 +229,38 @@
       $("#msg").show();
       $("#img img:last-child").remove();
       if(base64Img && base64Img != ""){
-          
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId});
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: "vendor", groupId: groupId});
         base64Img = "";
       }else{
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId});
-      }    
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: "vendor", groupId: groupId});
+      }
+        
         $('#msg').val('');
       return false;
     });
-    function getChatlist(pageData){
-
-        socket.emit('chatList',{authToken: '<%-token%>', usertype: "user", pageNumber: pageData.pageNumber});
-        socket.on("chatList", data=>{
-            console.log("=>>>chatList", data);
-            totalPage = data.page;
-            totalRows = data.count;
-            if(totalRows > 10){
-                $("#pagination1").show();
-            }
-            chatListData = data.msg;
-            var userData = data.msg;
+    function getAdmin(){
+        socket.emit('getAdmin',{authToken: '<%-token%>'});
+        socket.on("getAdmin", data=>{
+            console.log("=>>>chatList", data)
+            chatListData = data;
+            var userData = data;
             createChatList(userData);  
         })
     }
     function createChatList(data){
         var html = "";
         for(var k=0;k<data.length;k++){
-            var id = data[k].adminId ? data[k].adminId : data[k].senderId;
-            var Vendor = data[k].adminId ? true : false;
             html = html + `<a href="javascript:void(0);" class="text-body">
                 <div class="media p-2">
                     <img src="/dist/assets/images/user.jpg" class="mr-2 rounded-circle" height="42" alt="" />
-                    <div class="media-body" onclick="showmsg('${id}','${Vendor}')">
+                    <div class="media-body" onclick="showmsg('${data[k].id}')">
                         <h5 class="mt-0 mb-0 font-14">
                             <!-- <span class="float-right text-muted font-weight-normal font-12">4:30am</span> -->
-                            ${data[k].senderName ? data[k].senderName : data[k].adminName}
+                            ${data[k].name}
                         </h5>
                         <p class="mt-1 mb-0 text-muted font-14">
                             <!-- <span class="w-25 float-right text-right"><span class="badge badge-soft-danger">3</span></span> -->
-                            <span class="w-75"> ${data[k].message}</span>
+                            <span class="w-75"> </span>
                         </p>
                     </div>
                 </div>
@@ -307,23 +269,11 @@
         $('#chatlist').html(html)
     }
 
-    function showmsg(id, Vendor){
+    function showmsg(id){
         $("#right-chat").show();
-        isVendor = Vendor;
-        console.log("====showmsg", isVendor)
-       var singleChatList = chatListData.find(x=> x.senderId == id || x.adminId == id);
-        if(groupId){
-            var leaveRoomData = {
-                authToken: '<%-token%>',
-                receiverId: id,
-                groupId: groupId
-            }
-            socket.emit("leaveRoom", leaveRoomData);
-        }
        var data = {
             authToken: '<%-token%>',
-            receiverId: id,
-            groupId: singleChatList.groupId
+            receiverId: id
         }
        socket.emit('joinRoom',data);
        socket.on('joinRoom',(data)=>{
@@ -408,37 +358,8 @@
         }
         reader.readAsDataURL(img);
     }
-    function search(event){
-        $.ajax({
-            type: 'GET',
-            url: '<%-superadminpath %>chatListSearch?text='+event.target.value,
-            dataType: 'json',
-            success: function (response) {
-                if (response.code == '200') {
-                    var data=response.body;
-                    chatListData = data;
-                    createChatList(data);
-                }
-            },
-        });
-    }
-    function next(page){ 
-        if(page == -1 && currentPage > 1){
-            currentPage = currentPage + page;
-        } 
-        if(currentPage < totalPage){
-            if(page == 1)
-                currentPage = currentPage + page;
-            if(currentPage > -1){
-                $("#pagenumber").html(currentPage)
-                var pageData = {
-                    pageNumber: currentPage
-                }
-                getChatlist(pageData);
-            }
-        }         
-        
-    }
+    
+   
     function convertTime(timeStamp){
         var unixtimestamp = timeStamp;
         var date = new Date(unixtimestamp*1000);

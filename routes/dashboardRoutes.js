@@ -12,6 +12,8 @@ const profileCtrl              = require('../controllers/dashboard/dprofile.cont
 const faqCtrl              = require('../controllers/dashboard/dfaq.controller');
 const bannerCtrl              = require('../controllers/dashboard/dbanner.controller');
 const paymentCtrl              = require('../controllers/dashboard/dpayment.controller');
+const chatCtrl              = require('../controllers/admin/chat.controller');
+
 const notificationCtrl              = require('../controllers/dashboard/dnotification.controller');
 const productCtrl = require('../controllers/dashboard/dproduct.controller');
 
@@ -50,6 +52,7 @@ router.use('/tags/',tagsCtrl);
 router.use('/ordersetting/',osettingCtrl)
 router.use('/task/',taskController);
 router.use('/contactus/',contactUsController);
+router.use('/chat',chatCtrl)
 
 router.use((req, res, next) => {
 
