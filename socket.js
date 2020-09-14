@@ -6,7 +6,6 @@ const fs = require('fs');
 const config = require('config');
 const common = require('./helpers/common');
 const jwt = require('jsonwebtoken');
-var moment = require('moment')
 
 const users = db.models.users;
 const companies = db.models.companies;
@@ -66,7 +65,6 @@ module.exports = function (io) {
         const receiverId = data.receiverId;
         const groupId = data.groupId;
         const orderId = data.orderId;
-        console.log("===>joinroom orderId==>", orderId)
         if (!authToken) {
           return socket.emit('errorMessage', 'Please Provide JWT Token');
         }

@@ -283,18 +283,20 @@
             }
             chatListData = data.msg;
             var userData = data.msg;
-            createChatList(userData);  
+            createChatList(userData, '');  
         })
     }
-    function createChatList(data){
+    function createChatList(data, search){
         var html = "";
-        if(data.length == 0){
+        if(data.length == 0 && search != "search"){
             html = html + `<div class="no-chat">No chat found</div>`;
             $("#search-bar").hide();
             $("#contact").hide();
         }else{
-            $("#search-bar").hide();
-            $("#contact").hide();
+            $("#search-bar").show();
+            $("#contact").show();
+            if(data.length == 0 )
+                html = html + `<div class="no-chat">No user found</div>`;
         }
         for(var k=0;k<data.length;k++){
             var id = data[k].adminId ? data[k].adminId : data[k].orderid;
@@ -432,7 +434,8 @@
                 if (response.code == '200') {
                     var data=response.body;
                     chatListData = data;
-                    createChatList(data);
+                    console.log("======search data", data)
+                    createChatList(data, 'search');
                 }
             },
         });
