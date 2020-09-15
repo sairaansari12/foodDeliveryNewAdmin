@@ -7,7 +7,6 @@ const companyCtrl      = require('../controllers/super/supercompany.controller')
 const osettingCtrl     = require('../controllers/super/superinstruction.controller');
 const profileCtrl      = require('../controllers/super/superprofile.controller');
 const userCtrl         = require('../controllers/super/superusers.controller');
-const settingCtrl      = require('../controllers/super/superdocument.controller');
 const subscriptionController  = require('../controllers/super/supersubscription.controller');
 const coupanCtrl              = require('../controllers/super/supercoupan.controller');
 const offerCtrl              = require('../controllers/super/superoffer.controller');
@@ -18,6 +17,10 @@ const notifCtrl              = require('../controllers/super/supernotification.c
 const faqCtrl              = require('../controllers/super/superfaq.controller');
 const contactCtrl              = require('../controllers/super/supercontact.controller');
 const productCtrl              = require('../controllers/super/superproduct.controller');
+const paymentCtrl              = require('../controllers/super/superpayment.controller');
+const settingsCtrl              = require('../controllers/super/supersettings.controller');
+const ratingsCtrl              = require('../controllers/super/superratings.controller');
+
 
 
 
@@ -28,7 +31,6 @@ router.use('/company',companyCtrl);
 router.use('/ordersetting/',osettingCtrl)
 router.use('/profile/',profileCtrl);
 router.use('/users/',userCtrl);
-router.use('/settings/',settingCtrl);
 router.use('/subscription/',subscriptionController);
 router.use('/coupans/',coupanCtrl);
 router.use('/offers/',offerCtrl);
@@ -39,6 +41,9 @@ router.use('/notification/',notifCtrl);
 router.use('/faq/',faqCtrl);
 router.use('/contactus/',contactCtrl);
 router.use('/products/',productCtrl);
+router.use('/payment/',paymentCtrl);
+router.use('/settings/',settingsCtrl);
+router.use('/ratings/',ratingsCtrl);
 
 router.use((req, res, next) => {
 

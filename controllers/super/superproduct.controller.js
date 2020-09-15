@@ -11,14 +11,12 @@ app.post('/list',superAuth,async (req, res, next) => {
 
   var params=req.body
   
-   var lat=0
-   var lng=0
    var page =1
    var limit =20
    var itemType=['0','1']
    var orderby='createdAt'
-   var orderType='ASC'
-   var companyId =req.id
+   var orderType='DESC'
+   var companyId =""
    if(params.itemType && params.itemType!="") itemType=[params.itemType]
    if(params.lat) lat=parseFloat(params.lat)
    if(params.lng) lng=parseInt(params.lng)
@@ -36,11 +34,9 @@ app.post('/list',superAuth,async (req, res, next) => {
   if(params.limit)
    limit=parseInt(params.limit)
    var offset=(page-1)*limit
-
+  
    var where= {
-    companyId:companyId,
     itemType:  {[Op.or]: itemType},
-    productType:1
     
     }
 
@@ -56,16 +52,14 @@ app.post('/list',superAuth,async (req, res, next) => {
         {price: { [Op.like]: `%${params.search}%` }
       }
       ],
-      companyId: companyId,
       itemType:  {[Op.or]: itemType},
-      productType:1
     }
 
   }
     
   
-
-      
+if(companyId!="")
+where.companyId= companyId 
 
 
     try{
@@ -80,7 +74,21 @@ app.post('/list',superAuth,async (req, res, next) => {
 
 
 
-      return responseHelper.post(res, appstrings.success, services);
+      var countDataq = await SERVICES.findAll({
+        attributes: ['approve','id',
+          [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
+         
+  
+        ],
+        group: ['approve'],
+      where :where});
+  
+      var userDtaa={}
+      userDtaa.data=services
+      userDtaa.counts=countDataq
+
+
+      return responseHelper.post(res, appstrings.success, userDtaa);
 
   
 
@@ -161,6 +169,64 @@ app.post('/status',superAuth,async(req,res,next) => {
     
     
     
+});
+
+app.post('/approve',superAuth,async(req,res,next) => { 
+    
+  var params=req.body
+  try{
+      let responseNull=  commonMethods.checkParameterMissing([params.id,params.status])
+      if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+     
+  
+     const userData = await SERVICES.findOne({
+       where: {
+         id: params.id }
+     });
+     
+     
+     if(userData)
+     {
+     
+
+  var status=0
+  if(params.status=="0")  status=1
+     const updatedResponse = await SERVICES.update({
+       status: status,
+       approve: status,
+
+     },
+     {
+       where : {
+       id: userData.dataValues.id
+     }
+     });
+     
+     if(updatedResponse)
+           {
+  
+         return responseHelper.post(res, appstrings.success,updatedResponse);
+           }
+           else{
+             return responseHelper.post(res, 'Something went Wrong',400);
+  
+           }
+     
+     }
+
+     else{
+      return responseHelper.post(res, appstrings.no_record,204);
+
+    }
+
+       }
+         catch (e) {
+           console.log(e)
+           return responseHelper.error(res, e.message, 400);
+         }
+  
+  
+  
 });
 
 app.get('/view/:id',superAuth,async(req,res,next) => { 

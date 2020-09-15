@@ -99,6 +99,19 @@ app.get('/add',superAuth, async (req, res, next) => {
 
 });
 
+app.get('/compare',superAuth, async (req, res, next) => {
+    
+  try{
+  
+    return res.render('super/company/compare.ejs',);
+
+    } catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
+
+
+});
+
 
 app.get('/permissions',superAuth, async (req, res, next) => {
     

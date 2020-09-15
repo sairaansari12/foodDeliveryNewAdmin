@@ -10,15 +10,22 @@ app.get('/getFaq', checkAuth,async (req, res, next) => {
       var params=req.query
       var page =1
       var limit =50
+      var filterCat=""
+
+      var where={companyId :req.parentCompany}
       if(params.page) page=params.page
+      if(params.category) filterCat=params.category
+
       if(params.limit) limit=parseInt(params.limit)
       var offset=(page-1)*limit
      
-     
+
+      if(filterCat!="")
+     where.faqCategory=filterCat
       //Get All Categories
       var findData=await FAQ.findAll({
         attributes:['id','question','answer','status','language'],
-        where :{companyId :req.parentCompany},
+        where :where,
         order: [
           ['createdAt','DESC']
         ],      
@@ -27,9 +34,13 @@ app.get('/getFaq', checkAuth,async (req, res, next) => {
 
         
       })
+      var category=await FAQCAT.findAll({attributes:['id','catName'],where:{companyId:req.parentCompany}})
 
-      if(findData.length>0) return responseHelper.post(res, appstrings.success,findData, 200);
-      return responseHelper.post(res, appstrings.no_record,{}, 204);
+var dataToSend={}
+dataToSend.category=category
+dataToSend.data=findData
+
+     return responseHelper.post(res, appstrings.success,dataToSend, 200);
 
  }
   catch (e) {
@@ -101,5 +112,7 @@ catch (e) {
     
 
 });
+
+
 
 module.exports = app;

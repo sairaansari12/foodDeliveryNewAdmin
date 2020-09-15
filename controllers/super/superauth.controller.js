@@ -4,6 +4,7 @@ const app     = express();
 const hashPassword = require('../../helpers/hashPassword');
 const COMPANY= db.models.companies
 const Op = require('sequelize').Op;
+const jwt = require('jsonwebtoken');
 
 function isAdminAuth(req, res, next) {
     // if(req.session.userData){
@@ -20,7 +21,6 @@ function isAdminAuth(req, res, next) {
 */
 app.get('/', async (req, res, next) => {
     if(req.session.userData){
-      console.log(req.session.companyId)
         const findData = await COMPANY.findAll({
         where :{parentId :req.session.companyId},
         order: [
@@ -28,8 +28,22 @@ app.get('/', async (req, res, next) => {
         ],      
 
         });
+        var usersCount= await USERS.findOne({
+          attributes: ['status',
+            [sequelize.fn('COUNT', sequelize.col('id')), 'count']]
+           
+        });
+
+        var ordersCount= await ORDERS.findOne({
+          attributes: ['progressStatus',
+            [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum'],
+            [sequelize.fn('COUNT', sequelize.col('progressStatus')), 'count']]
+           
+        });
+        
+        
        //var data=await  getDashboardData("2020-04-10","2020-04-17",null,null,req.session.companyId)
-        return res.render(superadminfilepath+'dashboard/dashboard.ejs',{data:null,findData});
+        return res.render(superadminfilepath+'dashboard/dashboard.ejs',{data:null,findData,ordersCount,usersCount,avgRating:req.session.avgRating});
 
     }
 
@@ -62,6 +76,7 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
         if(progressStatus1 && progressStatus1!="")  progressStatus=[progressStatus1]
        
         orderWhere={companyId: companyId,progressStatus: { [Op.or]: progressStatus}}
+        orderWhereParent={progressStatus: { [Op.or]: progressStatus}}
 
        
        
@@ -76,6 +91,10 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
               progressStatus: { [Op.or]: progressStatus},
               createdAt: { [Op.lte]: lastDay,[Op.gt]: firstDay}
             }
+            orderWhereParent={
+              progressStatus: { [Op.or]: progressStatus},
+              createdAt: { [Op.lte]: lastDay,[Op.gt]: firstDay}
+            }
 
         }
 
@@ -87,6 +106,12 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
             createdAt: { [Op.lte]: lastDay,[Op.gt]: firstDay}
           }
 
+          orderWhereParent={
+            progressStatus: { [Op.or]: progressStatus},
+            createdAt: { [Op.lte]: lastDay,[Op.gt]: firstDay}
+          }
+
+
       }
         }
 
@@ -94,7 +119,7 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
 
         paymentWhere={companyId: companyId,transactionStatus: { [Op.or]: progressStatus}}
         ratingWhere={companyId: companyId}
-        top5Where={companyId: companyId}
+        top5Where={}
 
         
        
@@ -106,7 +131,8 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
       {
         
         orderWhere={companyId: companyId,progressStatus: { [Op.or]: progressStatus},createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate}}
-        top5Where={companyId: companyId,createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate}}
+        orderWhereParent={progressStatus: { [Op.or]: progressStatus},createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate}}
+        top5Where={createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate}}
         paymentWhere={companyId: companyId,createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate}}
         ratingWhere={companyId: companyId,createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate}}
 
@@ -122,21 +148,26 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
            where :orderWhere
       });
 
-          var ordersDataqDepthFull= await ORDERS.findAll({
-            attributes: ['progressStatus',
+         
+
+          var ordersDataqDepthParent = await ORDERS.findAll({
+            attributes: ['progressStatus','createdAt',
               [sequelize.fn('sum', sequelize.col('totalOrderPrice')), 'totalSum'],
+              filterNameMain,
               [sequelize.fn('COUNT', sequelize.col('progressStatus')), 'count']],
-              include:[{model:ORDERSTATUS,attributes:['statusName']}],
-              where :orderWhere,
-              group: ['progressStatus'],
+              group: [filterNameMain],
+               where :orderWhereParent
           });
-          
+    
 
           var top5UserStat= await ORDERS.findAll({
             attributes: ['userId','orderNo',
               [sequelize.fn('SUM', sequelize.col('totalOrderPrice')), 'totalSum'],
               [sequelize.fn('COUNT', sequelize.col('userId')), 'count']],
-              include:[{model:USER,required:true,attributes:['firstName','lastName','image','createdAt','countryCode','phoneNumber',]}],
+              include:[{model:USER,required:true,attributes:['firstName','lastName','image','createdAt','countryCode','phoneNumber',]},
+            {model:COMPANY,attributes:['companyName']}
+            
+            ],
               where :top5Where,
               group: ['userId'],
               order:[[sequelize.literal('count'),'DESC']],
@@ -196,8 +227,8 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
   ratingsData.packingPres=packingPres
   ratingsData.foodQuantity=foodQuantity
     var userDtaa={}
-    userDtaa.ordersDataStat=JSON.parse(JSON.stringify(ordersDataqDepthFull))
     userDtaa.revenuAnalytics=ordersDataqDepth
+    userDtaa.revenuAnalyticsParent=ordersDataqDepthParent
     userDtaa.top5UserStat=top5UserStat
     userDtaa.ratingStat=ratings
     userDtaa.productStat=productStat
@@ -210,23 +241,12 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
      }
    
     userDtaa.ratingsData=ratingsData   
-    // userDtaa.paymentDataStat=paymentDataqdepth
-    // userDtaa.userDataStat=userDataqDepth
-    // userDtaa.categoryDataStat=categoryDataq
-     userDtaa.totalOrders=userDtaa.ordersDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
+   
     
     
     
-     userDtaa.totalRevenue=userDtaa.ordersDataStat.map(item => item.totalSum).reduce(function(acc, val) { return acc + val; }, 0)
 
-     // userDtaa.totalStatCategory=userDtaa.categoryDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
-   // userDtaa.totalStatPayment=userDtaa.paymentDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
-    // userDtaa.totalStatUser=userDtaa.userDataStat.map(item => item.count).reduce(function(acc, val) { return acc + val; }, 0)
-    // userDtaa.mainTotalOrder=(await ORDERS.findAll({where:{companyId:companyId}})).length
-    // userDtaa.mainTotalUser=(await USER.findAll({where:{companyId:companyId}})).length
-    // userDtaa.mainTotalPayment=(await PAYMENT.findAll({where:{companyId:companyId}})).length
-    // userDtaa.mainTotalCategory=(await CATEGORY.findAll({where:{companyId:companyId}})).length
-
+    
           return  userDtaa
       
         } catch (e) {
@@ -238,7 +258,24 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
 
 }
 
+app.get('/chat',superAuth, async (req, res, next) => {
 
+  const credentials = {
+    phoneNumber: req.session.userData.phoneNumber,
+    companyId:   req.companyId,
+    countryCode: req.session.userData.countryCode,
+    userType: req.session.userData.type,
+    id : req.session.userData.id
+  };
+  const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
+    return res.render('super/chat/chat.ejs',{ token: authToken, id: req.id});
+});
+
+
+app.get('/chatAdmin',superAuth, async (req, res, next) => {
+
+  return res.render('super/chat/chatAdmin.ejs',{ token: req.token, id: req.id});
+});
 
 /**
 *@role Admin Login
@@ -274,7 +311,6 @@ app.post('/login',async(req,res,next) => {
             		}
                 })  
                 
-                  console.log(userData)
                 if(userData)
                {
                 
@@ -284,7 +320,6 @@ app.post('/login',async(req,res,next) => {
                 const match = await hashPassword.comparePass(params.password,userData.dataValues.password);
         
                 if (!match) {
-                  console.log(">>>>>>>>>>>>>>>>>>")
                     req.flash('errorMessage',appstrings.invalid_cred)
                      return res.redirect(superadminpath);
                 }
@@ -298,6 +333,7 @@ app.post('/login',async(req,res,next) => {
                 req.session.companyId = userData.dataValues.id;
                 req.session.userId = userData.dataValues.id;
                 req.session.parentCompany = parentCompany;
+                req.session.avgRating = userData.dataValues.rating;
 
                 var currency =await commonMethods.getCurrency(userData.dataValues.id) 
                 if(currency && currency.dataValues && currency.dataValues.currency) CURRENCY=currency.dataValues.currency
@@ -482,7 +518,6 @@ app.get('/dashboard', async (req, res, next) => {
 */
 app.get('/getToprestaurants', superAuth,async (req, res, next) => {
   var companyId = req.id;
-  console.log(companyId);
   //Rating Basis
   var toprating = await COMPANY.findAll({
       attributes: ['companyName','rating'],
@@ -546,7 +581,6 @@ app.get('/getToprestaurants', superAuth,async (req, res, next) => {
 */
 app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
   var companyId = req.id;
-  console.log(companyId);
   //Rating Basis
   var toprating = await COMPANY.findAll({
       attributes: ['companyName','rating'],
@@ -607,7 +641,6 @@ app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
 */
 app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
   var companyId = req.id;
-  console.log(companyId);
   //Rating Basis
   var toprating = await COMPANY.findAll({
       attributes: ['companyName','rating'],
@@ -639,7 +672,6 @@ app.get('/getbottomrestaurants', superAuth,async (req, res, next) => {
 */
 app.get('/getrevenue', superAuth,async (req, res, next) => {
   var companyId = req.id;
-  console.log(companyId);
   //Rating Basis
   var toprating = await COMPANY.findAll({
     attributes: ['id','companyName','rating','totalOrders'],

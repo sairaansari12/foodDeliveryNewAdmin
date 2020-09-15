@@ -129,6 +129,11 @@ totalOrderPrice :
      },
 
 
+     userShow: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false,
+      defaultValue: 0
+   },
      //0->Not Started , 1-> Started from location , 2->Reached Destination  3->Job Started ,4->Job Completed
      trackStatus: {
         type: DataTypes.INTEGER(11),

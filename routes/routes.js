@@ -31,6 +31,7 @@ const jwt = require('jsonwebtoken');
  USERTYPE=db.models.userType
  ROLETYPE=db.models.roleTypes
  BUSINESSTYPE=db.models.businessType
+ GALLERY=db.models.gallery
  ORDERSTATUS=db.models.orderStatus
  SERVICERATINGS=db.models.serviceRatings
  DEALS=db.models.deals
@@ -38,7 +39,7 @@ const jwt = require('jsonwebtoken');
  INSTRUCTIONS=db.models.instructions
  STAFFRATINGS=db.models.staffRatings
  CONTACTUS=db.models.contactus
-
+ FAQCAT=db.models.faqCategory
  TIFFSERVICES=db.models.tiffinServices
  TIFFINMENU=db.models.tiffinMenu
  TIFFINPACKAGE=db.models.tiffinPackages
@@ -52,13 +53,17 @@ const jwt = require('jsonwebtoken');
  RECMEDIA=db.models.recipeMedia
  RECCAT=db.models.recipeCategories
  RELIKE=db.models.recipeLike
+ RECOMMENT=db.models.recipeComment
  TAGS=db.models.tags
  STAFFWALLET=db.models.staffWallet
  COMISSION=db.models.comission
  COMISSIONHISTORY=db.models.comissionHistory
  PAYMENTSETUP=db.models.paymentSetup
  PERMISSIONS=db.models.permissions
+ APPRATINGS=db.models.appRatings
 
+ 
+ 
  
 
 
@@ -83,6 +88,7 @@ const tiffOrderCtrl = require('../controllers/api/tiffin/tiffinOrder.controller'
 const tiffRatingCtrl = require('../controllers/api/tiffin/tiffinRating.controller');
 const recpCtrl = require('../controllers/api/recipe/recipe.controller');
 const recpLikeCtrl = require('../controllers/api/recipe/recipeLike.controller');
+const recpCommentCtrl = require('../controllers/api/recipe/recipeComment.controller');
 
 
 
@@ -94,6 +100,7 @@ const restAppRoutes   = require('./restAppRoutes.js');
 
 const chroneRoutes   = require('../controllers/cronJobController');
 const realTimeTrackingController  = require('../controllers/RealTimeTracking');
+const appRatings = require('../db/models/appRatings');
 
 
 
@@ -171,6 +178,7 @@ routes.use('/mobile/tiffin/rating',tiffRatingCtrl);
 
 routes.use('/mobile/recipe',recpCtrl);
 routes.use('/mobile/recipe/like',recpLikeCtrl);
+routes.use('/mobile/recipe/comment',recpCommentCtrl);
 
 
 //REstaurant App routes

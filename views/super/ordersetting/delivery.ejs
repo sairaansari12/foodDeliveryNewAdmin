@@ -3,8 +3,7 @@
 <%- include('../partials/header'); -%>
 
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- Begin page -->
     <div id="wrapper">
         <%- include('../partials/dashboardHeader'); -%>
@@ -29,7 +28,7 @@
                                             <li class="breadcrumb-item active">Delivery</li>
                                         </ol>
                                     </div>
-                                    <h4 class="page-title">Delivery Instructions</h4>
+                                    <h4 class=form-label">Delivery Instructions</h4>
                                 </div>
                             </div>
                         </div>     
@@ -96,7 +95,7 @@
             <!-- End Page content -->
             <!-- ============================================================== -->              
                 
-</div>
+
 <!-- Modal -->
 <div class="modal fade" id="custom-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -155,6 +154,8 @@
     <div class="rightbar-overlay"></div>
     <%- include('../partials/script'); -%>
     <%- include('../partials/commonJs'); -%>
+
+</div>
 <script>
  $(document).on('click','.open_modal',function(){
     var id = $(this).attr("data-id");

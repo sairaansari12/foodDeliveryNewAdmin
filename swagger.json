@@ -213,6 +213,53 @@
      }
    },
 
+   
+   "/api/mobile/company/gallery": {
+    "post": {
+      "x-swagger-router-controller": "/api/mobile/company/gallery",
+      "operationId": "index",
+      "tags": ["Get Gallery"],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":"true" ,"type":"string"},
+        { "name": "companyId",  "in": "formData",  "required":"true","type":"string"},
+        { "name": "mediaType",  "in": "formData","type":"string" ,"description":"send 'photo' to get photos,'video' to get videos and send '' for all type of files "},
+        { "name": "page",  "in": "formData", "type":"string"},
+        { "name": "limit",  "in": "formData","type":"string"}
+
+
+   ],
+
+ 
+  
+  
+      "responses": {}
+    }
+  },
+
+
+  "/api/mobile/company/gallery/add": {
+    "post": {
+      "x-swagger-router-controller": "/api/mobile/company/gallery/add",
+      "operationId": "index",
+      "tags": ["Add  Gallery images"],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":"true" ,"type":"string"},
+        { "name": "companyId",  "in": "formData",  "required":"true","type":"string"},
+        { "name": "mediaType",  "required":"true", "in": "formData","type":"string" ,"description":"send 'photo' to upload photos,'video' to uplaod videos"},
+        { "name": "title",  "required":"true", "in": "formData", "type":"string"},
+        { "name": "description", "required":"true", "in": "formData","type":"string"}
+
+
+   ],
+
+ 
+  
+  
+      "responses": {}
+    }
+  },
 
 
 
@@ -894,26 +941,44 @@
    },
 
 
-   "/api/mobile/rating/addRating": {
+   "/api/mobile/rating/addStaffRating": {
      "post": {
-       "x-swagger-router-controller": "/api/mobile/rating/addRating",
+       "x-swagger-router-controller": "/api/mobile/rating/addStaffRating",
        "operationId": "index",
-       "tags": ["Add Prodcut and Emp Rating"],
-       "description": "Multiple Product Images Array of images will be like images#serviceId suppose,there are 2 prodcuts A & B then 2 array of images images#A, images#B multipart will be there ",
+       "tags": ["Add  Emp Rating"],
+       "description": "",
        "parameters": [
          { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
-         { "name": "orderId",  "in": "formData", "type":"string"},
-         { "name": "serviceId",  "in": "formData", "type":"string","required":true},
-         { "name": "rating",  "in": "formData",  "required":true },
-         { "name": "review",  "in": "formData" },
-        { "name": "images",  "in": "formData", "type":"file"}
+         { "name": "orderId",  "in": "formData", "type":"string","required":true},
+         { "name": "empId",  "in": "formData", "type":"string","required":true},
+         { "name": "rating",  "in": "formData", "type":"string", "required":true },
+         { "name": "companyId",  "in": "formData", "type":"string", "required":true },
+         { "name": "review",  "in": "formData" }
     ],
        "responses": {}
      }
    },
 
 
-   "/api/mobile/rating/addCompanyRating": {
+   "/api/mobile/rating/appRating": {
+    "post": {
+      "x-swagger-router-controller": "/api/mobile/rating/appRating",
+      "operationId": "index",
+      "tags": ["Add  App  Rating"],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
+        { "name": "rating",  "in": "formData", "type":"string", "required":true },
+        { "name": "review",  "in": "formData" }
+   ],
+      "responses": {}
+    }
+  },
+
+
+
+
+   "/api/mobile/rating/addRating": {
      "post": {
        "x-swagger-router-controller": "/api/mobile/rating/addCompanyRating",
        "operationId": "index",
@@ -922,11 +987,22 @@
        "parameters": [
          { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
          { "name": "companyId",  "in": "formData", "type":"string","required":true},
+         { "name": "orderId",  "in": "formData", "type":"string"},
+         { "name": "ratingData",  "in": "formData","type":"array",   "collectionFormat": "multi",
+          "items": {
+            "type": "object","description":"{review:'very nice' ,rating:'2',serviceId:'SERVICE001'}"
+           }},
          { "name": "rating",  "in": "formData", "type":"string","required":true},
          { "name": "foodQuantity",  "in": "formData", "type":"string","required":true},
          { "name": "foodQuality",  "in": "formData", "type":"string","required":true},
          { "name": "packingPres",  "in": "formData", "type":"string","required":true},
-         { "name": "review",  "in": "formData", "type":"string"}
+         { "name": "review",  "in": "formData", "type":"string"},
+         { "name": "images",  "in": "formData","type":"array",   "collectionFormat": "multi",
+          "items": {
+            "type": "file"
+           }}
+       
+
 
         ],
        "responses": {}
@@ -992,6 +1068,23 @@
     }
   },
 
+
+  "/api/mobile/getFaq": {
+    "get": {
+      "x-swagger-router-controller": "/api/mobile/getFaq",
+      "operationId": "index",
+      "tags": ["get all Faq listing"],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
+        { "name": "page",  "in": "query", "type":"string"},
+        { "name": "limit",  "in": "query",  "type":"string"},
+        { "name": "category",  "in": "query", "type":"string"}
+
+       ],
+      "responses": {}
+    }
+  },
 
   "/api/mobile/contactus": {
     "post": {
@@ -1743,6 +1836,55 @@
    },
 
  
+   "/api/mobile/recipe/comment/add": {
+    "post": {
+      "x-swagger-router-controller": "/api/mobile/recipe/comment/add",
+      "operationId": "index",
+      "tags": ["Add Comment "],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
+        { "name": "recipeId",  "in": "formData", "type":"string","required":true},
+        { "name": "comment",  "in": "formData", "type":"string","required":true }
+
+       ],
+      "responses": {}
+    }
+  },
+
+
+  "/api/mobile/recipe/comment/delete": {
+    "delete": {
+      "x-swagger-router-controller": "/api/mobile/recipe/comment/delete",
+      "operationId": "index",
+      "tags": ["Delete Comment "],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
+        { "name": "commentId",  "in": "query", "type":"string","required":true}
+
+       ],
+      "responses": {}
+    }
+  },
+
+
+  "/api/mobile/recipe/comment/list": {
+    "get": {
+      "x-swagger-router-controller": "/api/mobile/recipe/comment/list",
+      "operationId": "index",
+      "tags": ["All Comments listing "],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":true,"type":"string"},
+        { "name": "recipeId",  "in": "query", "type":"string","required":true},
+        { "name": "page",  "in": "query", "type":"string"},
+        { "name": "limit",  "in": "query", "type":"string"}
+
+       ],
+      "responses": {}
+    }
+  },
 
 
    "/api/mobile/rest/auth/login": {

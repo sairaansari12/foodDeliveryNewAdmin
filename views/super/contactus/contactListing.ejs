@@ -3,8 +3,7 @@
 <%- include('../partials/header'); -%>
 
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- Begin page -->
     <div id="wrapper">
         <%- include('../partials/dashboardHeader'); -%>
@@ -29,7 +28,7 @@
                                             <li class="breadcrumb-item active">Contact us<</li>
                                         </ol>
                                     </div>
-                                    <h4 class="page-title">Contact us</h4>
+                                    <h4 class=form-label">Contact us</h4>
                                 </div>
                             </div>
                         </div>     
@@ -141,22 +140,8 @@
                 </div> <!-- content -->
 
                 <!-- Footer Start -->
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-6">
-                                2015 - <script>document.write(new Date().getFullYear())</script> &copy; UBold theme by <a href="">Coderthemes</a> 
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-md-right footer-links d-none d-sm-block">
-                                    <a href="javascript:void(0);">About Us</a>
-                                    <a href="javascript:void(0);">Help</a>
-                                    <a href="javascript:void(0);">Contact Us</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+                <%- include('../partials/footer'); -%>
+
                 <!-- end Footer -->
 
             </div>
@@ -216,7 +201,7 @@ var currentPage=1
                        var obj=response.body.rows
                         $.each(obj,function(key,value)
                         {
-                            var divColor=value.readStatus==0?'#f5f7f9' :'#fff'
+                            var divColor=value.readStatus==0?'#f5f7f9' :''
                             var status=value.status==0?'Unresolved' :'Resolved'
 
                         row =row+ `<tr  style="background-color:${divColor}" class="unread">

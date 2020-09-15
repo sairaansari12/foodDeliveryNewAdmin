@@ -333,7 +333,7 @@ function ($) {
         var config = self.layout.getConfig();
         
         if (config) {
-            $('input[type=radio][name=color-scheme-mode][value=' + config.mode + ']').prop('checked', true);
+           // $('input[type=radio][name=color-scheme-mode][value=' + config.mode + ']').prop('checked', true);
             $('input[type=radio][name=width][value=' + config.width + ']').prop('checked', true);
             $('input[type=radio][name=menus-position][value=' + config.menuPosition + ']').prop('checked', true);
 

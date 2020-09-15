@@ -2,10 +2,9 @@
 <html lang="en">
 <%- include('../partials/header'); -%>
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- <div class="login-logo">
-        <a href="<%-adminpath%>/"><b>Food</b>Delivery</a>
+        <a href="<%-superadminpath%>/"><b>Food</b>Delivery</a>
       </div> -->
     <!-- Begin page -->
     <div id="wrapper">
@@ -54,6 +53,8 @@
                                     </div>
 <% var type=(data.itemType)==0?'<span class="badge bg-soft-success text-success mb-1">Veg</span>':'<span class="badge bg-soft-danger text-danger mb-1">Non-Veg</span>'
 var status=(data.status)==0?'Inactive':'Active';
+var approve=(data.approve)==0?'Not Approved':'Approved';
+
 %>
 
                                     <div class="col-lg-7">
@@ -65,7 +66,7 @@ var status=(data.status)==0?'Inactive':'Active';
                                             <p class="float-left mr-3">
                                                <%-commonMethods.getRating(data.rating)%>
                                             </p>
-                                            <p class="mb-4"><a href="<%-adminpath%>ratings/products?serviceId=<%-data.id %>&name=<%-data.name %>" class="text-muted">( <%-data.totalRatings %>  Customer Reviews )</a></p>
+                                            <p class="mb-4"><a href="<%-superadminpath%>ratings/products?serviceId=<%-data.id %>&name=<%-data.name %>" class="text-muted">( <%-data.totalRatings %>  Customer Reviews )</a></p>
                                             <h6 class="text-danger text-uppercase"><%-data.offer %> % Off</h6>
                                             <h4 class="mb-4">Price : <span class="text-muted mr-2"><del><%-CURRENCY%><%=data.originalPrice %></del></span> <b><%-CURRENCY%><%=data.price %></b></h4>
                                             <p class="text-muted mb-4"><%-data.description %></p>
@@ -74,6 +75,7 @@ var status=(data.status)==0?'Inactive':'Active';
 
                                             <div>
                                                 <a href="javascript:void(0)"  onclick="productStatusChange('<%-data.id%>','<%-data.status%>')" class="btn btn-primary waves-effect waves-light"><i class="mdi mdi-cog mr-1"></i><%-status%></a>
+                                                <a href="javascript:void(0)"  onclick="approve('<%-data.id%>','<%-data.approve%>')" class="btn btn-secondary waves-effect waves-light"><i class="mdi mdi-cog mr-1"></i><%-approve%> (click to change)</a>
 
                                                                                                 
                         
@@ -147,7 +149,7 @@ var status=(data.status)==0?'Inactive':'Active';
                                             <div class="input-group m-t-10">
                                                 <input type="text" id="search"  placeholder="Write text here to search.." class="form-control" value="">
                                             <span class="input-group-append">
-                                                <button type="button" class="btn waves-effect waves-light btn-blue"><i class="fa fa-plus mr-1"></i> <a class="text-white"  href="<%-adminpath%>/addons/add" >Add New</a></button>
+                                                <button type="button" class="btn waves-effect waves-light btn-blue"><i class="fa fa-plus mr-1"></i> <a class="text-white"  href="<%-superadminpath%>/addons/add" >Add New</a></button>
                                             </span>
                                             </div>
                                             
@@ -221,24 +223,18 @@ var status=(data.status)==0?'Inactive':'Active';
 
     <script>
 
-var permissions=JSON.parse('<%-JSON.stringify(permissions)%>');
 
     function productStatusChange(id,status)
     {
 
-        if(status=="0" &&  permissions.pApproved=="0")
-{
-    showToastError("You don't have permissions to change status")
-
-return;
-}
+ 
         var confirm1= (status=="1") ? "Disable" : "Enable"
 
         if( confirm('Are you sure you want to '+confirm1+' this?'))
         {
             $.ajax({
                 type: 'POST',
-                url: '<%-adminpath%>products/status',
+                url: '<%-superadminpath%>products/status',
                 dataType: 'json',
                 data: {'id':id,'status':status},
                 success: function (response) {
@@ -267,6 +263,47 @@ return;
         }
     }
 
+
+    function approve(id,status)
+    {
+
+
+        $('#loading1').show()
+            $.ajax({
+                type: 'POST',
+                url: '<%-superadminpath%>products/approve',
+                dataType: 'json',
+                data: {'id':id,'status':status},
+                success: function (response) {
+                    //alert(response.code)
+                    if (response.code == '200') {
+                        $('#loading1').hide()
+
+                        showToastSuccess(response.message)
+                        setTimeout(function() {
+                       window.location.reload()
+
+        }, 500);
+
+
+                    }
+                    else{
+                        showToastError(response.message)
+                    }
+                },
+                error :function(response)
+                {
+                    $('#loading1').hide()
+
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
+
+                }
+            });
+        }
+        
+    
     function deleteProduct(id)
     {
 
@@ -274,7 +311,7 @@ return;
         {
             $.ajax({
                 type: 'POST',
-                url: '<%-adminpath%>products/delete',
+                url: '<%-superadminpath%>products/delete',
                 dataType: 'json',
                 data: {'id':id},
                 success: function (response) {
@@ -282,7 +319,7 @@ return;
                         showToastSuccess(response.message)
                         setTimeout(function() {
                          var id=$('#serviceId').val()
-                       window.location.href="<%-adminpath%>/products/";
+                       window.location.href="<%-superadminpath%>/products/";
 
         }, 500);
                                                }

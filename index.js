@@ -5,6 +5,7 @@ const app = express();
 const db = require('./db/db');
 const server = require('http').createServer(app);
  io = require('socket.io')(server);
+const socket = require('./socket')(io);
 const expressValidator = require('express-validator');
 config = require('config');
 var cookieParser  = require('cookie-parser');

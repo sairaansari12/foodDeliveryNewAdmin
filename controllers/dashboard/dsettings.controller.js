@@ -62,15 +62,15 @@ app.post('/update',adminAuth,async(req,res,next) => {
   var params=req.body
     try{
 
-      const findData = await COMPANY.findOne({
+      const findData = await DOCUMENT.findOne({
         where: {
-          id: req.id
+          companyId: req.id
         }
       });
       if(findData)
       {
     
-       var response= await COMPANY.update({ 
+       var response= await DOCUMENT.update({ 
           aboutus: params.aboutus,
           aboutusLink:  params.aboutusLink,
           privacyContent:  params.privacyContent,

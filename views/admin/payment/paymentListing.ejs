@@ -2,8 +2,7 @@
 <html lang="en">
 <%- include('../partials/header'); -%>
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- Begin page -->
     <div id="wrapper">
         <%- include('../partials/dashboardHeader'); -%>
@@ -30,12 +29,75 @@
                                             <li class="breadcrumb-item active">Payments</li>
                                         </ol>
                                     </div>
-                                    <h4 class="page-title">Payments</h4>
+                                    <h4 class=form-label">Payments</h4>
                                 </div>
                             </div>
                         </div>     
                         <!-- end page title --> 
 
+
+                        <div class="row">
+
+                           
+                           
+
+                            <div class="col-md-3 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                       
+                                        <div class="col-12">
+                                            <div class="text-right">
+                                                <h3 class="text-dark mt-1"><%-CURRENCY%><span data-plugin="counterup" id="mTotalPayments" ></span></h3>
+                                                <p class="text-muted mb-1 text-truncate">Total payments</p>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                            </div>
+
+                            <div class="col-md-3 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        
+                                        <div class="col-12">
+                                            <div class="text-right">
+                                                <h3 class="text-dark mt-1"><%-CURRENCY%><span data-plugin="counterup" id="mSuccessPayments" ></span></h3>
+                                                <p class="text-muted mb-1 text-truncate">Success Payments</p>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                            </div> <!-- end col-->
+
+                            <div class="col-md-3 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        
+                                        <div class="col-12">
+                                            <div class="text-right">
+                                                <h3 class="text-dark mt-1"><%-CURRENCY%><span data-plugin="counterup" id="mFailedPayments" ></span></h3>
+                                                <p class="text-muted mb-1 text-truncate">Failed Payments</p>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                            </div> <!-- end col-->
+                           
+                            <div class="col-md-3 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        
+                                        <div class="col-12">
+                                            <div class="text-right">
+                                                <h3 class="text-dark mt-1"><%-CURRENCY%><span data-plugin="counterup" id="mTotalEscrow" ></span></h3>
+                                                <p class="text-muted mb-1 text-truncate">Pending Transfers</p>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                            </div>
+                            
+                        </div>
 
                         <div class="row ">
                             <div class="col-xl-12 order-xl-1 order-2">
@@ -101,52 +163,47 @@
   $('#search').on( 'keyup', function (event) {
     event.preventDefault();
     if (event.keyCode === 13) {
-     getSearch(1)
+     getFilter(1)
     }   
     });
     $("#toDate").flatpickr();
  
     function StatusChange(id,status)
     {
-        if( confirm('Are you sure you want to change status for this order?'))
-        {
-        $('#loading1').show()
-            $.ajax({
-            type: 'POST',
-            url: '<%-adminpath%>payment/status',
-            dataType: 'json',
-            data: {'id':id,'status':status},
-            success: function (response) {
-                if (response.code == '200') {
-                toastr.success(response.message);
-               //showToastSuccess( response.message)
-               if(status == "2")
-                    {
-                      window.location.reload();
-                    }else{
-                      window.location.reload();
-                    }
-                }
-                else{
+        showToastError("You don't have permissions to change status ,please contact to admin to make changes ")
+
+    //     if( confirm('Are you sure you want to change status for this order?'))
+    //     {
+    //     $('#loading1').show()
+    //         $.ajax({
+    //         type: 'POST',
+    //         url: '<%-superadminpath%>payment/status',
+    //         dataType: 'json',
+    //         data: {'id':id,'status':status},
+    //         success: function (response) {
+    //             if (response.code == '200') {
+    //            showToastSuccess( response.message)
+    //            getFilter(currentPage)
+             
+    //             }
+    //             else{
                    
-                    setTimeout(function(){
-                        toastr.error(response.message);
-                       window.location.reload();
-                    }, 2000);
-                }
-            },
+    //                 showToastError(response.message);
+                   
+    //             }
+    //         },
 
-            error :function(response)
-            {
-                var errorResponse=JSON.parse(response.responseText)
-                 showToastError(errorResponse.message)
+    //         error :function(response)
+    //         {
+    //             var errorResponse=JSON.parse(response.responseText)
+    //              showToastError(errorResponse.message)
 
 
-            }
-        });
-        }
+    //         }
+    //     });
+    //     }
+    // }
     }
-    
     function getFilter(currentPage)
     {
         var fromDate=""
@@ -155,6 +212,8 @@
         var limit=20
         $('#loading1').show()
         var status=$('#status-select').val();
+        var search=$('#search').val();
+
         var rangeDatePicker=$('#range-datepicker').val().split("to");
       
       if(rangeDatePicker.length>1){ fromDate=rangeDatePicker[0];
@@ -163,13 +222,14 @@
             type: 'POST',
             url: '<%-adminpath%>payment/list',
             dataType: 'json',
-            data: {'fromDate':fromDate,'transactionStatus':status ,'toDate':toDate,'page':currentPage,'limit':limit},
+            data: {search:search,'fromDate':fromDate,'transactionStatus':status ,'toDate':toDate,'page':currentPage,'limit':limit},
             success: function (response) {
                 $('#loading1').hide()
 
                 if (response.code == '200') 
                 {
                     var row="";
+                    setStat(response.body.counts,response.body.escrow)
 
                     $('#orderData').html('')
                     var data1=response.body.data
@@ -247,99 +307,7 @@
         });
     } 
 
-    function getSearch(currentPage)
-    {
-        currentPage=currentPage
-        var limit=40
-        $('#loading1').show()
-        var search=$('#search').val();
-        $.ajax({
-            type: 'POST',
-            url: '<%-adminpath%>payment/search',
-            dataType: 'json',
-            data: {'search':search},
-            success: function (response) {
-                $('#loading1').hide()
-
-                if (response.code == '200') 
-                {
-                    var row="";
-
-                    $('#orderData').html('')
-                    var data1=response.body.data
-                    var data=response.body.data.rows
-                    for(var t=0;t<data.length;t++)
-                    {
-                        
-                        var status="Failed"
-                        var style="display:none" 
-                        var style1="display:block" 
-             
-                        if(data[t].transactionStatus == '1')
-                        {
-                            var active = 2;
-                            var status = "Success";
-                            var stclass = "bg-soft-info text-info";
-                             var payemnt = '<a href="javascript:;"  class="btn bg-green font-size-10 pad5A tooltip-button"  onclick="StatusChange(\''+data[t].id+'\',\''+active+'\')">'+
-                            '<h5><span class="badge bg-soft-danger text-danger"><i class="mdi mdi-coin"></i>Payment Failed</span></h5></a>';
-                        }else{
-                            var active = 1;
-                            var status = "Pending";
-                             var stclass = "bg-soft-danger text-danger";
-                             var payemnt = '<a href="javascript:;"  class="btn bg-green font-size-10 pad5A tooltip-button"  onclick="StatusChange(\''+data[t].id+'\',\''+active+'\')">'+
-                            '<h5><span class="badge bg-soft-success text-success"><i class="mdi mdi-coin"></i> Payment Paid</span></h5></a>';
-                        }
-                   
-                        row =row+ '<div class="card-box mb-2">'+
-                        '<div class="row align-items-center">'+
-                        '<div class="col-sm-4"><div class="media">'+
-
-                        '<img class="d-flex align-self-center mr-3  onError="this.onerror=null;this.src=\'/assets/images/products/no-image.jpg\';" rounded-circle" src="'+data[t].user.image+'" alt="Generic placeholder image" height="64">'+
-                        '<div class="media-body">'+
-                        '<h4 class="mt-0 mb-2 font-16">'+data[t].user.firstName+ " "+  data[t].user.lastName+'</h4>'+
-                        '<p class="mb-1 mt-3 mt-sm-0"><i class="mdi mdi-cellphone mr-1"></i> '+data[t].user.countryCode +" "+ data[t].user.phoneNumber+'</p>'+
-                        '<p class="mb-1"><b>Order No.:</b> '+data[t].order.orderNo+'</p>'+
-                        
-                        '</div></div></div>'+
-                        '<div class="col-sm-4">'+
-                        '<p class="mb-1"><b>Order Date:</b> '+format(new Date(data[t].order.createdAt))+'</p>'+
-                        '<p class="mb-1"><b>Payment Date:</b> '+format(new Date(data[t].createdAt)) +'</p>'+
-                        '<p class="mb-0"><i class="mdi mdi-currency-inr mr-1"></i> '+data[t].amount  +'</p>'+
-                        '</div><div class="col-sm-2">'+
-                        '<div class="text-center mt-3 mt-sm-0">'+
-                        '<div class="badge font-14 '+stclass+' p-1">'+status+'</div>'+ 
-                        '</div></div>'+                             
-                        '<div class="col-sm-2"><div class="text-sm-right">'+
-                        ''+payemnt+''+
-                        '<a href="<%-adminpath%>orders/view/'+data[t].order.id +'"  title="View Order" class="action-icon"> <i class="mdi mdi-eye"></i></a>'+
-                        '</div></div></div></div></div>';
-                    }
-                    
-                    $('#orderData').html(row);
-                    appendPagination(currentPage,Math.ceil(data1.count/limit))
-                    //$('#exe').DataTable();
-                }
-                else{
-                   
-                            toastr.error(response.message);
-                          
-                }
-            },
-
-            error :function(response)
-            {
-                $('#loading1').hide()
-
-                var errorResponse=JSON.parse(response.responseText)
-                 showToastError(errorResponse.message)
-
-                       
-
-            }
-        });
-    } 
-
-    function appendPagination(currentPage,count)
+      function appendPagination(currentPage,count)
     {
         var fd="";
         if (count >= 1) { 
@@ -389,6 +357,40 @@
 
     var currentPage=1
     getFilter(currentPage)
+
+    function setStat(counts,escrow)
+    {
+
+        var failedSum=0
+        var successSum=0
+        var escrowSum=0
+
+        for(var k=0;k<counts.length;k++)
+        {
+            
+            if(counts[k].transactionStatus==2)
+            failedSum=failedSum+counts[k].totalSum
+            else
+            successSum=successSum+counts[k].totalSum
+
+        }
+
+        for(var p=0;p<escrow.length;p++)
+        {
+            
+            if(escrow[p].paymentState==1)
+            escrowSum=escrowSum+escrow[p].totalSum
+           
+        }
+
+        $('#mSuccessPayments').html((successSum).toFixed(2))
+        $('#mFailedPayments').html((failedSum).toFixed(2))
+        $('#mTotalPayments').html((failedSum+successSum).toFixed(2))
+        $('#mTotalEscrow').html((escrowSum).toFixed(2))
+
+    }
+
+
 </script>
 </body>
 

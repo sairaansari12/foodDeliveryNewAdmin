@@ -10,7 +10,9 @@ const Op = require('sequelize').Op;
 app.get('/',adminAuth, async (req, res, next) => {
   try {
     
-     return res.render('admin/products/addOnsListing.ejs',{});
+    var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
+
+     return res.render('admin/products/addOnsListing.ejs',{permissions});
 
     } catch (e) {
       return responseHelper.error(res, e.message, 400);
@@ -51,8 +53,9 @@ app.get('/view/:id',adminAuth,async(req,res,next) => {
       });
 
     if(findData) {
+      var  permissions =await PERMISSIONS.findOne({where:{companyId:req.id}})
 
-      return res.render('admin/products/viewAddon.ejs',{data:findData});
+      return res.render('admin/products/viewAddon.ejs',{data:findData,permissions});
       }
 
 

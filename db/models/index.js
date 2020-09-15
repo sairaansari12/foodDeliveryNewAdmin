@@ -34,6 +34,7 @@ let modules = [
   require('./categories'), 
   require('./document'), 
   require('./services'), 
+  require('./faqCategory'), 
   require('./faq'), 
   require('./tags'),
   require('./notifications'), 
@@ -55,6 +56,8 @@ let modules = [
   require('./comission'),
   require('./comissionHistory'),
   require('./paymentSetup'),
+  require('./gallery'),
+  require('./appRatings'),
   require('./tiffin/tiffinServices'),
   require('./tiffin/tiffinMenu'),
   require('./tiffin/tiffinPackages'),
@@ -68,8 +71,17 @@ let modules = [
   require('./recipe/recipes'),
   require('./recipe/recipeMedia'),
   require('./recipe/recipeLike'),
+  require('./recipe/recipeComment'),
   require('./staffWallet'),
-  require('./permissions')
+  require('./permissions'),
+  require('./chat/groups.js'),
+  require('./chat/groupMembers.js'),
+  require('./chat/chatMessages.js'),
+  require('./chat/textMessages.js'),
+  require('./chat/mediaMessages.js'),
+  require('./chat/messagesStatus.js'),
+  require('./chat/clearedMessages.js'),
+
 
   
 

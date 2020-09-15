@@ -11,6 +11,11 @@ module.exports = function(sequelize, DataTypes) {
     },
 
   
+    orderId:{
+      type: DataTypes.STRING(255),
+      allowNull: true,
+       defaultValue: ""
+     },
 
      rating :
      {
@@ -56,6 +61,28 @@ module.exports = function(sequelize, DataTypes) {
        },
        onUpdate: 'CASCADE',
        onDelete: 'CASCADE',
+    },
+
+
+
+    reviewImages: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      get() {
+        if(this.getDataValue('reviewImages') && this.getDataValue('reviewImages')!="")
+        {
+          var images=this.getDataValue('reviewImages').split(",")
+          imageArray=[];
+          for(var k=0;k<images.length;k++)
+          {
+            imageArray.push( config.IMAGE_APPEND_URL+"reviews/"+images[k]);
+          }
+          return  imageArray;
+        }
+        else return []
+
+    },
+      defaultValue: ""
     },
 
 

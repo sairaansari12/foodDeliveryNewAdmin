@@ -17,7 +17,6 @@ SERVICES.hasOne(CART,{serviceId: 'serviceId'})
 COMPANY.hasMany(CATEGORY,{foreignKey: 'companyId'})
 COUPAN.belongsTo(COMPANY,{foreignKey: 'companyId'})
 SUBORDERS.belongsTo(ORDERS,{foreignKey: 'orderId'})
-DEALS.belongsTo(COMPANY,{foreignKey: 'companyId'})
 COMPANY.belongsTo(COUPAN,{foreignKey: 'offer'})
 
 //Home API with cats and trending and banners
@@ -221,7 +220,7 @@ app.get('/getSubcat', checkAuth,async (req, res, next) => {
 
     try{
       var services = await CATEGORY.findAll({
-        attributes: ['id','name','description','icon','thumbnail'],
+        attributes: ['id','name','description','icon','thumbnail','companyId'],
         where: {
           parentId: category,
           status: 1,
@@ -263,13 +262,22 @@ app.get('/getSubcat', checkAuth,async (req, res, next) => {
 
 const company = await COMPANY.findOne({
   attributes: ['companyName','address1','email','countryCode','phoneNumber', 'rating','totalRatings','logo1','startTime','endTime','deliveryType','itemType',
-  'foodQuantityRating','foodQualityRating','packingPresRating'
-
+  'foodQuantityRating','foodQualityRating','packingPresRating','latitude','longitude'
 ],
   where:{id :req.companyId},
   include:[{model:DOCUMENT,attributes:['aboutUs','aboutUsLink','facebookLink','gmailLink','twitterLink','linkedinLink']}]
   
 })
+
+//Galledry
+var gallery = await GALLERY.findAll({
+  attributes:['id','mediaHttpUrl','mediaType','createdAt','title','description'],
+  where :{mediaType:'photo',companyId:req.companyId,status:1},
+  offset: 0, limit: 5 ,
+  order: [['createdAt','DESC']]
+
+});
+
 
       let userData = {}
       
@@ -278,6 +286,7 @@ const company = await COMPANY.findOne({
       userData.subcat = services
       userData.banners = banners
       userData.details = company
+      userData.gallery= gallery
 
       getTrending(category,dataItem,function(err,data)
       {
@@ -323,42 +332,7 @@ app.get('/home', checkAuth,async (req, res, next) => {
 
 //Deals
 
-var userInfo=await commonMethods.getUserInfo(req.id)
 
-
-var dob=new Date(userInfo.dob)
-var anDate=new Date(userInfo.anniversaryDate)
-
-
-var newBCond={}
-var newACond={}
-
-
-if (sameDay( dob, new Date()))
-  newBCond= { 'dealName': { [Op.like]: '%' + 'birthday' + '%' }}
-if(sameDay(anDate,new Date()))
- newBACond= { 'dealName': { [Op.like]: '%' + 'anniverary' + '%' }}
-
-
- var newDate = moment(new Date()).format("MM/DD/YYYY");
- const deals = await DEALS.findAll({
-   attributes: ['id','dealName','description','thumbnail','code','discount'],
-   include:[{model:COMPANY,attributes:['companyName','id']
- }],
-   where: {
-     status :1,
-
-     [Op.or]: [
-      {  validupto: {
-        [Op.gte]: newDate
-      }},
-newACond,
-newBCond,  
-  ]
-    
-   },
-   offset: 0, limit: 5,
- })
 
 
     
@@ -441,9 +415,6 @@ dataVendor=dataVendor.slice(0, 8);
 
 //Ratings and best seller
    
-   
-
-//bestSeller=shuffle(vendors);
 
 
     var topPicks=await getTopPicks(req,params.deliveryType,itemType)
@@ -453,7 +424,6 @@ dataVendor=dataVendor.slice(0, 8);
       let userData = {}
       
       //Combining Data
-      userData.deals = deals
       userData.offers = offers
       userData.banners = banners
 
@@ -489,16 +459,20 @@ var recentOrder = await ORDERS.findOne({
 
   });
 
+//Comleted Order
+var empData=await getRecentComletedOrder(req.id)
 
-userData.recentOrder=recentOrder
+   
+
+     userData.recentOrder=recentOrder
+     userData.completedorder=empData
+
+
       getTrendingDeliveryType(params.deliveryType,companyIds,itemType,function(err,data)
       {
 
     if(data) userData.trending = data
     else      userData.trending = []
-
-
-
 
 
     return responseHelper.post(res, appstrings.success, userData);
@@ -513,128 +487,10 @@ userData.recentOrder=recentOrder
 
 });
 
-// app.get('/nearby', checkAuth,async (req, res, next) => {
-
-//   var params=req.query
-//   let responseNull=  commonMethods.checkParameterMissing([params.deliveryType])
-//   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-
-
-//     try{
 
 
 
 
-
-//       var newDate = moment(new Date()).format("MM/DD/YYYY");
-
-
-//       var lat = parseFloat(params.lat);
-//       var lng = parseFloat(params.lng);
-  
-//       // var location = sequelize.literal(`ST_GeomFromText('POINT(${lng} ${lat})')`);
-//       // var distance = sequelize.fn('ST_Distance_Sphere', sequelize.literal('geolocation'), location);
-      
-
-
-
-//     //Vendors
-//     var vendors = await COMPANY.findAll({
-//       attributes:[[sequelize.literal("6371 * acos(cos(radians("+lat+")) * cos(radians(latitude)) * cos(radians("+lng+") - radians(longitude)) + sin(radians("+lat+")) * sin(radians(latitude)))"),'distance'],'id','companyName','logo1','address1','startTime','endTime','rating'],
-//       where: {
-//       status: 1,
-//       role :2,
-//       parentId :req.parentCompany,
-//       deliveryType: { [Op.or]: [params.deliveryType,2]}},   
-//       include:[{model:COUPAN,required:false,attributes:['discount','code','validUpto'],
-//       where: {
-//         status :1,
-//         validupto: {
-//           [Op.gte]: newDate
-//         }
-//       }}
-//     ] ,
-    
-//      order: sequelize.col('distance'),
-//       offset: 0, limit:30,
-//     })
-
-//     var companyIds=_.map(vendors, function(data){ return data.id; });
-
-
-
-//     const offers = await COUPAN.findAll({
-//       attributes: ['id','name','description','icon','thumbnail','code','discount','validupto'],
-//       include:[
-//         {model:COMPANY,
-//           attributes:['companyName','id'],where:{ deliveryType: { [Op.or]: [params.deliveryType,2]},
-//     }
-//   }],
-//       where: {
-//         status :1,
-//         companyId:req.parentCompany,
-//         validupto: {
-//           [Op.gte]: newDate
-//         },
-
-//       },
-//       offset: 0, limit: 5,
-//     })
-
-
-
-
-// //Ratings and best seller
-//     var bestSeller=[];
-//     if(vendors) 
-//     {
-//       //vendors=JSON.parse(JSON.stringify(vendors))
-
-// // for(var k=0;k<vendors.length;k++)
-// //       {
-// //         var ratingArray=[4,3.5,4,4.5]
-// //         var ratRandom = Math.floor(Math.random() * ratingArray.length);
-// // var rating=ratingArray[ratRandom]
-// // var dataRating=await commonMethods.getCompAvgRating(vendors[k].id)
-// // if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating) 
-// // rating=dataRating.dataValues.totalRating
-
-// // vendors[k].rating=rating
-
-// // var idx = Math.floor(Math.random() * vendors.length);
-// // if(!bestSeller.includes(vendors[idx])) bestSeller.push(vendors[idx]);
-
-
-
-// //       }
-
-//     }
-
-
-
-
-
-
-//       let userData = {}
-      
-//       //Combining Data
-//       userData.vendors = vendors
-//       userData.offers = offers
-
-
-
-     
-//     return responseHelper.post(res, appstrings.success, userData);
-     
-    
-
-
-//     }
-//     catch (e) {
-//       return responseHelper.error(res, e.message, 400);
-//     }
-
-// });
 
 
 
@@ -1031,6 +887,41 @@ console.log(e)
 
 
 
+async function getRecentComletedOrder(userId)
+{
+
+
+  var empData={}
+  var completedtOrder = await ORDERS.findOne({
+    attributes:['id','companyId'],
+    where :{userId : userId,progressStatus:[5],userShow:0},
+    include: [{model: ASSIGNMENT , required:true,attributes: ['empId'],
+    include: [{model: EMPLOYEE , attributes: ['firstName','lastName','phoneNumber','image']}],
+
+  }],
+    });
+
+
+
+
+    if(completedtOrder && completedtOrder.dataValues  && completedtOrder.dataValues.assignedEmployees.length>0) 
+    {
+      empData.empId=completedtOrder.dataValues.assignedEmployees[0].empId
+      empData.companyId=completedtOrder.dataValues.companyId
+      empData.orderId=completedtOrder.dataValues.id
+      var empDetails=completedtOrder.dataValues.assignedEmployees[0].employee
+      empData.firstName=empDetails.firstName
+      empData.lastName=empDetails.lastName
+      empData.image=empDetails.image
+      ORDERS.update({userShow:1},{where :{id :completedtOrder.dataValues.id}});
+
+    }
+
+    return empData
+    
+
+
+}
 
 async function getTrendingDeliveryType(deliveryType,companyIds,itemType,callback)
 {
@@ -1235,10 +1126,7 @@ else return [];
 
 
 
-function sameDay( d1, d2 ){
-  return  d1.getUTCMonth() == d2.getUTCMonth() &&
-         d1.getUTCDate() == d2.getUTCDate();
-}
+
 
 
 module.exports = app;

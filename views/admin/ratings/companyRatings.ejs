@@ -2,9 +2,7 @@
 <html lang="en">
 <%- include('../partials/header'); -%>
 
-
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- Begin page -->
     <div id="wrapper">
         <%- include('../partials/dashboardHeader'); -%>
@@ -25,7 +23,7 @@
                                         <li class="breadcrumb-item active">Rating</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title">Restaurant Ratings</h4>
+                                <h4 class=form-label">Restaurant Ratings</h4>
 
                             </div>
                         </div>
@@ -34,7 +32,7 @@
                        
                         <div class="col-12">
                             <div class="page-title-box">
-                                <h4 class="page-title">Avg Rating : <span  id="avgRating"></span>
+                                <h4 class=form-label">Avg Rating : <span  id="avgRating"></span>
                                     <div  class="col-md-6 float-right" id="apex-bar">
 
                                     </div>
@@ -323,6 +321,7 @@ var deleteR=(permissions && permissions.restroReviewDelete=="1") ?"inline" :"non
    // <b class="font-11" >Food Quantity:</b>  <span class="text-muted">${getRating(data[t].foodQuantity)}</span></br>
         // <b class="font-11 " >Food Quality:</b>  <span class="text-muted">${getRating(data[t].foodQuality)}</span></br>
         // <b class="font-11 " >Packing Presentation:</b>  <span class="text-muted">${getRating(data[t].packingPres)}</span>
+        var row=appendImages(data[t].reviewImages,t);
 
      
                   myvar=myvar+ `<div class="mt-3 ml-3">
@@ -334,16 +333,21 @@ var deleteR=(permissions && permissions.restroReviewDelete=="1") ?"inline" :"non
                                                        
                                                           <a   href="javascript: void(0);"  style="display :${deleteR}" onclick="deleteReview('${data[t].id}')"  class="btn btn-danger waves-effect float-right waves-light mr-2"><i class="mdi mdi-delete-circle"></i>&nbsp;&nbsp;Delete</a>
 
-                                                          <div class="float-right col-md-7  mt-2">
+                                                          <div class="float-right col-md-4  mt-2">
 
-                                                        <div class="col-md-7"  id="apex-bar-${data[t].id}">
+                                                        <div class="col-md-12"  id="apex-bar-${data[t].id}">
        
     </div>
     </div>
 
 
+   ${row}
+    
+    
+
                                                       </h5>
-                                                          <b class="font-14" >Rating On:</b>  <span class="text-muted">${format(new Date(data[t].createdAt))}</span>
+                                                          <b class="font-14" >Rating On:</b>  <span class="text-muted">${format(new Date(data[t].createdAt))}</span></br>
+                                                          <b class="font-12" >Order Id:</b>  <span class="text-muted"><a href="<%-adminpath%>orders/view/${data[t].orderId}">${data[t].orderId?data[t].orderId:""}</a></span>
                                                         </br>
 
   
@@ -367,13 +371,14 @@ var deleteR=(permissions && permissions.restroReviewDelete=="1") ?"inline" :"non
                                           `;
   
   
- 
+           
       
       
       if(data.length>0)$("#appendData").html(myvar)    
       else $("#appendData").html('<div class="pad10A button-pane button-pane-alt text-center">No data avialable in table</div>')             
        
       var colors=["#1abc9c","#1abc9d"]
+      $("#carouselExampleIndicators"+t).carousel();
 
 
       for(var k=0;k<data.length;k++) 
@@ -398,6 +403,7 @@ var deleteR=(permissions && permissions.restroReviewDelete=="1") ?"inline" :"non
   
       }
 }
+
 
       
           }
@@ -502,6 +508,51 @@ var deleteR=(permissions && permissions.restroReviewDelete=="1") ?"inline" :"non
       }
         
       
+
+      function appendImages(images,rowNo)
+      {
+
+       var row=` <div id="carouselExampleIndicators${rowNo}" class="carousel slide float-right col-md-3 mb-2 " data-ride="carousel">
+                                          
+  
+                                    <ol class="carousel-indicators">`;
+                                        for(var p=0;p<images.length;p++)
+                                         
+                                        {
+                                            row=row+'<li data-target="#carouselExampleIndicators'+rowNo+'" data-slide-to="'+p+'" class="active"></li>';
+                                    }
+                                         
+                                   
+                                    row=row+' </ol>'+
+                                          '<div class="carousel-inner" role="listbox">';
+                                             
+                                            
+                                            for(var p=0;p<images.length;p++)
+                                         
+                                         {
+ 
+                                               if(p==0) row=row+'<div class="carousel-item active">'; 
+                                                 else row=row+'<div class="carousel-item">';
+                                                    row=row+'<a  target="_blank" href="'+images[p]+'" class="image-popup">'+                                                       
+                                                    '<img class="d-block"  height="200" width="230" src="'+images[p]+'" alt="First slide"></a>'+
+                                              '</div>'
+                                              
+                                            }
+                                            row=row+`</div>
+                                          <a class="carousel-control-prev" href="#carouselExampleIndicators${rowNo}" role="button" data-slide="prev">
+                                              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                              <span class="sr-only">Previous</span>
+                                          </a>
+                                          <a class="carousel-control-next" href="#carouselExampleIndicators${rowNo}" role="button" data-slide="next">
+                                              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                              <span class="sr-only">Next</span>
+                                          </a>`;
+
+                                        
+                                        row=row + `</div>`;
+                                    
+return row;
+      }
   
   </script>
 

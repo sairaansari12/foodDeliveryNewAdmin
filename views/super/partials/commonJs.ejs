@@ -228,6 +228,40 @@ $('#foundResults').html(array.length)
 
 
 appendSearch()
+function   setTheme()
+{
+  var value = readCookie('set-layout-theme');
+  if(value==null || value=="")
+  $('input[type=radio][name=color-scheme-mode][value=light]').prop("checked",true).trigger("change")
+
+  else
+  {
+    
+// var e=document.body
+    // e.layout.changeMode(value)
+      $('input[type=radio][name=color-scheme-mode][value=' + value + ']').prop("checked",true).trigger("change")
+
+      //$("input[name=color-scheme-mode][value=" + value + "]").attr('checked', true);
+  }
+}
+
+function eraseCookie(name) {   
+    document.cookie = name+'=; Max-Age=-99999999;';  
+}
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+
+setTheme()
+
 </script>
 
 

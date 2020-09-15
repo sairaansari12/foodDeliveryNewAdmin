@@ -2,11 +2,8 @@
 <html lang="en">
 <%- include('../partials/header'); -%>
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
-    <!-- <div class="login-logo">
-        <a href="<%-superadminpath%>/"><b>Food</b>Delivery</a>
-      </div> -->
+<body class="loading">
+   
     <!-- Begin page -->
     <div id="wrapper">
         <%- include('../partials/dashboardHeader'); -%>
@@ -28,7 +25,7 @@
                                         <li class="breadcrumb-item active">Banners</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title">Banners</h4>
+                                <h4 class="form-label">Banners</h4>
                             </div>
                         </div>
                     </div>     
@@ -91,43 +88,25 @@
             </div> <!-- content -->
 
             <!-- Footer Start -->
-            <footer class="footer">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-6">
-                            2015 -
-                            <script>document.write(new Date().getFullYear())</script> &copy; Delicio theme by <a
-                                href="">Coderthemes</a>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="text-md-right footer-links d-none d-sm-block">
-                                <a href="javascript:void(0);">About Us</a>
-                                <a href="javascript:void(0);">Help</a>
-                                <a href="javascript:void(0);">Contact Us</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+          
             <!-- end Footer -->
 
-        </div>
 
         <!-- ============================================================== -->
         <!-- End Page content -->
         <!-- ============================================================== -->
 
 
-    </div>
+    
    
-    <!-- /Right-bar -->
-
-    <!-- Right bar overlay-->
+ 
     <div class="rightbar-overlay"></div>
 
 
-
     <%- include('../partials/script'); -%>
+    <%- include('../partials/commonJs'); -%>
+</div>
+
 
     <script>
 

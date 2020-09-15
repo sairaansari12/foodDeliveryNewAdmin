@@ -65,7 +65,8 @@ try {
   var transactionStatus =  ['0','1','2']
   var fromDate =  ""
   var toDate =  ""
-
+  var reqValue=false
+  var where2={}
 
   var page =1
   var limit =50
@@ -79,7 +80,6 @@ try {
   where={companyId: req.companyId,
     transactionStatus: { [Op.or]: transactionStatus}
      }
-     where1={companyId: req.companyId,transactionStatus: { [Op.or]: transactionStatus}}
 
 
   if(params.fromDate)fromDate= Math.round(new Date(params.fromDate).getTime())
@@ -93,12 +93,25 @@ if(fromDate!="" && toDate!="")
     createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
        }
 
-       where1={companyId: req.companyId,
-        transactionStatus: { [Op.or]: transactionStatus},
-        createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
-           }
+    
 
       }
+
+      if(params.search && params.search!="")
+      {
+   reqValue=true
+   where2= {
+          [Op.or]: [
+            { 
+              firstName: {
+                [Op.like]: `%${params.search}%`
+              }
+            }
+          ]
+        }
+      }
+
+
 
       const findData = await PAYMENT.findAndCountAll({
         order: [
@@ -107,7 +120,10 @@ if(fromDate!="" && toDate!="")
       where :where,
       
       include: [
-        {model: USER , attributes: ['id','firstName','lastName',"phoneNumber","countryCode","email","image"]},       
+        {model: USER , 
+          required:reqValue,
+          where:where2,
+          attributes: ['id','firstName','lastName',"phoneNumber","countryCode","email","image"]},       
         {model: ORDERS , attributes: ['id','createdAt','orderNo'],required:true},       
 
       
@@ -117,7 +133,10 @@ if(fromDate!="" && toDate!="")
 
     });
 
-    console.log(findData)
+
+
+
+
 
     var countDataq = await PAYMENT.findAll({
       attributes: ['transactionStatus','paymentState',
@@ -126,8 +145,14 @@ if(fromDate!="" && toDate!="")
        
 
       ],
+      include: [
+        {model: USER , 
+          required:reqValue,
+          where:where2,
+          attributes: ['id']}       
+      ],
       group: ['transactionStatus'],
-    where :where1});
+    where :where});
 
 
     var escrowDataq = await PAYMENT.findAll({
@@ -137,8 +162,14 @@ if(fromDate!="" && toDate!="")
        
 
       ],
+      include: [
+        {model: USER , 
+          required:reqValue,
+          where:where2,
+          attributes: ['id']}       
+      ],
       group: ['paymentState'],
-    where :where1});
+    where :where});
 
     var userDtaa={}
     userDtaa.data=findData
@@ -205,7 +236,7 @@ app.post('/comissionHistory',adminAuth, async (req, res, next) => {
     
          where={ [Op.or]: [
             {amount: {[Op.like]: `%${params.search}%`}},
-            {comission: { [Op.like]: `%${params.search}%` }
+            {charges: { [Op.like]: `%${params.search}%` }
           }
           ],
           companyId: req.companyId,

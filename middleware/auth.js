@@ -20,7 +20,6 @@ var functions={
                req.phoneNumber = decoded.phoneNumber;
                req.countryCode = decoded.countryCode;
                req.parentCompany = decoded.parentCompany;
-
                req.token = authorization;
 
                if(req.headers.companyid && req.headers.companyid!="")

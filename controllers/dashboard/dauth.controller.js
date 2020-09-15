@@ -4,6 +4,7 @@ const app     = express();
 const hashPassword = require('../../helpers/hashPassword');
 const COMPANY= db.models.companies
 const Op = require('sequelize').Op;
+const jwt = require('jsonwebtoken');
 
 function isAdminAuth(req, res, next) {
     // if(req.session.userData){
@@ -29,6 +30,18 @@ app.get('/', async (req, res, next) => {
 });
 
 
+app.get('/chat',adminAuth, async (req, res, next) => {
+
+  const credentials = {
+    phoneNumber: req.session.userData.phoneNumber,
+    companyId:   req.companyId,
+    countryCode: req.session.userData.countryCode,
+    userType: req.session.userData.type,
+    id : req.session.userData.id
+  };
+  const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
+    return res.render('admin/chat/chat.ejs',{ token: authToken, id: req.id});
+});
 app.get('/login', async (req, res, next) => {
   
   return res.render(adminfilepath+'/dashboard/login.ejs');
@@ -286,7 +299,6 @@ app.post('/login',async(req,res,next) => {
                 if(userData)
                {
                 
-                console.log(await hashPassword.generatePass(params.password));
 
                
                 const match = await hashPassword.comparePass(params.password,userData.dataValues.password);

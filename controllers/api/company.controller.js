@@ -130,6 +130,169 @@ catch (e) {
 
 });
 
+app.post('/gallery',checkAuth, async (req, res, next) => {
+  try {
+  
+    var params=req.body
+
+    let responseNull=  commonMethods.checkParameterMissing([params.companyId])
+    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+  
+    var page =1
+    var limit =20
+    var mediaType=""
+
+  
+
+   if(params.mediaType) mediaType=params.mediaType
+   if(params.page) page=params.page
+ 
+   if(params.limit)
+    limit=parseInt(params.limit)
+    var offset=(page-1)*limit
+ 
+
+
+    var where= {
+      companyId:params.companyId,
+      status:  1
+
+      } 
+     
+ 
+
+  
+   if(mediaType!="")
+   where.mediaType=mediaType
+
+
+      var findData = await GALLERY.findAll({
+        attributes:['id','mediaHttpUrl','mediaType','createdAt','title','description'],
+        where :where,
+        offset: offset, limit: limit ,
+        order: [['createdAt','DESC']]
+
+      });
+  
+    if(findData.length>0) return responseHelper.post(res, appstrings.success, findData);
+  else   return responseHelper.post(res, appstrings.no_record, null,204);
+
+  } catch (e) {
+    return responseHelper.error(res, e.message, 400);
+  }
+});
+
+
+
+app.post('/gallery/add',checkAuth,async (req, res) => {
+  try {
+    const data = req.body;
+
+
+    let responseNull= commonMethods.checkParameterMissing([data.companyId,data.title,data.description,data.mediaType])
+    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+
+
+
+    var imagesAvailable=0
+
+
+    var upload=[]
+    //console.log(">>>>>>>>>>>>>>>>",req.files['productImages#'+datatoUpdated[h].serviceId])
+          if(req.files && req.files['media'])
+          {
+    var fdata=req.files['media']
+    if(fdata.length && fdata.length>0)
+    {imagesAvailable=1;
+    
+    for(var k=0;k<fdata.length;k++)
+      {
+    
+           ImageFile = req.files['media'][k];    
+      
+             bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+              upload.push(bannerImage)
+               ImageFile.mv(config.UPLOAD_DIRECTORY +"gallery/"+ bannerImage, function (err) {
+                  //upload file
+                  if (err)
+                  return responseHelper.error(res, err.meessage, 400);   
+                });
+      }
+      
+      
+    }
+    
+    else{
+      ImageFile = req.files['media'];    
+    if(ImageFile)       imagesAvailable=1;
+
+      bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+       upload.push(bannerImage)
+        ImageFile.mv(config.UPLOAD_DIRECTORY +"gallery/"+ bannerImage, function (err) {
+           //upload file
+           if (err)
+           return responseHelper.error(res, err.meessage, 400);   
+         });
+    
+      
+    }
+    
+          }
+  
+
+    
+      if(imagesAvailable==0)
+      responseHelper.post(res, appstrings.no_meadia, null,400);
+
+
+    const user = await GALLERY.findOne({
+      attributes: ['id'],
+
+      where: {
+        title: data.title,
+      }
+    });
+
+
+
+    if (!user) {
+    
+      const users = await GALLERY.create({
+        title: data.title,
+        description: data.description,
+        mediaType: data.mediaType,
+        mediaUrl: upload.toString(),
+        mediaHttpUrl:upload.toString(),
+        companyId:data.companyId,
+        status:0
+       });
+
+
+      if (users) {
+
+        responseHelper.post(res, appstrings.added_success, null,200);
+       
+      }
+     else  responseHelper.error(res, appstrings.oops_something, 400);
+
+
+    }
+      else  responseHelper.error(res, appstrings.already_exists, 400);
+
+    
+
+  } catch (e) {
+    console.log(e)
+    return responseHelper.error(res, e.message,400);
+  }
+
+})
+
+
+
+
+
+
 async function getEstimation(distance,companyId)
 {
 

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header'); -%>
+<style type="text/css">
+.car-dekho-main .car-dekho-main-head-inner {
+    width: 100%;
+    background: #fff;
+     font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    border-bottom: 1px solid #ddd;
+        display: flex;
+    align-items: center;
+    min-height: 104px;
+    justify-content: center;
+
+}
+.car-dekho-main-border {
+     border: 1px solid #ddd;
+     box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.2);
+}
+.car-dekho-main-head-inner  img {
+    max-width: 110px;
+    display: inline-block;
+    margin-left: 8px;
+}
+.car-dekho-main-border .car-dekho-main-body-inner {
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    vertical-align: middle;
+    width: 100%;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    height: 55px;
+}
+.car-dekho-main-body-inner:nth-child(even){
+    background: #f5f5f5;
+}
+.car-dekho-main-head, .car-dekho-main-body {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+.car-dekho-main-head, .car-dekho-main-body .car-dekho-main-body-inner:nth-child(1) {
+    border-right: 1px solid #ddd;
+}
+.car-dekho-main-border-inner {
+    width: 25%;
+}
+.car-dekho-main-border {
+    display: flex;
+    flex-wrap: wrap;
+}
+</style>
+<body class="loading">
+    <!-- Begin page -->
+    <div id="wrapper">
+        <%- include('../partials/dashboardHeader'); -%>
+        <div class="content-page">
+            <div class="content">
+                <!-- Start Content-->
+                <div class="container-fluid">
+                    <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Restaurants</a></li>
+                                        </ol>
+                                    </div>
+                                    <h4 class=form-label">Restaurants</h4>
+                                </div>
+                            </div>
+                        </div>     
+                        <!-- end page title --> 
+
+
+
+                      
+                        <!-- end row -->    
+                    <!-- end row -->
+                    <%-include ('../partials/flashMessage')%>
+                   
+
+                    <div class="row" id="appendData">
+                       
+
+                        </div>
+
+                        
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card-box">
+                                    <h4 class="header-title mb-3">Total  Orders</h4>
+
+                                    <div id="donut-chart1" style="height: 300px;" data-colors="#f4f8fb,#3283f6,#44cf9c" dir="ltr"></div>
+                                </div> <!-- end card-->
+                            </div> <!-- end col-->
+                            <div class="col-lg-6">
+                                <div class="card-box">
+                                    <h4 class="header-title mb-3">Rating Comparison</h4>
+
+                                    <div id="pie-chart1" style="height: 300px;" data-colors="#f4f8fb,#3283f6,#44cf9c" dir="ltr"></div>
+                                </div> <!-- end card-->
+                            </div> <!-- end col-->
+                        </div>
+                        <div class="row">
+                            <div class="card container">
+                                                            
+                            </div>
+
+
+
+                    </div> <!-- container -->
+
+                </div> <!-- content -->
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+
+     
+   
+    
+
+        <%- include('../partials/script'); -%>
+        <%- include('../partials/commonJs'); -%>
+        <script src="/dist/assets/libs/d3/d3.min.js"></script>
+        <script src="/dist/assets/libs/c3/c3.min.js"></script>
+
+        <!-- Init js -->
+        <script src="/dist/assets/js/pages/c3.init.js"></script>
+    
+</body>
+
+</html>
+
+
+<script>
+   
+
+
+   compareCompany()
+
+    
+
+
+    function compareCompany() 
+    {
+        var array=getURLParameter('array');
+        var id=[]
+        var urlArray=array.split(",")
+        if(urlArray.length==1) id.push(urlArray)
+        else id=urlArray
+        if(id.length == 1)
+        {
+            showToastError("Sorry! Minimum two restaurants are allowed to compare!");
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: '<%-superadminpath %>compareRestaurants',
+            dataType: 'json',
+            data: { 'restaurantId': id },
+            success: function (response) {
+                console.log(response);
+               var ratingArray=[]
+               var restroArray=[]
+               var ordersArray=[]
+                if (response.code == '200') {
+                    var data = response.body;
+                    var html = "";
+                    html +=  '<div class="car-dekho-main-border">';
+                    html +=  '<div class="car-dekho-main-border-inner">';
+                    html +=  '<div style="margin-top:72px;"class="car-dekho-main-head-inner"></div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Rating</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Total Orders</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Maximum Today Orders</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Food Quantity Rating</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Food Quality Rating</div>';
+                    html +=  '<div class="car-dekho-main-body-inner">Packing Pres Rating</div></div>';
+                    for (var i = 0; i < data.length; i++) {
+                        html +=  '<div class="car-dekho-main-border-inner">';
+                        html +=  '<div class="car-dekho-main-head-inner">';
+                        html +=  ''+data[i].companyName+'<img class="hover" title="'+data[i].companyName+'" alt="'+data[i].companyName+'" src="'+data[i].logo1+'" style="height: 73px;width: 61px;">';
+                        html +=  '</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].rating+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].totalOrders+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].totalOrders24+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].foodQuantityRating+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].foodQualityRating+'</div>';
+                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].packingPresRating+'</div>';
+                        html +=  '</div>';
+                        ratingArray.push(parseFloat(data[i].rating).toFixed(1))
+                        restroArray.push(data[i].companyName)
+                        ordersArray.push(data[i].totalOrders)
+                    }
+                    html +=  '</div>';
+                    
+                    $('.container').html(html);
+                    if(data.length == '2')
+                    {
+                        $(".car-dekho-main-border-inner").attr("style", "width: 33% !important");
+                    }else{
+                        console.log(data.length,'fsdgd')
+                        $('.car-dekho-main-border-inner').css('width','25%');
+                    }
+
+                    setRating(restroArray,ratingArray,ordersArray)
+                }
+                else {
+
+                    showToastError(response.message)
+                }
+            },
+
+            error: function (response) {
+                showToastError(response.message)
+
+            }
+        });
+
+    }
+
+  
+
+    function setRating(restro,dataRating,dataOrders)
+    {
+
+        var multArray=[]
+        var multArrayOrders=[]
+
+        for(var k=0;k<restro.length;k++)
+        {
+        multArray.push([restro[k],dataRating[k] ])
+        multArrayOrders.push([restro[k],dataOrders[k] ])
+
+        }
+   var t=["#4a81d4","#1abc9c","#f1556c"];  
+c3.generate({bindto:"#pie-chart1",
+data:{columns:multArray,
+type:"pie"},color:{pattern:t},pie:{label:{show:!1}}})
+
+
+
+    c3.generate({bindto:"#donut-chart1",data:{columns:multArrayOrders,type:"donut"},donut:{title:"Total Orders"
+    ,width:15,label:{show:!1}},color:{pattern:t}});t=["#f4f8fb","#4a81d4","#1abc9c"];
+
+
+
+
+
+
+
+    }
+   
+    
+</script>

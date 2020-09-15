@@ -3,8 +3,7 @@
 <%- include('../partials/header'); -%>
 
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- Begin page -->
     <div id="wrapper">
         <%- include('../partials/dashboardHeader'); -%>
@@ -27,7 +26,7 @@
                                         </ol>
                                     </div>
 
-                                    <h4 class="page-title"><a  href="javascript:;" onclick="window.history.back()";> <i class="mdi mdi-backburger "></i> </a> Product Ratings & Reviews</h4>
+                                    <h4 class=form-label"><a  href="javascript:;" onclick="window.history.back()";> <i class="mdi mdi-backburger "></i> </a> Product Ratings & Reviews</h4>
                                 </div>
                             </div>
                         </div>     
@@ -220,7 +219,7 @@ var deleteR=(permissions && permissions.productReviewDelete=="1") ?"inline" :"no
                 data: {'page':currentPage,'limit':limit,"search": search,'orderByInfo':orderByInfo,"serviceId":serviceId},
                 success: function (response) {
                     $('#loading1').hide()
-                    $("#appendData").html('<h3>No data avialable in table/</h3>')             
+                    $("#appendData").html('<h3>No data avialable in table</h3>')             
     
                     if (response.code == '200') {
                        // $('#block_status_'+id).html(''

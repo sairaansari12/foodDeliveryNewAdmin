@@ -7,6 +7,7 @@ const Sequelize       = require('sequelize');
 const Op             = require('sequelize').Op;
 const COUPAN          = db.models.coupan;
 const CART          = db.models.cart;
+DEALS.belongsTo(COMPANY,{foreignKey: 'companyId'})
 
 
 //////////////////////////////////////////////
@@ -18,7 +19,9 @@ const CART          = db.models.cart;
 app.get('/getPromoList', checkAuth,async (req, res, next) => {
   try{
     var newDate = moment(new Date()).format("MM/DD/YYYY");
-    const coupanData = await COUPAN.findAll({
+    var coupanData = await COUPAN.findAll({
+      attributes: ['id','description','thumbnail','code','discount','validupto'],
+      include:[{model:COMPANY,attributes:['companyName','id']}],
       where: {
         status :1,
         validupto: {
@@ -47,7 +50,64 @@ data.push(coupanData[k])
 }
 }
 
-if(data.length>0) return responseHelper.post(res, appstrings.success,data)
+//Deal of the day
+
+
+
+var userInfo=await commonMethods.getUserInfo(req.id)
+
+
+var dob=new Date(userInfo.dob)
+var anDate=new Date(userInfo.anniversaryDate)
+
+
+var newBCond={}
+var newACond={}
+
+
+if (sameDay( dob, new Date()))
+  newBCond= { 'dealName': { [Op.like]: '%' + 'birthday' + '%' }}
+if(sameDay(anDate,new Date()))
+ newBACond= { 'dealName': { [Op.like]: '%' + 'anniverary' + '%' }}
+
+
+ var newDate = moment(new Date()).format("MM/DD/YYYY");
+ var deals = await DEALS.findAll({
+  attributes: ['id','description','thumbnail','code','discount','validupto'],
+  include:[{model:COMPANY,attributes:['companyName','id']
+ }],
+   where: {
+     status :1,
+
+     [Op.or]: [
+      {  validupto: {
+        [Op.gte]: newDate
+      }},
+newACond,
+newBCond,  
+  ]
+    
+   },
+   offset: 0, limit: 5,
+ })
+
+
+if(deals && deals.length>0)
+{
+
+  coupanData= JSON.parse(JSON.stringify(coupanData))
+  deals= JSON.parse(JSON.stringify(deals))
+
+for(var k=0;k<deals.length;k++)
+{
+
+
+  coupanData.splice(0,0,deals[k])
+}
+}
+
+
+if(coupanData.length>0) return responseHelper.post(res, appstrings.success,coupanData)
     else
  return responseHelper.post(res, appstrings.no_record,null,204);
 
@@ -199,6 +259,11 @@ app.post('/removeCoupan', checkAuth,async (req, res, next) => {
     return responseHelper.error(res, e.message, 400);
   }
 });
+
+function sameDay( d1, d2 ){
+  return  d1.getUTCMonth() == d2.getUTCMonth() &&
+         d1.getUTCDate() == d2.getUTCDate();
+}
 
 
 module.exports = app;

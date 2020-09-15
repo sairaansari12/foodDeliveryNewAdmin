@@ -14,6 +14,7 @@ const bannerCtrl              = require('../controllers/dashboard/dbanner.contro
 const paymentCtrl              = require('../controllers/dashboard/dpayment.controller');
 const notificationCtrl              = require('../controllers/dashboard/dnotification.controller');
 const productCtrl = require('../controllers/dashboard/dproduct.controller');
+const galleryCtrl = require('../controllers/dashboard/dgallery.controller');
 
 //New Routes
 const dealCtrl              = require('../controllers/dashboard/ddeal.controller');
@@ -50,6 +51,7 @@ router.use('/tags/',tagsCtrl);
 router.use('/ordersetting/',osettingCtrl)
 router.use('/task/',taskController);
 router.use('/contactus/',contactUsController);
+router.use('/gallery/',galleryCtrl);
 
 router.use((req, res, next) => {
 

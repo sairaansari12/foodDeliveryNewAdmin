@@ -1,22 +1,17 @@
 
 const express = require('express');
+const faqCategory = require('../../db/models/faqCategory');
 const app     = express();
 const Op = require('sequelize').Op;
 
-const USER= db.models.users
-
+FAQ.belongsTo(FAQCAT, {foreignKey: 'faqCategory', as :'category'});
 
 app.get('/',superAuth, async (req, res, next) => {
     
     try {
-        const findData = await FAQ.findAll({
-        where :{companyId :req.companyId},
-        order: [
-          ['createdAt','DESC']
-        ],      
-
-        });
-        return res.render('super/faq/faqListing.ejs',{data:findData});
+        
+        var category=await FAQCAT.findAll({where:{companyId:req.id}})
+        return res.render('super/faq/faqListing.ejs',{category});
 
 
 
@@ -26,6 +21,84 @@ app.get('/',superAuth, async (req, res, next) => {
 
 
 });
+
+
+app.post('/list',superAuth,async (req, res, next) => {
+
+  var params=req.body
+  var where={}
+  var category=""
+
+   var page =1
+   var limit =20
+   var orderby='createdAt'
+   var orderType='DESC'
+   if(params.orderByInfo &&   params.orderByInfo.orderby) {
+    orderby=params.orderByInfo.orderby
+    orderType=params.orderByInfo.orderType
+
+  }
+
+
+
+  if(params.page) page=params.page
+  if(params.category) category=params.category
+
+  if(params.limit)
+   limit=parseInt(params.limit)
+   var offset=(page-1)*limit
+  
+  
+
+
+    if(params.search && params.search!="")
+    {
+
+     where={ [Op.or]: [
+        {question: {[Op.like]: `%${params.search}%`}},
+        {answer: { [Op.like]: `%${params.search}%` }},
+        {language: { [Op.like]: `%${params.search}%` }
+      }
+      ],
+    }
+
+  }
+    
+  if(category!="")
+  where.faqCategory= category
+
+where.companyId= req.id 
+
+
+    try{
+
+
+      var services = await FAQ.findAndCountAll({
+      where: where,
+      order: [[orderby,orderType]],
+      include:[{model:FAQCAT,as:'category',attributes:['catName']}],
+      distinct:true,
+      offset:offset,limit:limit,
+
+      })
+
+
+
+  
+
+
+      return responseHelper.post(res, appstrings.success, services);
+
+  
+
+    }
+    catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+
+});
+
 
 
 app.post('/status',superAuth,async(req,res,next) => { 
@@ -91,7 +164,7 @@ app.post('/addFaq',superAuth,async (req, res) => {
     const data = req.body;
    var profileImage=""
 
-    let responseNull= commonMethods.checkParameterMissing([data.question,data.answer,data.language])
+    let responseNull= commonMethods.checkParameterMissing([data.categoryId,data.question,data.answer,data.language])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
 
@@ -112,7 +185,8 @@ app.post('/addFaq',superAuth,async (req, res) => {
         question: data.question,
         answer: data.answer,
         language: data.language,
-        companyId: req.companyId
+        companyId: req.companyId,
+        faqCategory: data.categoryId
        });
 
 
@@ -142,7 +216,7 @@ app.post('/update',superAuth,async (req, res) => {
     var profileImage=""
 
 
-    let responseNull= commonMethods.checkParameterMissing([data.faqId,data.questionedit,data.answeredit,data.languageedit])
+    let responseNull= commonMethods.checkParameterMissing([data.categoryId,data.faqId,data.questionedit,data.answeredit,data.languageedit])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
 
@@ -166,7 +240,9 @@ app.post('/update',superAuth,async (req, res) => {
         question: data.questionedit,
         answer: data.answeredit,
         language: data.languageedit,
-        companyId: req.companyId
+        companyId: req.companyId,
+        faqCategory: data.categoryId
+
        },
 
       { where:
@@ -198,7 +274,85 @@ companyId: req.companyId
 
 })
 
+app.post('/addCategory',superAuth, async (req, res, next) => {
+  try {
+    const params = req.body;
+    
 
+    let responseNull=  common.checkParameterMissing([params.category])
+    if(responseNull) return responseHelper.error(res, appstrings.required_field, 400);
+  
+   var response=FAQCAT.create({catName:params.category,companyId:req.id})
+  if(response)
+    return responseHelper.post(res, appstrings.success, null,200);
+    else
+    return responseHelper.post(res, appstrings.oops_something, null,400);
+  } catch (e) {
+    return responseHelper.error(res, e.message, 400);
+  }
+});
+
+
+app.post('/deleteCategory',superAuth,async(req,res,next) => { 
+  let responseNull=  common.checkParameterMissing([req.body.id])
+  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+
+
+
+  try{
+        //console.log(pool.format('DELETE FROM `reminders` WHERE `reminder_id` = ?', [req.params.id]));
+        const numAffectedRows = await FAQCAT.destroy({
+          where: {
+            id: req.body.id
+          }
+          })  
+            
+          if(numAffectedRows>0)
+          {
+          // req.flash('successMessage',appstrings.delete_success)
+         return responseHelper.post(res, appstrings.delete_success,null,200);
+        }
+
+          else {
+            return responseHelper.post(res, appstrings.no_record,null,400);
+           // return res.redirect(adminpath+"category");
+          }
+
+        }catch (e) {
+          return responseHelper.error(res, e.message, 400);
+          //req.flash('errorMessage',appstrings.no_record)
+          //return res.redirect(adminpath+"category");
+        }
+});
+
+
+app.post('/getCategory',superAuth,async (req, res, next) => {
+
+
+
+    try{
+
+
+      var services = await FAQCAT.findAndCountAll({
+        where: {companyId:req.id},
+      order: [['createdAt','DESC']]
+
+      })
+
+
+
+
+      return responseHelper.post(res, appstrings.success, services);
+
+  
+
+    }
+    catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+
+});
 
 app.get('/view/:id',superAuth,async(req,res,next) => { 
   

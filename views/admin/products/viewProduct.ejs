@@ -2,8 +2,7 @@
 <html lang="en">
 <%- include('../partials/header'); -%>
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- <div class="login-logo">
         <a href="<%-adminpath%>/"><b>Food</b>Delivery</a>
       </div> -->
@@ -75,7 +74,7 @@ var status=(data.status)==0?'Inactive':'Active';
                                             <div>
                                                 <a href="<%-adminpath%>products/edit/<%-data.id%>" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle mr-1"></i>Edit</a>
                                                 <a href="javascript:void(0)"  onclick="getFilter(1)" class="btn btn-info waves-effect waves-light"><i class="mdi mdi-cog mdi-spin mr-1"></i>Add Ons</a>
-                                                <a href="javascript:void(0)"  onclick="productStatusChange('<%-data.id%>','<%-data.status%>')" class="btn btn-primary waves-effect waves-light"><i class="mdi mdi-cog mr-1"></i><%-status%></a>
+                                                <a href="javascript:void(0)"  onclick="productStatusChange('<%-data.id%>','<%-data.status%>','<%-data.approve%>')" class="btn btn-primary waves-effect waves-light"><i class="mdi mdi-cog mr-1"></i><%-status%></a>
 
                                                                                                 
                         
@@ -225,12 +224,12 @@ var status=(data.status)==0?'Inactive':'Active';
 
 var permissions=JSON.parse('<%-JSON.stringify(permissions)%>');
 
-    function productStatusChange(id,status)
+    function productStatusChange(id,status,approve)
     {
 
-        if(status=="0" &&  permissions.pApproved=="0")
+        if((status=="0" &&  permissions.pApproved=="0" )|| approve=="0" )
 {
-    showToastError("You don't have permissions to change status")
+    showToastError("You don't have permissions to change status ,please contact  admin to make it online")
 
 return;
 }

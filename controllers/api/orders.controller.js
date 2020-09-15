@@ -293,7 +293,7 @@ async function updateUserTye(userId)
 if(data && (data.length>0 && data.length<6)) type=2 
 if(data && (data.length>=6 && data.length<15)) type=3 
 
-USER.update({userType:type},{where:{id:userId}})
+USER.update({userType:type},{where:{id:userId,userType:[0,1,2,3]}})
 
  }).catch(err=>{
 console.log(err)
@@ -306,11 +306,13 @@ console.log(err)
 app.post('/status',checkAuth,async(req,res,next) => { 
     
   var params=req.body
+  var show=0
   try{
       let responseNull=  commonMethods.checkParameterMissing([params.id,params.status])
       if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
      
-    
+      if(params.status==5) show=1
+  
 
      var userData = await ORDERS.findOne({
        where: {
@@ -324,6 +326,7 @@ app.post('/status',checkAuth,async(req,res,next) => {
 
   const updatedResponse = await ORDERS.update({
        progressStatus: params.status,
+       userShow:show
 
      },
      {

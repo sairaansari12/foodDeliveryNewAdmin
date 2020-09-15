@@ -128,54 +128,76 @@ if(subData && subData.length>0)
 });
 
 
+// ///////// Add service /////////////////////////
+// app.post('/addRating', checkAuth,async (req, res, next) => {
+//   try{
+//     const data    = req.body;
+//     //Get Coupan Details
 
-///////// Add Coupan /////////////////////////
-app.post('/addRating', checkAuth,async (req, res, next) => {
+//     let responseNull=  commonMethods.checkParameterMissing([data.orderId,data.ratingData])
+//   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+  
+//   var datatoUpdated=JSON.parse(JSON.stringify(data.ratingData))
+
+
+
+
+
+//     for(var h=0;h<datatoUpdated.length;h++)
+//     {
+
+
+//       await SERVICERATINGS.create({
+//         rating: datatoUpdated[h].rating,
+//         review: datatoUpdated[h].review,
+//         serviceId: datatoUpdated[h].serviceId,
+//         userId: req.id,
+//         orderId: data.orderId
+
+//       });
+      
+//     }
+    
+//       return responseHelper.post(res, appstrings.rating_added,null);
+      
+    
+//   }
+//   catch (e) {
+//     return responseHelper.error(res, e.message, 400);
+//   }
+// });
+
+
+///////// Add Staff /////////////////////////
+app.post('/addStaffRating', checkAuth,async (req, res) => {
   try{
     const data    = req.body;
     //Get Coupan Details
 
-    let responseNull=  commonMethods.checkParameterMissing([data.orderId,data.ratingData])
+    let responseNull=  commonMethods.checkParameterMissing([data.companyId,data.rating,data.empId,data.orderId])
   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
   
-  var datatoUpdated=JSON.parse(JSON.stringify(data.ratingData))
-  var employeeUpdated=JSON.parse(JSON.stringify(data.empRatingData))
+  var findData=await EMPLOYEE.findOne({where:{id:data.empId}});
 
-
-
-
-
-    for(var h=0;h<datatoUpdated.length;h++)
-    {
-
-
-      await SERVICERATINGS.update({
-        rating: datatoUpdated[h].rating,
-        review: datatoUpdated[h].review
-  
-      },
-      {where : {userId: req.id,serviceId : datatoUpdated[h].serviceId, orderId : data.orderId}},
-
-       )}
-
-       for(var h=0;h<employeeUpdated.length;h++)
-       {
+if(findData)
+{
    
-   
-         await STAFFRATINGS.create({
-           rating: employeeUpdated[h].rating,
-           review: employeeUpdated[h].review,
-           empId: employeeUpdated[h].empId,
-           orderId: data.orderId
+        var response= await STAFFRATINGS.create({
+           rating: data.rating,
+           review: data.review,
+           empId: data.empId,
+           orderId: data.orderId,
+           userId: req.id,
+           companyId: data.companyId
 
 
          });
         
-        
-         var findData=await EMPLOYEE.findOne({where:{id:employeeUpdated[h].empId}});
+        if(response)
+        {
 
-         var notifPushUserData={title:employeeUpdated[h].rating +" "+appstrings.new_rating_added+"  "+commonMethods.formatAMPM(new Date),
-          description:employeeUpdated[h].rating +" "+ appstrings.new_rating_added+'  ' +commonMethods.formatAMPM(new Date) +" For order No- "+data.orderId,
+        var notifPushUserData={title:data.rating +" "+appstrings.new_rating_added+"  "+commonMethods.formatAMPM(new Date),
+          description:data.rating +" "+ appstrings.new_rating_added+'  ' +commonMethods.formatAMPM(new Date) +" For order No- "+data.orderId,
           token:findData.dataValues.deviceToken,  
               platform:findData.dataValues.platform,
               userId :findData.id, role :4,
@@ -186,23 +208,25 @@ app.post('/addRating', checkAuth,async (req, res, next) => {
         commonNotification.insertNotification(notifPushUserData)   
         commonNotification.sendEmpNotification(notifPushUserData)
 
-
+      }
 
         
-        }
-
-
+        
       return responseHelper.post(res, appstrings.rating_added,null);
-      
-    
+    }
+    else
+    return responseHelper.post(res, appstrings.no_record,null,204);
+
   }
   catch (e) {
     return responseHelper.error(res, e.message, 400);
   }
 });
 
-///////// Add Coupan /////////////////////////
-app.post('/addCompanyRating', checkAuth,async (req, res, next) => {
+
+
+///////// Add Restraunt rating /////////////////////////
+app.post('/addRating', checkAuth,async (req, res, next) => {
   try{
     const data    = req.body;
     //Get Coupan Details
@@ -211,9 +235,51 @@ app.post('/addCompanyRating', checkAuth,async (req, res, next) => {
   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
   
 
-
+  var upload=[]
+  //console.log(">>>>>>>>>>>>>>>>",req.files['productImages#'+datatoUpdated[h].serviceId])
+        if(req.files && req.files['images'])
+        {
+  var fdata=req.files['images']
+  
+  if(fdata.length && fdata.length>0)
+  {
+  
+  for(var k=0;k<fdata.length;k++)
+    {
+  
+         ImageFile = req.files['images'][k];    
+    
+           bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+            upload.push(bannerImage)
+             ImageFile.mv(config.UPLOAD_DIRECTORY +"reviews/"+ bannerImage, function (err) {
+                //upload file
+                if (err)
+                return responseHelper.error(res, err.meessage, 400);   
+              });
+    }
+    
+    
+  }
+  
+  else{
+    ImageFile = req.files['images'];    
+  
+    bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+     upload.push(bannerImage)
+      ImageFile.mv(config.UPLOAD_DIRECTORY +"reviews/"+ bannerImage, function (err) {
+         //upload file
+         if (err)
+         return responseHelper.error(res, err.meessage, 400);   
+       });
   
     
+  }
+  
+        }
+
+
+
+
       await COMPANYRATING.create({
         rating: data.rating,
         foodQuality: data.foodQuality,
@@ -221,8 +287,42 @@ app.post('/addCompanyRating', checkAuth,async (req, res, next) => {
         packingPres: data.packingPres,
         review: data.review,
         userId:req.id,
+        orderId:data.orderId,
+        reviewImages:upload.toString(),
         companyId:data.companyId
       });
+
+
+//ADD SERVICE RATIUNGS
+
+if(data.ratingData && data.ratingData.length>0) 
+        
+{
+var datatoUpdated=[]
+  if(typeof  data.ratingData=="string")
+ datatoUpdated=JSON.parse(data.ratingData)
+else
+
+ datatoUpdated=JSON.parse(JSON.stringify(data.ratingData))
+
+for(var h=0;h<datatoUpdated.length;h++)
+{
+
+   SERVICERATINGS.create({
+    rating: datatoUpdated[h].rating,
+    review: datatoUpdated[h].review,
+    serviceId: datatoUpdated[h].serviceId,
+    userId: req.id,
+    orderId: data.orderId
+
+  });
+  
+}
+
+}
+
+
+
 
       return responseHelper.post(res, appstrings.rating_added,null);
     }
@@ -233,6 +333,52 @@ app.post('/addCompanyRating', checkAuth,async (req, res, next) => {
   }
 });
 
+
+
+///////// Add App Feedback /////////////////////////
+app.post('/appRating', checkAuth,async (req, res) => {
+  try{
+    const data    = req.body;
+
+    let responseNull=  commonMethods.checkParameterMissing([data.rating])
+  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+  
+
+  var userrating=await APPRATINGS.findOne({where:{userId:req.id}})
+
+  var response=null
+      if(!userrating) 
+      {  response= await APPRATINGS.create({
+           rating: data.rating,
+           review: data.review,
+           userId: req.id
+         });
+        
+        }
+        else{
+          response=await APPRATINGS.update({
+            rating: data.rating,
+            review: data.review
+           
+          },{where:{userId:req.id}});
+        }
+
+        console.log(response)
+        if(response)
+      
+          return responseHelper.post(res, appstrings.rating_added,null);
+
+       else
+      return responseHelper.post(res, appstrings.oops_something,null,400);
+
+        
+        
+    
+  }
+  catch (e) {
+    return responseHelper.error(res, e.message, 400);
+  }
+});
 
 
 

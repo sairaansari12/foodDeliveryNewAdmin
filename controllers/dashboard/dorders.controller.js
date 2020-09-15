@@ -309,26 +309,26 @@ if(findData.rows.length==0)
                 var idelEmp = [];
                 for (var i = 0; i < items.length; i++) {
                   var empId = items[i].id;
-                  var itemss = await ASSIGNMENT.findOne({
-                    where: {
-                      empId: empId,
-                      jobStatus: '1'
-                    },
-                    include: [{
-                      model: ORDERS,
-                      required:true,
-                      serviceDateTime: {
-                        [Op.eq]: userData.dataValues.serviceDateTime
-                      }
-                    }]
-                  });
-                  if(!itemss)
-                  {
+                  // var itemss = await ASSIGNMENT.findOne({
+                  //   where: {
+                  //     empId: empId,
+                  //     jobStatus: '1'
+                  //   },
+                  //   include: [{
+                  //     model: ORDERS,
+                  //     required:true,
+                  //     serviceDateTime: {
+                  //       [Op.eq]: userData.dataValues.serviceDateTime
+                  //     }
+                  //   }]
+                 // });
+                  // if(!itemss)
+                  // {
                     idelEmp.push(empId);
-                  }
-                  else{
-                    BusyEmp.push(empId);
-                  }
+                  //}
+                  // else{
+                  //   BusyEmp.push(empId);
+                  // }
                 }
                 console.log(idelEmp,"idelEmp");
                 console.log(BusyEmp,"BusyEmp");

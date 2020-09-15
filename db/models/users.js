@@ -108,6 +108,14 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 1
     },
+
+    referralCode: {
+      type: DataTypes.STRING(),
+      allowNull: false,
+      defaultValue:''
+    
+        },
+
 	sessionToken:{
       type: DataTypes.STRING(1000),
       allowNull: false,

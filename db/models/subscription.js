@@ -40,6 +40,11 @@ module.exports = function(sequelize, DataTypes) {
        onUpdate: 'CASCADE',
        onDelete: 'CASCADE',
     },
+    status: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false,
+      defaultValue: 1
+    },
     createdAt: {
       type:  DataTypes.DATE(),
       allowNull: false,

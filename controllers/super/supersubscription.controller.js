@@ -23,11 +23,9 @@ function isAdminAuth(req, res, next) {
   */
   app.get('/', superAuth,async (req, res, next) => {
     try {
-      console.log('asfs')
       const findData = await Subscription.findAll({
         where :{companyId :req.id}
       });
-      console.log(findData)
       return res.render('super/subscription/subscriptionList.ejs',{findData});
     } catch (e) {
         console.log(e)
@@ -57,7 +55,6 @@ app.get('/add', superAuth,async (req, res, next) => {
 app.post('/postadd',superAuth,async (req, res) => {
   try {
     const data = req.body;
-    console.log(data);
     const user = await Subscription.findOne({
       attributes: ['id'],
 
@@ -80,7 +77,7 @@ app.post('/postadd',superAuth,async (req, res) => {
         features: JSON.stringify(newFea)
       });
       if (users) {
-        responseHelper.post(res, appstrings.add_coupan, null,200);
+        responseHelper.post(res, appstrings.added_success, null,200);
        
       }
      else  responseHelper.error(res, appstrings.oops_something, 400);
@@ -174,6 +171,102 @@ app.post('/update',superAuth,async (req, res) => {
   }
 
 })
+
+
+app.post('/delete',superAuth,async(req,res,next) => { 
+   
+
+  let responseNull=  common.checkParameterMissing([req.body.id])
+  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+
+
+
+  try{
+        //console.log(pool.format('DELETE FROM `reminders` WHERE `reminder_id` = ?', [req.params.id]));
+        const numAffectedRows = await Subscription.destroy({
+          where: {
+            id: req.body.id
+          }
+          })  
+            
+          if(numAffectedRows>0)
+          {
+          // req.flash('successMessage',appstrings.delete_success)
+         return responseHelper.post(res, appstrings.delete_success,null,200);
+        }
+
+          else {
+            return responseHelper.post(res, appstrings.no_record,null,400);
+           // return res.redirect(superadminpath+"category");
+          }
+
+        }catch (e) {
+          return responseHelper.error(res, e.message, 400);
+          //req.flash('errorMessage',appstrings.no_record)
+          //return res.redirect(superadminpath+"category");
+        }
+});
+
+
+
+app.post('/status',superAuth,async(req,res,next) => { 
+    
+  var params=req.body
+  try{
+      let responseNull=  commonMethods.checkParameterMissing([params.id,params.status])
+      if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+     
+  
+     const userData = await Subscription.findOne({
+       where: {
+         id: params.id }
+     });
+     
+     
+     if(userData)
+     {
+     
+
+  var status=0
+  if(params.status=="0")  status=1
+     const updatedResponse = await Subscription.update({
+       status: status,
+  
+     },
+     {
+       where : {
+       id: userData.dataValues.id
+     }
+     });
+     
+     if(updatedResponse)
+           {
+  
+         return responseHelper.post(res, appstrings.success,updatedResponse);
+           }
+           else{
+             return responseHelper.post(res, 'Something went Wrong',400);
+  
+           }
+     
+     }
+
+     else{
+      return responseHelper.post(res, appstrings.no_record,204);
+
+    }
+
+       }
+         catch (e) {
+           console.log(e)
+           return responseHelper.error(res, e.message, 400);
+         }
+  
+  
+  
+});
+
+
 module.exports = app;
 
 //Edit User Profile

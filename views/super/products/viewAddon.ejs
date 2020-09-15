@@ -2,8 +2,7 @@
 <html lang="en">
 <%- include('../partials/header'); -%>
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- <div class="login-logo">
         <a href="<%-adminpath%>/"><b>Food</b>Delivery</a>
       </div> -->
@@ -53,6 +52,8 @@
                                     </div>
 <% var type=(data.itemType)==0?'<span class="badge bg-soft-success text-success mb-1">Veg</span>':'<span class="badge bg-soft-danger text-danger mb-1">Non-Veg</span>'
 var status=(data.status)==0?'Inactive':'Active';
+var approve=(data.approve)==0?'Not Approved':'Approved';
+
 %>
 
                                     <div class="col-lg-7">
@@ -71,7 +72,7 @@ var status=(data.status)==0?'Inactive':'Active';
                                            
 
                                             <div>
-                                                <a href="<%-adminpath%>addons/edit/<%-data.id%>" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle mr-1"></i>Edit</a>
+                                                <a href="javascript:void(0)"  onclick="approve('<%-data.id%>','<%-data.approve%>')" class="btn btn-secondary waves-effect waves-light"><i class="mdi mdi-cog mr-1"></i><%-approve%> (click to change)</a>
                                                 <a href="javascript:void(0)"  onclick="productStatusChange('<%-data.id%>','<%-data.status%>')" class="btn btn-primary waves-effect waves-light"><i class="mdi mdi-cog mr-1"></i><%-status%></a>
 
                                                                                                 
@@ -134,7 +135,7 @@ var status=(data.status)==0?'Inactive':'Active';
         {
             $.ajax({
                 type: 'POST',
-                url: '<%-adminpath%>addons/status',
+                url: '<%-superadminpath%>addons/status',
                 dataType: 'json',
                 data: {'id':id,'status':status},
                 success: function (response) {
@@ -155,6 +156,7 @@ var status=(data.status)==0?'Inactive':'Active';
                 },
                 error :function(response)
                 {
+                    console.log(response)
                     var errorResponse=JSON.parse(response.responseText)
                  showToastError(errorResponse.message)
 
@@ -170,7 +172,7 @@ var status=(data.status)==0?'Inactive':'Active';
         {
             $.ajax({
                 type: 'POST',
-                url: '<%-adminpath%>addons/delete',
+                url: '<%-superadminpath%>addons/delete',
                 dataType: 'json',
                 data: {'id':id},
                 success: function (response) {
@@ -196,7 +198,45 @@ var status=(data.status)==0?'Inactive':'Active';
         }
     }
 
+    function approve(id,status)
+    {
 
+
+        $('#loading1').show()
+            $.ajax({
+                type: 'POST',
+                url: '<%-superadminpath%>products/approve',
+                dataType: 'json',
+                data: {'id':id,'status':status},
+                success: function (response) {
+                    //alert(response.code)
+                    if (response.code == '200') {
+                        $('#loading1').hide()
+
+                        showToastSuccess(response.message)
+                        setTimeout(function() {
+                       window.location.reload()
+
+        }, 500);
+
+
+                    }
+                    else{
+                        showToastError(response.message)
+                    }
+                },
+                error :function(response)
+                {
+                    $('#loading1').hide()
+
+                    var errorResponse=JSON.parse(response.responseText)
+                 showToastError(errorResponse.message)
+
+
+                }
+            });
+        }
+        
 
     </script>
 

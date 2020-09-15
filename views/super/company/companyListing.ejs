@@ -76,7 +76,7 @@
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Restaurants</a></li>
                                         </ol>
                                     </div>
-                                    <h4 class="page-title">Restaurants</h4>
+                                    <h4 class=form-label">Restaurants</h4>
                                 </div>
                             </div>
                         </div>     
@@ -169,7 +169,9 @@
             <!-- ============================================================== -->
 
 
-        </div>
+     
+   
+    
         <!-- Long Content Scroll Modal -->
                                        <!-- Full width modal content -->
                                         <div id="full-width-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fullWidthModalLabel" aria-hidden="true">
@@ -194,8 +196,12 @@
                                             </div><!-- /.modal-dialog -->
                                         </div><!-- /.modal -->
         <!-- END wrapper -->
+
+
         <%- include('../partials/script'); -%>
-          <%- include('../partials/commonJs'); -%>
+        <%- include('../partials/commonJs'); -%>
+    
+    
 </body>
 
 </html>
@@ -455,65 +461,8 @@ function getFilter(page)
             showToastError("Sorry! Minimum two restaurants are allowed to compare!");
             return false;
         }
-        $('#full-width-modal').modal('show');
-        $.ajax({
-            type: 'POST',
-            url: '<%-superadminpath %>compareRestaurants',
-            dataType: 'json',
-            data: { 'restaurantId': array },
-            success: function (response) {
-                console.log(response);
-              
-                if (response.code == '200') {
-                    var data = response.body;
-                    var html = "";
-                    html +=  '<div class="car-dekho-main-border">';
-                    html +=  '<div class="car-dekho-main-border-inner">';
-                    html +=  '<div class="car-dekho-main-head-inner">Basic Information</div>';
-                    html +=  '<div class="car-dekho-main-body-inner">Rating</div>';
-                    html +=  '<div class="car-dekho-main-body-inner">Total Orders</div>';
-                    html +=  '<div class="car-dekho-main-body-inner">Maximum Today Orders</div>';
-                    html +=  '<div class="car-dekho-main-body-inner">Food Quantity Rating</div>';
-                    html +=  '<div class="car-dekho-main-body-inner">Food Quality Rating</div>';
-                    html +=  '<div class="car-dekho-main-body-inner">Packing Pres Rating</div></div>';
-                    for (var i = 0; i < data.length; i++) {
-                        html +=  '<div class="car-dekho-main-border-inner">';
-                        html +=  '<div class="car-dekho-main-head-inner">';
-                        html +=  ''+data[i].companyName+'<img class="hover" title="'+data[i].companyName+'" alt="'+data[i].companyName+'" src="'+data[i].logo1+'" style="height: 73px;width: 61px;">';
-                        html +=  '</div>';
-                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].rating+'</div>';
-                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].totalOrders+'</div>';
-                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].totalOrders24+'</div>';
-                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].foodQuantityRating+'</div>';
-                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].foodQualityRating+'</div>';
-                        html +=  '<div class="car-dekho-main-body-inner">'+data[i].packingPresRating+'</div>';
-                        html +=  '</div>';
-                    }
-                    html +=  '</div>';
-                    
-
-                    $('.container').html(html);
-                    if(data.length == '2')
-                    {
-                        console.log(data.length)
-                        $(".car-dekho-main-border-inner").attr("style", "width: 33% !important");
-                    }else{
-                        console.log(data.length,'fsdgd')
-                        $('.car-dekho-main-border-inner').css('width','25%');
-                    }
-                }
-                else {
-
-                    showToastError(response.message)
-                }
-            },
-
-            error: function (response) {
-                showToastError(response.message)
-
-            }
-        });
-
+        window.location.href="<%-superadminpath %>company/compare?array="+array
+       
     }
 
     function statusChange(id,status)

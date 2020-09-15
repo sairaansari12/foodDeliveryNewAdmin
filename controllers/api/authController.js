@@ -315,7 +315,7 @@ app.post('/login',async (req, res, next) => {
     
       if(updatedResponse)
       {
-
+if(params.referralCode && params.referralCode!="") setReferralPoints(params.referralCode,userData.dataValues.id)
 
 userData.dataValues.sessionToken=token
 userData.dataValues.platform=params.platform
@@ -362,14 +362,20 @@ else userData.dataValues.btype=0
           const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });
           const refreshToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.refreshTokenExpiration });
 
+      if(params.referralCode && params.referralCode!="") setReferralPoints(params.referralCode,userId)
 
+
+
+var referralCode="USERDELC"+userId.substring(1,7).toUpperCase()
   
   
       const updateDevicetoken = await USER.update({
           sessionToken: authToken,
           platform: params.deviceToken,
           deviceToken: params.deviceToken,
-          refreshToken: refreshToken
+          refreshToken: refreshToken,
+          referralCode: referralCode
+
       },
           {
             where: {
@@ -402,6 +408,47 @@ catch (e) {
 })
 
 
+function setReferralPoints(referralCode,userId,parentCompany)
+{  try{
+  const userData = await USER.findOne({
+  where: {
+    referralCode: referralCode,
+
+  }});
+
+
+  const userData1 = await USER.findOne({
+    where: {
+      referralCode: referralCode,
+  
+    }});
+
+  const referData = await DOCUMENT.findOne({
+    where: {
+      companyId: parentCompany,
+  
+    }});
+  var points=0
+if(referData && referData.dataValues && referData.dataValues.referPoints)
+points=referData.dataValues.referPoints
+
+if(userData && userData.dataValues!=""){
+
+  var newPoints1=parseInt(userData.dataValues.lPoints)+points
+USER.update({lPoints: newPoints},{where:{id:userId}})
+USER.update({lPoints: newPoints1},{where:{id:userData.dataValues.id}})
+
+
+
+}
+
+    }
+  catch(e)
+  {
+console.log(e)
+  }
+
+}
 
 
 module.exports = app;

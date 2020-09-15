@@ -6,16 +6,6 @@ const sequelize = require('sequelize')
  const Op = require('sequelize').Op;
 
  var nodemailer = require('nodemailer');
-var transporter = nodemailer.createTransport({
-    host: config.EMAIL_HOST,
-    port: 465,
-    secure: true, // use SSL
-    //service: 'gmail',
-    auth: {
-        user: config.EMAIL_KEY,
-        pass: config.EMAIL_PASS
-    }
-});
 
 
 
@@ -45,6 +35,7 @@ NOTIFICATION.destroy({where: {  createdAt: {[Op.lte]: moment().subtract(7, 'days
 
 //UPDate Vendors rating
 updateVendorsRating()
+updateAppRating()
 
 //Update Servcice RATINGS
 updateServiceRating()
@@ -72,7 +63,8 @@ updateRestroPopularity()
    
   // cron.schedule('* * * * *',  async() => {
   //   console.log('running a task every 360 Mins ')
-  //   updateRestroPopularity()
+  //   updateAppRating()
+
    
   // });
 
@@ -433,6 +425,44 @@ if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating)
 
 }
 
+
+async function updateAppRating()
+{
+
+        
+
+        const dataRating =  await APPRATINGS.findOne({
+          attributes: [[sequelize.fn('avg', sequelize.col('rating')), 'totalRating'],
+          [sequelize.fn('count', sequelize.col('rating')), 'totalNoRating']],
+        where: {
+          rating:{[Op.not]:'0'}}
+        })
+
+
+
+
+if(dataRating && dataRating.dataValues && dataRating.dataValues.totalRating) 
+{rating=dataRating.dataValues.totalRating
+  count=dataRating.dataValues.totalNoRating
+
+ COMPANY.update({
+  rating: rating,
+  totalRatings: count,
+},
+{
+  where : {
+  id: config.PARENT_COMPANY
+}
+});
+}
+
+
+      
+  
+
+
+
+}
 
 async function updateRestroPopularity()
 {

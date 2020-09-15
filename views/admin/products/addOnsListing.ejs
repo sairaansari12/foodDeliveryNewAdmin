@@ -2,8 +2,7 @@
 <html lang="en">
 <%- include('../partials/header'); -%>
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- <div class="login-logo">
         <a href="<%-adminpath%>/"><b>Food</b>Delivery</a>
       </div> -->
@@ -27,7 +26,7 @@
                                         <li class="breadcrumb-item active">Add Ons</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title">Add Ons</h4>
+                                <h4 class=form-label">Add Ons</h4>
                             </div>
                         </div>
                     </div>     
@@ -43,7 +42,7 @@
                                                 <label for="inputPassword2" class="sr-only">Search</label>
                                                 <input type="search" class="form-control" id="search" placeholder="Search...">
                                             </div>
-                                            <div class="form-group mx-sm-3">
+                                            <div class="form-group mx-sm-1">
                                                 <label for="status-select" class="mr-2">Sort By</label>
                                                 <select onchange="sorting()" class="custom-select" id="sortby-select">
                                                     <option value="createdAt#DESC">All</option>
@@ -170,6 +169,7 @@
   var orderByInfo={'orderby':'rating',orderType:'DESC'}
  var itemType= ""
   getFilter(currentPage);
+  var permissions=JSON.parse('<%-JSON.stringify(permissions)%>');
 
   $('#search').on( 'keyup', function (event) {
     event.preventDefault();
@@ -210,7 +210,7 @@ function getFilter(page)
                             <div class="card-box product-box"> 
                                 
                                 <div class="product-action">
-                                    <a href="javascript: void(0);"   onclick="productStatusChange('${value.id}','${value.status}')" class="btn btn-primary btn-xs waves-effect waves-light"><i class="mdi mdi-spin mdi-block-helper"></i></a>
+                                    <a href="javascript: void(0);"   onclick="productStatusChange('${value.id}','${value.status}','${value.approve}')" class="btn btn-primary btn-xs waves-effect waves-light"><i class="mdi mdi-spin mdi-block-helper"></i></a>
 
                                     <a href="<%-adminpath%>addons/edit/${value.id}"  class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-pencil"></i></a>
                                     <a href="javascript: void(0);"  onclick="deleteProduct('${value.id}')" class="btn btn-danger btn-xs waves-effect waves-light"><i class="mdi mdi-close"></i></a>
@@ -375,8 +375,16 @@ function getFilter(page)
     }
 
 
-    function productStatusChange(id,status)
+    function productStatusChange(id,status,approve)
     {
+
+        
+        if((status=="0" &&  permissions.pApproved=="0")  || (approve=="0" && status=="0") )
+{
+    showToastError("You don't have permissions to change status ,please contact to admin to make it online ")
+
+return;
+}
         var confirm1= (status=="1") ? "Disable" : "Enable"
 
         if( confirm('Are you sure you want to '+confirm1+' this?'))

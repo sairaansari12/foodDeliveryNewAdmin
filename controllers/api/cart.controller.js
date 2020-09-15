@@ -124,7 +124,7 @@ app.put('/update',checkAuth,async (req, res, next) => {
     if(cartData)
   {
 
-    var orderTotalPrice=parseInt(params.quantity)*parseFloat(cartData.dataValues.orderPrice)
+    var orderTotalPrice=(parseInt(params.quantity)*parseFloat(cartData.dataValues.orderPrice)).toFixed(2)
 
 // Write APPLY PROMO CODE HERE//
 
@@ -264,7 +264,7 @@ var payableAmount=parseFloat(countDataq.totalSum)
 
 //Check Loyality Points
 
-var lObject={maxRange:0,balance:0,onePointValue:0.0}
+var lObject={maxRange:0,balance:0,onePointValue:0.0,usablePoints:0.0}
 var lSettings=await DOCUMENT.findOne({where:{companyId:countDataq.companyId}})
 var userData= await USERS.findOne({where:{id:req.id}})
 
@@ -273,8 +273,14 @@ if (userData && userData.dataValues.lPoints)lObject.balance=parseInt(userData.da
 if(lSettings &&  lSettings.dataValues)
 {
   lObject.onePointValue=parseFloat(lSettings.dataValues.onelPValue)
-  var range=parseInt((payableAmount*lSettings.dataValues.lpOrderPercentage)/100)
-lObject.maxRange=range
+  var range=parseInt(((payableAmount*lSettings.dataValues.lpOrderPercentage)/100)/lObject.onePointValue)
+   lObject.maxRange=range
+
+   if(range>=parseFloat((lObject.balance)))
+   lObject.usabelPoints=lObject.balance
+   else
+   lObject.usablePoints=range
+
 }
 
 

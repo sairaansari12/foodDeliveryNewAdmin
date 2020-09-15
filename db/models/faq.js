@@ -10,13 +10,19 @@ module.exports = function(sequelize, DataTypes) {
       defaultValue: DataTypes.UUIDV4,
     },
     
-   
-
+  
 question: {
   type: DataTypes.TEXT,
   allowNull: true,
     defaultValue: ''
 },
+
+faqCategory: {
+  type: DataTypes.STRING(100),
+  allowNull: true,
+   defaultValue:''
+},
+
 
 answer: {
   type: DataTypes.TEXT,

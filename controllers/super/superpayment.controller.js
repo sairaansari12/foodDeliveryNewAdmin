@@ -9,11 +9,11 @@ PAYMENT.belongsTo(ORDERS,{foreignKey: 'orderId'})
 
 
 app.get('/',superAuth, async (req, res, next) => {
-
+    
  try{
-  var compData= await commonMethods.getAllCompanies(req.companyId)
+  var  restro =await COMPANY.findAll({where:{parentId:req.id}})
 
-      return res.render('super/payment/paymentListing.ejs',{data:null,compData:compData});
+      return res.render('super/payment/paymentListing.ejs',{restro});
 
  }
 
@@ -24,7 +24,113 @@ app.get('/',superAuth, async (req, res, next) => {
 
 });
 
+app.get('/setup',superAuth, async (req, res, next) => {
+    
+  try{
 
+  var  restro =await COMPANY.findAll({where:{parentId:req.id}})
+
+   return res.render('super/payment/setup.ejs',{restro});
+ 
+  }
+ 
+     catch (e) {
+       return responseHelper.error(res, e.message, 400);
+     }
+ 
+ 
+ });
+
+ app.post('/getPaymentSetup',superAuth, async (req, res) => {
+    
+  try{
+var params=req.body
+    
+      let responseNull=  commonMethods.checkParameterMissing([params.companyId])
+      if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+     
+
+
+  var chargesData=await COMISSION.findOne({where:{companyId:params.companyId}})
+  var payData=await PAYMENTSETUP.findOne({where:{companyId:params.companyId}})
+
+  var userData={}
+  userData.comissionData=chargesData
+  userData.accountData=payData
+
+  return responseHelper.post(res, appstrings.success, userData);
+ 
+  }
+ 
+     catch (e) {
+       return responseHelper.error(res, e.message, 400);
+     }
+ 
+ 
+ });
+
+ app.get('/comissionHistory',superAuth, async (req, res, next) => {
+    
+  try{
+    var  restro =await COMPANY.findAll({where:{parentId:req.id}})
+
+
+       return res.render('super/payment/comissionHistory.ejs',{restro});
+ 
+  }
+ 
+     catch (e) {
+       return responseHelper.error(res, e.message, 400);
+     }
+ 
+ 
+ });
+
+
+
+ app.post('/updateComission',superAuth,async (req, res) => {
+  try {
+    const data = req.body;
+   
+    let responseNull= commonMethods.checkParameterMissing([data.companyId,data.chargesType,data.installments])
+    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+
+    var response=null
+    if(data.comisssionId && data.comisssionId!="")
+    {
+
+       response=await COMISSION.update({
+          chargesPercent:data.charges,
+          chargesAmount:data.fullAmount,
+          chargesType:data.chargesType,
+          installments:data.installments
+        },{where:{id:data.comisssionId}})
+      
+    
+
+  }
+
+  else{
+    response=await COMISSION.create({
+      chargesPercent:data.charges,
+      chargesAmount:data.fullAmount,
+      chargesType:data.chargesType,
+      installments:data.installments,
+      companyId:data.companyId
+    });
+  }
+
+  
+    if(response)
+    responseHelper.post(res, appstrings.update_success, null,200);
+
+
+
+  } catch (e) {
+    return responseHelper.error(res, appstrings.oops_something, e.message);
+  }
+
+})
 
 app.post('/list',superAuth, async (req, res, next) => {
   
@@ -33,23 +139,31 @@ try {
   var transactionStatus =  ['0','1','2']
   var fromDate =  ""
   var toDate =  ""
-
+  var companyId =  ""
+ var reqValue=false
+ var where2={}
 
   var page =1
   var limit =50
   if(params.page) page=params.page
   if(params.limit) limit=parseInt(params.limit)
   var offset=(page-1)*limit
+  if(params.companyId && params.companyId!="") companyId=params.companyId
+
+
+ 
 
 
   if(params.transactionStatus && params.transactionStatus!="")  transactionStatus=[params.transactionStatus]
 
-  where={
+
+  var where={
     transactionStatus: { [Op.or]: transactionStatus}
      }
-     where1={transactionStatus: { [Op.or]: transactionStatus}}
 
 
+
+ 
   if(params.fromDate)fromDate= Math.round(new Date(params.fromDate).getTime())
   if(params.toDate) toDate=Math.round(new Date(params.toDate).getTime())
   
@@ -57,20 +171,32 @@ try {
 if(fromDate!="" && toDate!="")
 {
   where= {
+    
     transactionStatus: { [Op.or]: transactionStatus},
     createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
        }
 
-       where1={
-        transactionStatus: { [Op.or]: transactionStatus},
-        createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
-           }
+     
 
       }
 
-      if(params.compId && params.compId!="")
-      { where.companyId= params.compId
-       where1.companyId= params.compId}
+      if(params.search && params.search!="")
+      {
+   reqValue=true
+   where2= {
+          [Op.or]: [
+            { 
+              firstName: {
+                [Op.like]: `%${params.search}%`
+              }
+            }
+          ]
+        }
+      }
+
+
+      if(companyId!="")
+      where.companyId=companyId
 
 
 
@@ -81,8 +207,11 @@ if(fromDate!="" && toDate!="")
       where :where,
       
       include: [
-        {model: USER , attributes: ['id','firstName','lastName',"phoneNumber","countryCode","image"]},       
-        {model: ORDERS ,required:true, attributes: ['id','createdAt','orderNo']},       
+        {model: USER , 
+          required:reqValue,
+          where:where2,
+          attributes: ['id','firstName','lastName',"phoneNumber","countryCode","email","image"]},       
+        {model: ORDERS , attributes: ['id','createdAt','orderNo'],required:true},       
 
       
       ],
@@ -91,6 +220,7 @@ if(fromDate!="" && toDate!="")
 
     });
 
+
     var countDataq = await PAYMENT.findAll({
       attributes: ['transactionStatus','paymentState',
         [sequelize.fn('sum', sequelize.col('amount')), 'totalSum'],
@@ -98,8 +228,14 @@ if(fromDate!="" && toDate!="")
        
 
       ],
+      include: [
+        {model: USER , 
+          required:reqValue,
+          where:where2,
+          attributes: ['id']}       
+      ],
       group: ['transactionStatus'],
-    where :where1});
+    where :where});
 
 
     var escrowDataq = await PAYMENT.findAll({
@@ -109,8 +245,14 @@ if(fromDate!="" && toDate!="")
        
 
       ],
+      include: [
+        {model: USER , 
+          required:reqValue,
+          where:where2,
+          attributes: ['id']}       
+      ],
       group: ['paymentState'],
-    where :where1});
+    where :where});
 
     var userDtaa={}
     userDtaa.data=findData
@@ -127,6 +269,88 @@ if(fromDate!="" && toDate!="")
 
 
 });
+
+
+app.post('/comissionHistory',superAuth, async (req, res, next) => {
+  
+  try {
+    var params=req.body
+    var paidType =  ['0','1','2']
+    var fromDate =  ""
+    var toDate =  ""
+    var companyId =  ""
+
+  
+    var page =1
+    var limit =50
+    if(params.page) page=params.page
+    if(params.limit) limit=parseInt(params.limit)
+    if(params.companyId) companyId=params.companyId
+
+    var offset=(page-1)*limit
+  
+  
+    if(params.paidType && params.paidType!="")  paidType=[params.paidType]
+  
+    var where={
+      paidType: { [Op.or]: paidType}
+       }
+  
+  
+    if(params.fromDate)fromDate= Math.round(new Date(params.fromDate).getTime())
+    if(params.toDate) toDate=Math.round(new Date(params.toDate).getTime())
+    
+  
+  if(fromDate!="" && toDate!="")
+  
+    where= {
+      paidType: { [Op.or]: paidType},
+      createdAt: { [Op.gte]: fromDate,[Op.lte]: toDate},
+         }
+
+        
+  
+
+        if(params.search && params.search!="")
+        {
+    
+         where={ [Op.or]: [
+            {amount: {[Op.like]: `%${params.search}%`}},
+            {charges: { [Op.like]: `%${params.search}%` }
+          }
+          ],
+          paidType: { [Op.or]: paidType},
+        }
+    
+      }
+        
+
+if(companyId!="")
+where.companyId=companyId
+
+
+        const findData = await COMISSIONHISTORY.findAndCountAll({
+          order: [
+            ['createdAt', 'DESC'],  
+        ],
+        where :where,
+        offset: offset, limit: limit ,
+  
+      });
+  
+    
+ 
+      return responseHelper.post(res, appstrings.success, findData);
+  
+    } catch (e) {
+      console.log(e)
+      return responseHelper.error(res, e.message, 400);
+    }
+  
+  
+  });
+
+
 
 app.post('/status',superAuth,async(req,res,next) => { 
     
@@ -183,6 +407,67 @@ app.post('/status',superAuth,async(req,res,next) => {
     
     
 });
+
+app.post('/setup',superAuth,async(req,res,next) => { 
+    
+  var params=req.body
+
+  try{
+      let responseNull=  commonMethods.checkParameterMissing([params.companyId,params.accountNo,params.acHolderName,params.branchIFSC])
+      if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+     
+    
+      var updatedResponse=null
+if(params.paymentId && params.paymentId!="")
+{
+  updatedResponse = await PAYMENTSETUP.update({merchantKey:params.mKey,
+    accountNo:params.accountNo,
+    acHolderName:params.acHolderName,
+    branchIFSC:params.branchIFSC,
+    branchName:params.branchName,
+
+
+        },
+      {where: {
+         id: params.paymentId }
+     });
+     
+    }
+    else{
+      updatedResponse = await PAYMENTSETUP.create({
+        accountNo:params.accountNo,
+    acHolderName:params.acHolderName,
+    branchIFSC:params.branchIFSC,
+    branchName:params.branchName,
+        companyId:params.companyId
+      });
+      
+
+    }
+    
+    
+     if(updatedResponse)
+           {
+  
+         return responseHelper.post(res, appstrings.success,null);
+           }
+           else{
+             return responseHelper.post(res, appstrings.oops_something,400);
+  
+           }
+     
+  
+    
+       }
+         catch (e) {
+           return responseHelper.error(res, e.message, 400);
+         }
+  
+  
+  
+});
+
+
 
 
 module.exports = app;

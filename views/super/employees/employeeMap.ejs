@@ -29,8 +29,8 @@
                                         <li class="breadcrumb-item active">Map</li>
                                     </ol>
                                 </div>
-                                <!-- <h4 class="page-title">Employees</h4> -->
-                                <h4 class="page-title">
+                                <!-- <h4 class=form-label">Employees</h4> -->
+                                <h4 class=form-label">
                                     <a href="javascript:;" onclick="window.history.back()" ;> <i
                                             class="fas fa-angle-left"></i> </a>
                                     EMPLOYEES
@@ -59,24 +59,8 @@
                 </div> <!-- content -->
 
                 <!-- Footer Start -->
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-6">
-                                2015 -
-                                <script>document.write(new Date().getFullYear())</script> &copy; Delicio theme by <a
-                                    href="">Coderthemes</a>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-md-right footer-links d-none d-sm-block">
-                                    <a href="javascript:void(0);">About Us</a>
-                                    <a href="javascript:void(0);">Help</a>
-                                    <a href="javascript:void(0);">Contact Us</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+                <%- include('../partials/footer'); -%>
+
                 <!-- end Footer -->
 
             </div>
@@ -92,6 +76,7 @@
         <!-- Right bar overlay-->
         <div class="rightbar-overlay"></div>
         <%- include('../partials/script'); -%>
+        <%- include('../partials/commonJs'); -%>
 
 
 

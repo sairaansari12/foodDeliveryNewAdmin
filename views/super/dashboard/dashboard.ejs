@@ -76,29 +76,171 @@
                                             
                                         </form>
                                     </div>
-                                    <h4 class="page-title">Dashboard</h4>
+                                    <h4 class=form-label">Dashboard</h4>
                                 </div>
                             </div>
                         </div>   
                         <div class="row">
 
-                            <div class="col-md-12 col-xl-3">
+                            <div class="col-md-3 col-xl-3">
                                 <div class="widget-rounded-circle card-box">
                                     <div class="row">
-                                        <div class="col-6">
-                                            <div class="avatar-lg rounded-circle bg-soft-info border-info border">
-                                                <i class="fe-bar-chart-line- font-22 avatar-title text-info"></i>
+                                        <div class="col-3">
+                                            <div class="avatar-lg rounded-circle bg-primary-info border-primary border">
+                                                <i class="fe-bar-chart-line- font-22 avatar-title text-primary"></i>
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div class="col-9">
                                             <div class="text-right">
                                                 <h3 class="text-dark mt-1"><span data-plugin="counterup" id="mTotalProducts" ><%- findData.length %></span></h3>
                                                 <p class="text-muted mb-1 text-truncate">Total Restaurants</p>
                                             </div>
                                         </div>
+
+                                      
                                     </div> <!-- end row-->
                                 </div> <!-- end widget-rounded-circle-->
                             </div> <!-- end col-->
+
+
+                            <div class="col-md-3 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="avatar-lg rounded-circle bg-soft-info border-info border">
+                                                <i class="fe-users font-22 avatar-title text-info"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-right">
+                                                <h3 class="text-dark mt-1"><span data-plugin="counterup" id="mTotalUsers" ><%- usersCount.dataValues.count %></span></h3>
+                                                <p class="text-muted mb-1 text-truncate">Total Users</p>
+                                            </div>
+                                        </div>
+
+                                      
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                            </div> <!-- end col-->
+
+
+                            <div class="col-md-3 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="avatar-lg rounded-circle bg-soft-primary border-primary border">
+                                                <i class="fe-list font-22 avatar-title text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-right">
+                                                <h3 class="text-dark mt-1"><span data-plugin="counterup" id="mTotalOrders" ><%-ordersCount.dataValues.count%></span></h3>
+                                                <p class="text-muted mb-1 text-truncate">Total Orders</p>
+                                            </div>
+                                        </div>
+
+                                      
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                            </div> <!-- end col-->
+
+                            <div class="col-md-3 col-xl-3">
+                                <div class="widget-rounded-circle card-box">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="avatar-lg rounded-circle bg-soft-info border-info border">
+                                                <i class="fe-star font-22 avatar-title text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-right">
+                                                <h3 class="text-dark mt-1"><span data-plugin="counterup" id="mTotalProducts" ><%- avgRating %></span></h3>
+                                                <p class="text-muted mb-1 text-truncate">Avg Rating</p>
+                                            </div>
+                                        </div>
+
+                                      
+                                    </div> <!-- end row-->
+                                </div> <!-- end widget-rounded-circle-->
+                            </div> <!-- end col-->
+                          
+                          
+                                <div class="col-lg-12">
+                                    <div class="card-box pb-2">
+                                        <div class="float-right d-none d-md-inline-block">
+                                            <div class="btn-group mb-2">
+                                               <button type="button" id="filterDAY" onclick='setFilterName("DAY")' class="btn btn-xs btn-light">Daily</button>
+                                                <button type="button"  id="filterWEEK" onclick='setFilterName("WEEK")' class="btn btn-xs btn-light">Weekly</button>
+                                                <button type="button"  id="filterMONTH" onclick='setFilterName("MONTH")' class="btn btn-xs btn-light">Monthly</button>
+                                                <button type="button" id="filterYEAR" onclick='setFilterName("YEAR")' class="btn btn-xs btn-light">Yearly</button>
+    
+                                            </div>
+                                        </div>
+    
+                                        <h4 class="header-title mb-3">Sales Analytics</h4>
+    
+                                        <div dir="ltr">
+                                            <div id="sales-analytics2" class="mt-4" data-colors="#3283f6,#43bee1"></div>
+                                        </div>
+                                    </div> <!-- end card-box -->
+                                </div> <!-- end col-->
+                              
+                           
+
+
+
+                            <div class="row col-md-12">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="card-widgets">
+                                                <a href="javascript: void(0);" data-toggle="reload"><i class="mdi mdi-refresh"></i></a>
+                                                <a data-toggle="collapse" href="#cardCollpase11" role="button" aria-expanded="false" aria-controls="cardCollpase11"><i class="mdi mdi-minus"></i></a>
+                                                <a href="javascript: void(0);" data-toggle="remove"><i class="mdi mdi-close"></i></a>
+                                            </div>
+                                            <h4 class="header-title mb-0">Top 5 Users</h4>
+    
+                                            <div id="cardCollpase11" class="collapse pt-3 show" dir="ltr">
+                                                <div id="top5Apex" class="apex-charts" data-colors="#3283f6,#ebf2f6,#f672a7"></div>
+                                            </div> <!-- collapsed end -->
+                                        </div> <!-- end card-body -->
+                                    </div> <!-- end card-->
+                                </div> <!-- end col-->
+                                <div class="col-md-6">
+                                    <div class="card-box">
+                                        
+    
+                                        <h4 class="header-title mb-3">Top 5 Users </h4>
+    
+                                        <div class="table-responsive">
+                                            <table class="table table-borderless table-hover table-nowrap table-centered m-0">
+    
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th colspan="2">Profile</th>
+                                                        <th>Restraunt</th>
+                                                        <th>Spent Money</th>
+                                                        <th>Total orders</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tableTop5users">
+                                                  
+                                                 
+    
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div> <!-- end col -->
+    
+                               
+                            </div>
+
+
+
+
+
+
                             <div class="row col-md-12">
                                     <div class="col-lg-12">
                                         <div class="card">
@@ -111,86 +253,7 @@
                                         </div> <!-- end card-->
                                     </div> <!-- end col -->
                                 </div>
-                            <div class="col-md-12 col-xl-3">
-                                <div class="widget-rounded-circle card-box">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="avatar-lg rounded-circle bg-soft-success border-success border">
-                                                <i class="mdi mdi-arrow-up-bold-circle font-22 avatar-title text-success"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-right">
-                                                <h3 class="mt-1">Top 5 Restaurants</h3>
-                                                 <p style="cursor: pointer;" onclick="showtop()" data-toggle="modal" data-target="#right-modal" class="text-muted mb-1 text-truncate">Show list</p>
-                                            </div>
-                                        </div>
-                                    </div> <!-- end row-->
-                                </div> <!-- end widget-rounded-circle-->
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h4 class="header-title">Rating Basis</h4>
-                                                <div class="mt-4 chartjs-chart">
-                                                    <canvas id="ratingBasis" height="200" ></canvas>
-                                                </div>
-                                            </div> <!-- end card-body-->
-                                        </div> <!-- end card-->
-                                    </div> <!-- end col -->
-                                    <div class="col-lg-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h4 class="header-title">Order Basis</h4>
-                                                <div class="mt-4 chartjs-chart">
-                                                    <canvas id="orderBasis" height="200" ></canvas>
-                                                </div>
-                                            </div> <!-- end card-body-->
-                                        </div> <!-- end card-->
-                                    </div> <!-- end col -->
-                                </div>
-                            </div> <!-- end col-->
-
-                            <div class="col-md-12 col-xl-3">
-                                <div class="widget-rounded-circle card-box">
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
-                                                <i class="mdi mdi-arrow-down-bold-circle font-22 avatar-title text-danger"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-8">
-                                            <div class="text-right">
-                                                <h3 class="mt-1">Bottom 5 Restaurants</h3>
-                                                <p style="cursor: pointer;" onclick="showbottom()" data-toggle="modal" data-target="#left-modal" class="text-muted mb-1 text-truncate">Show list</p>
-                                            </div>
-                                        </div>
-                                    </div> <!-- end row-->
-                                </div> <!-- end widget-rounded-circle-->
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h4 class="header-title">Rating Basis</h4>
-                                                <div class="mt-4 chartjs-chart">
-                                                    <canvas id="bottomratingBasis" height="200" ></canvas>
-                                                </div>
-                                            </div> <!-- end card-body-->
-                                        </div> <!-- end card-->
-                                    </div> <!-- end col -->
-                                    <div class="col-lg-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h4 class="header-title">Order Basis</h4>
-                                                <div class="mt-4 chartjs-chart">
-                                                    <canvas id="bottomorderBasis" height="200" ></canvas>
-                                                </div>
-                                            </div> <!-- end card-body-->
-                                        </div> <!-- end card-->
-                                    </div> <!-- end col -->
-                                </div>
-
-                            </div> <!-- end col-->
+                           
                         </div>
                         <!-- end row-->
                         <!-- end row-->
@@ -266,6 +329,92 @@
                                 </div> <!-- end card-box -->
                             </div> 
                         </div>
+
+                        <div class="col-md-12 col-xl-3">
+                            <div class="widget-rounded-circle card-box">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="avatar-lg rounded-circle bg-soft-success border-success border">
+                                            <i class="mdi mdi-arrow-up-bold-circle font-22 avatar-title text-success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-right">
+                                            <h3 class="mt-1">Top 5 Restaurants</h3>
+                                             <p style="cursor: pointer;" onclick="showtop()" data-toggle="modal" data-target="#right-modal" class="text-muted mb-1 text-truncate">Show list</p>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row-->
+                            </div> <!-- end widget-rounded-circle-->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="header-title">Rating Basis</h4>
+                                            <div class="mt-4 chartjs-chart">
+                                                <canvas id="ratingBasis" height="200" ></canvas>
+                                            </div>
+                                        </div> <!-- end card-body-->
+                                    </div> <!-- end card-->
+                                </div> <!-- end col -->
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="header-title">Order Basis</h4>
+                                            <div class="mt-4 chartjs-chart">
+                                                <canvas id="orderBasis" height="200" ></canvas>
+                                            </div>
+                                        </div> <!-- end card-body-->
+                                    </div> <!-- end card-->
+                                </div> <!-- end col -->
+                            </div>
+                        </div> <!-- end col-->
+
+                        <div class="col-md-12 col-xl-3">
+                            <div class="widget-rounded-circle card-box">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
+                                            <i class="mdi mdi-arrow-down-bold-circle font-22 avatar-title text-danger"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="text-right">
+                                            <h3 class="mt-1">Bottom 5 Restaurants</h3>
+                                            <p style="cursor: pointer;" onclick="showbottom()" data-toggle="modal" data-target="#left-modal" class="text-muted mb-1 text-truncate">Show list</p>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row-->
+                            </div> <!-- end widget-rounded-circle-->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="header-title">Rating Basis</h4>
+                                            <div class="mt-4 chartjs-chart">
+                                                <canvas id="bottomratingBasis" height="200" ></canvas>
+                                            </div>
+                                        </div> <!-- end card-body-->
+                                    </div> <!-- end card-->
+                                </div> <!-- end col -->
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="header-title">Order Basis</h4>
+                                            <div class="mt-4 chartjs-chart">
+                                                <canvas id="bottomorderBasis" height="200" ></canvas>
+                                            </div>
+                                        </div> <!-- end card-body-->
+                                    </div> <!-- end card-->
+                                </div> <!-- end col -->
+                            </div>
+
+                        </div> <!-- end col-->
+
+
+
+
+
                         <!-- end row -->
                     </div> <!-- container -->
 
@@ -348,7 +497,6 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-        <%- include('../partials/rightBar'); -%>
         <%- include('../partials/script'); -%>
         <%- include('../partials/commonJs'); -%>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.3/Chart.min.js"></script>
@@ -378,7 +526,6 @@
                         $('#loading1').hide()
                         if (response.code == '200') {
                             var data=response.body
-                            console.log(data);
                               //Total Revenue
                             var canvasBae = document.getElementById("barChart");
                             var ctx = canvasBae.getContext('2d');
@@ -671,12 +818,8 @@
                     $('#tablebottom5order').html(html)
                 }
             }
-            var filterName="MONTH"
-            var fName=getURLParameter('filterName')
-            if(fName && fName!="")
-            filterName=fName
-            $('#filter'+filterName).removeClass('btn-light')
-            $('#filter'+filterName).addClass('btn-secondary')
+            var filterName="DAY"
+           
 
             var countLoad=0
             getFilter()
@@ -692,7 +835,6 @@
                 toDate=rangeDatePicker[1];}
                 // if(countLoad>0)
                 $('#loading1').show()
-                    countLoad++;
                     //alert(fromDate)
                     $.ajax({
                         type: 'POST',
@@ -703,10 +845,13 @@
                             $('#loading1').hide()
                             if (response.code == '200') {
                                 var data=response.body
+
+                                top5UsersData(data.top5UserStat)
+                                setAnalyticsParent(data.revenuAnalyticsParent)
+
+                                setTop5Satt(data.top5UserStat)
                                 setRatingsBar(data.ratingsData)
-
-                                if(countLoad==1)setAnalytics(data.revenuAnalytics)
-
+                                setAnalytics(data.revenuAnalytics)
                                 setTotalRevenue(data.targetSales,data.paymentStat)
                             }
                             else{
@@ -899,8 +1044,208 @@
                     chartApex.render();
                 }
 
+                function setAnalyticsParent(data)
+                {
+                    $("#sales-analytics2").html('');
+                    var paymentData=[]
+                    var labels=[""]
+                    var paymentData=[]
+                    var orderCountData=[]
+                    var labelsArray=[]
 
+                    var min= Math.min.apply(Math, data.map(function(o) { return o[filterName]; }))
+                    var max= Math.max.apply(Math, data.map(function(o) { return o[filterName]; }))
+                  
+
+                    if(min==max) min=0
+                    var diff=max-min
+                    for(var k=0;k<=diff;k++)
+                    {   
+                        const found =data.find( ( filters ) => filters[filterName] ===(min+k) );
+                        if(found)  
+                        {
+                            paymentData.push(found.totalSum.toFixed(1))
+                            orderCountData.push(found.count)
+                            var date=format(new Date(found.createdAt))
+                            if(filterName=="DAY")labelsArray.push(date)
+                            if(filterName=="MONTH")labelsArray.push(date.split("-")[1])
+                            if(filterName=="YEAR")labelsArray.push(date.split("-")[2])
+                            if(filterName=="WEEK"){labelsArray.push("WEEK "+(k+1))}
+                        }
+                    }
+                    var options = {
+                        series: [{
+                 			name: "Revenue",
+                 			type: "column",
+                 			data:paymentData
+                 		},
+
+                 		{
+                 			name: "Sales",
+                 			type: "line",
+                 			data: orderCountData
+                 		}
+                     	],
+                     	chart: {
+                     		height: 378,
+                     		type: "line"
+                     	},
+                     	stroke: {
+                     		width: [1, 2]
+                     	},
+                     	plotOptions: {
+                     		bar: {
+                                 columnWidth: "10%",
+                                 distributed:true
+                     		}
+                     	},
+                         colors: ['#41B883', '#E46651', '#f7b84b','#6658dd'],
+                     	dataLabels: {
+                     		enabled: !0,
+                     		enabledOnSeries: [1]
+                     	},
+                     	labels: labelsArray,
+                     	xaxis: {
+                     		type: "string"
+                     	},
+                     	legend: {
+                     		offsetY: 7
+                     	},
+                     	grid: {
+                     		padding: {
+                     			bottom: 20
+                     		}
+                     	},
+                     	fill: {
+                     		type: "gradient",
+                     		gradient: {
+                     			shade: "light",
+                     			type: "horizontal",
+                     			shadeIntensity: .25,
+                     			gradientToColors: void 0,
+                     			inverseColors: !0,
+                     			opacityFrom: .75,
+                     			opacityTo: .75,
+                     			stops: [0, 0, 0]
+                     		}
+                     	}, yaxis: [{
+                     		title: {
+                     			text: "Net Revenue"
+                     		}
+                     	}, {
+                     		opposite: !0,
+                     		title: {
+                     			text: "Number of Sales"
+                     		}
+                     	}]
+                    };
+                    var chartApex = new ApexCharts(document.querySelector("#sales-analytics2"), options);
+                    chartApex.render();
+                }
+
+
+
+                function setTop5Satt(data)
+                {
+                    var name = data.map(row => row.user.firstName);
+                    var orders = data.map(row => row.count);
+                    var money = data.map(row => row.totalSum.toFixed(1));
+
+          colors=["#6658dd","#1abc9c"];
+        //  options={chart:{height:380,type:"line",padding:{right:0,left:0},stacked:!1,
+        //  toolbar:{show:!1}},stroke:{width:[0,2,4],curve:"smooth"},
+        //  plotOptions:{bar:{columnWidth:"50%"}},colors:colors,
+        //  series:[{name:"Money",type:"column",
+        //  data:money},
+        //  {name:"Orders",type:"area",
+        //  data:orders}
+        //  ],
+        //  fill:{opacity:[.85,.25,1],gradient:{inverseColors:!1,shade:"light",type:"vertical",
+        //  opacityFrom:.85,opacityTo:.55,stops:[0,100,100,100]}},
+        //  labels:name,
+        //  markers:{size:0},legend:{offsetY:7},yaxis:{title:{text:"Points"}},tooltip:{shared:!0,intersect:!1,
+        //     y:{formatter:function(e){return void 0!==e?e.toFixed(0)+" points":e}}},grid:{borderColor:"#f1f3fa",padding:{bottom:10}}};
+
+
+
+        options={chart:{height:400,type:"line",padding:{right:0,left:0},
+        stacked:!1,toolbar:{show:!1}},stroke:{width:[0,2,4],
+            curve:"smooth"},plotOptions:{bar:{columnWidth:"50%"}},
+            colors:colors,series:[{name:"Orders",type:"column",
+            data:orders},
+            {name:"Spent Money",type:"area",data:money}
+            ],
+            fill:{opacity:[.85,.25,1],gradient:{inverseColors:!1,shade:"light",type:"vertical",
+            opacityFrom:.85,opacityTo:.55,stops:[0,100,100,100]}},
+            labels:name,
+            markers:{size:0},legend:{offsetY:7},xaxis:{type:"text"},
+            yaxis:{title:{text:"Points"}},
+            tooltip:{shared:!0,intersect:!1,y:{formatter:function(e)
+                {return void 0!==e?(e).toFixed(0)+" points":e}}},grid:{borderColor:"#f1f3fa",padding:{bottom:10}}};
+ var chartApex = new ApexCharts(document.querySelector("#top5Apex"), options);
+                    chartApex.render();
+
+
+                }
+
+                function top5UsersData(data)
+                {
+                    var html=""
+                    for(var k=0;k<data.length;k++)
+                    {
+               html=html + `<tr>
+                                                    <td style="width: 36px;">
+                                                        <img   onError="this.onerror=null;this.src='/assets/images/products/no-image.jpg';"  src="${data[k].user.image}" alt="contact-img" title="contact-img" class="rounded-circle avatar-sm" />
+                                                    </td>
+    
+                                                    <td>
+                                                        <h5 class="m-0 font-weight-normal">${data[k].user.firstName + " " +data[k].user.lastName}</h5>
+
+                                                        <p class="mb-0 text-muted"><small>${data[k].user.countryCode+"-"+data[k].user.phoneNumber}
+</small></p>
+                                                        <p class="mb-0 text-muted"><small>Member Since ${format(new Date(data[k].user.createdAt))}</small></p>
+                                                    </td>
+    
+                                                    <td>
+                                                        <h5 class="m-0 font-weight-normal">${data[k].company.companyName}</h5>
+                                                    </td>
+
+                                                 
+                                                    <td>
+                                                       <%-CURRENCY%>${data[k].totalSum}
+                                                    </td>
+    
+                                                   
+    
+                                                    <td>
+                                                        ${data[k].count}
+                                                    </td>
+    
+                                                   
+                                                </tr>`;
+    
+
+                }
+            
+
+            $('#tableTop5users').html(html)
+                }
+                
+                function setFilterName(filter)
+                {
+         filterName=filter
+//window.location.href="<%-adminpath%>?filterName="+filterName
+      getFilter()
+                }
+
+                
            </script>
+        <script src="/dist/assets/libs/apexcharts/apexcharts.min.js"></script>
+        <script src="https://apexcharts.com/samples/assets/irregular-data-series.js"></script>
+        <script src="https://apexcharts.com/samples/assets/ohlc.js"></script>
+
+        <!-- init js -->
+        <script src="/dist/assets/js/pages/apexcharts.init.js"></script>
         
     </body>
 </html>

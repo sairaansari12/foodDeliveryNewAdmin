@@ -3,8 +3,7 @@
 <%- include('../partials/header'); -%>
 
 
-<body class="loading"
-    data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+<body class="loading">
     <!-- Begin page -->
     <div id="wrapper">
         <%- include('../partials/dashboardHeader'); -%>
@@ -25,7 +24,7 @@
                                             <li class="breadcrumb-item active">Rating</li>
                                         </ol>
                                     </div>
-                                    <h4 class="page-title">Products : Ratings & Reviews</h4>
+                                    <h4 class=form-label">Products : Ratings & Reviews</h4>
                                 </div>
                             </div>
                         </div>     
@@ -169,7 +168,7 @@ var deleteR=(permissions && permissions.productReviewDelete=="1") ?"inline" :"no
                 data: {'page':currentPage,'limit':limit,'categoryId':categoryId,"search": search,'orderByInfo':orderByInfo},
                 success: function (response) {
                     $('#loading1').hide()
-                    $("#appendData").html('<h3>No data avialable in table/</h3>')             
+                    $("#appendData").html('<h3>No data avialable in table</h3>')             
     
                     if (response.code == '200') {
                        // $('#block_status_'+id).html(''
