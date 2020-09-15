@@ -2,7 +2,18 @@
 <html lang="en">
     <head>
         <style>
-
+            .admin-center{
+                width: 25%;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                word-wrap: break-word;
+                background-color: #fff;
+                border: 0 solid #f7f7f7;
+                border-radius: .25rem;
+                margin-top: -50px;
+                margin-left: -100px;
+            }
         </style>
 
         <%- include('../partials/header'); -%>
@@ -41,57 +52,17 @@
                             </div>
                         </div>     
                         <!-- end page title --> 
-
+                        <div class="admin-center" id="admin-center">
+                            <div data-simplebar style="max-height: 375px" id="chatlist"></div>
+                        </div>
                         <div class="row">
-                            <!-- start chat users-->
-                            <div class="col-xl-3 col-lg-4">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6  class="font-13 text-muted text-uppercase mb-2">Admin</h6>
-                                        <!-- users -->
-                                        <div class="row">
-                                            <div class="col">
-                                                <div data-simplebar style="max-height: 375px" id="chatlist">
-                                                   
-                                                </div> <!-- end slimscroll-->
-                                            </div> <!-- End col -->
-                                        </div>
-                                        <!-- end users -->
-                                    </div> <!-- end card-body-->
-                                    
-                                </div> <!-- end card-->
-                            </div>
-                            <!-- end chat users-->
-
                             <!-- chat area -->
-                            <div class="col-xl-9 col-lg-8" id="right-chat">
+                            <div class="col-xl-12 col-lg-12" id="right-chat">
 
                                 <div class="card">
                                     <div class="card-body py-2 px-3 border-bottom border-light">
                                         <div class="media py-1">
-                                            <!-- <img src="../assets/images/users/user-5.jpg" class="mr-2 rounded-circle" height="36" alt="Brandon Smith">
-                                            <div class="media-body">
-                                                <h5 class="mt-0 mb-0 font-15">
-                                                    <a href="contacts-profile.html" class="text-reset">James Zavel</a>
-                                                </h5>
-                                                <p class="mt-1 mb-0 text-muted font-12">
-                                                    <small class="mdi mdi-circle text-success"></small> Online
-                                                </p>
-                                            </div> -->
-                                            <!-- <div>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Voice Call">
-                                                    <i class="fe-phone-call"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Video Call">
-                                                    <i class="fe-video"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add Users">
-                                                    <i class="fe-user-plus"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete Chat">
-                                                    <i class="fe-trash-2"></i>
-                                                </a>
-                                            </div> -->
+                                            
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -260,7 +231,8 @@
                         </h5>
                         <p class="mt-1 mb-0 text-muted font-14">
                             <!-- <span class="w-25 float-right text-right"><span class="badge badge-soft-danger">3</span></span> -->
-                            <span class="w-75"> </span>
+                            <span class="w-75">${data[k].email} </span>
+                            <div class="w-75">${data[k].phone} </div>
                         </p>
                     </div>
                 </div>
@@ -271,6 +243,7 @@
 
     function showmsg(id){
         $("#right-chat").show();
+        $("#admin-center").hide();
        var data = {
             authToken: '<%-token%>',
             receiverId: id

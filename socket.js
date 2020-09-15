@@ -1220,7 +1220,7 @@ module.exports = function (io) {
         return socket.emit('errorMessage', 'Please Provide JWT Token');
       }
       const adminData = await companies.findAll({
-        attributes: ['id','companyName','logo1'],
+        attributes: ['id','companyName','logo1', 'email', "phoneNumber"],
         where: {
           role: 1
         }
@@ -1230,7 +1230,9 @@ module.exports = function (io) {
        var data ={
           id: ele.id,
           name: ele.companyName,
-          image: ele.logo1
+          image: ele.logo1,
+          email: ele.email,
+          phone: ele.phoneNumber
         }
         resData.push(data)
       })
