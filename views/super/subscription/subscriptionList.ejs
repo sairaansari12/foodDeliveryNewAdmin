@@ -44,7 +44,7 @@
                                             <div class="col-lg-12">
                                                 <div class="form-group float-right">
                                                     <div class="text-lg-right">
-                                                        <a href="<%- superadminpath %>subscription/add"><button type="button" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle mr-1"></i> Add New Plan</button></a>
+                                                        <% if(findData.length<1){%><a  id="addPlan" href="<%- superadminpath %>subscription/add"><button type="button" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle mr-1"></i> Add New Plan</button></a><%}%>
                                                     </div>
                                                 </div>
                                                 <h4 class=form-label">Our Plans</h4>
@@ -69,12 +69,25 @@
                                                 <span class="card-pricing-icon text-primary">
                                                     <i class="fe-users"></i>
                                                 </span>
-                                                <h2 class="card-pricing-price"><%- findData[i].price %> <span>/ Month</span></h2>
+                                                <% for(var k =0;k<findData[i].subscriptionDurations.length;k++){ %>
+
+                                             <h2 class="card-pricing-price">
+    <%-findData[i].subscriptionDurations[k].price%> <span>\ <%-findData[i].subscriptionDurations[k].duration%></span>
+</h2>
+<%}%>   
+
                                                 <ul class="card-pricing-features">
                                                     <% for(var li=0;li<findData[i].features.length;li++){ %>
                                                         <li><%- findData[i].features[li] %></li>
                                                     <% } %>
                                                 </ul>
+
+
+
+                                              
+
+
+
                                                 <a   onclick="statusChange('<%- findData[i].id %>','<%- findData[i].status %>')"  href="javascript:void(0);"><button type="button" class="btn btn-<%-findData[i].status==0?"danger" :"success"%> waves-effect waves-light mt-4 mb-2 width-sm"><i class="fa fa-cog"></i>&nbsp;&nbsp;<%-findData[i].status==0?"Inactive" :"Active"%></button></a>
 
                                                 <a href="<%- superadminpath %>subscription/view/<%- findData[i].id %>"><button type="button" class="btn btn-primary waves-effect waves-light mt-4 mb-2 width-sm">Update</button></a>

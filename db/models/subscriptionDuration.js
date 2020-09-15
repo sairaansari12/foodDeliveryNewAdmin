@@ -2,29 +2,43 @@
 const common = require('../../helpers/common');
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('subscription', {
+  return sequelize.define('subscriptionDuration', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    name: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-        defaultValue: ''
-    },
-  
-    features:
-    {
-      type: DataTypes.TEXT,
+
+    subId: {
+      type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: 'subscription',
+        key: 'id'
+       },
+       onUpdate: 'CASCADE',
+       onDelete: 'CASCADE',
+    },
+
+    duration: {
+      type:DataTypes.INTEGER(20),
+      allowNull: true,
+      defaultValue: '',
       get() {
-        if(this.getDataValue('features')!="") 
-        return JSON.parse(this.getDataValue('features'))
-        else return ""
-      },
-      defaultValue: ""
+        var stringApp="Months"
+        if(this.getDataValue('duration') && this.getDataValue('duration')<2) 
+        stringApp="Month"
+        
+        return this.getDataValue('duration')+ " "+stringApp
+         } 
+        
+    },
+   
+    price: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      defaultValue: '0'
     },
     companyId: {
       type: DataTypes.UUID,
@@ -53,7 +67,7 @@ module.exports = function(sequelize, DataTypes) {
       defaultValue: new Date()
     },
   }, {
-    tableName: 'subscription',
+    tableName: 'subscriptionDuration',
     timestamps: false
   });
 };

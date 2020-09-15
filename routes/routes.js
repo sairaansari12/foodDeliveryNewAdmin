@@ -61,7 +61,9 @@ const jwt = require('jsonwebtoken');
  PAYMENTSETUP=db.models.paymentSetup
  PERMISSIONS=db.models.permissions
  APPRATINGS=db.models.appRatings
-
+ SUBSCRIPTION=db.models.subscription
+ SUBDURATION=db.models.subscriptionDuration
+ USERSUB=db.models.userSubscription
 
 
 
@@ -100,6 +102,7 @@ const tiffRatingCtrl = require('../controllers/api/tiffin/tiffinRating.controlle
 const recpCtrl = require('../controllers/api/recipe/recipe.controller');
 const recpLikeCtrl = require('../controllers/api/recipe/recipeLike.controller');
 const recpCommentCtrl = require('../controllers/api/recipe/recipeComment.controller');
+const subCtrrl = require('../controllers/api/subscription.controller');
 
 
 
@@ -149,6 +152,11 @@ routes.use("/mobile/coupan/",coupanCtrl)
 //ORDERS MANAGEMENT
 
 routes.use("/mobile/orders/",ordersCtrl)
+
+
+//ORDERS MANAGEMENT
+
+routes.use("/mobile/subscription/",subCtrrl)
 
 
 //SCHEDULE MANAGEMENT

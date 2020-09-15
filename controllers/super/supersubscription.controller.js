@@ -6,16 +6,10 @@ const v       = require('node-input-validator');
 const jwt     = require('jsonwebtoken');
 const hashPassword = require('../../helpers/hashPassword');
 const Op = require('sequelize').Op;
-const COMPANY= db.models.companies;
-const STAFFROLE= db.models.staffRoles;
-const Subscription= db.models.subscription;
-function isAdminAuth(req, res, next) {
-    if(req.session.userData){
-      return next();
-    }
-    return res.redirect('/admin');
-  }
-  
+SUBSCRIPTION.hasMany(SUBDURATION,{foreignKey: 'subId'})
+SUBSCRIPTION.hasOne(USERSUB,{foreignKey: 'subscriptionId'})
+
+
   /**
   *@role Get Login Page
   *@Method POST
@@ -23,8 +17,9 @@ function isAdminAuth(req, res, next) {
   */
   app.get('/', superAuth,async (req, res, next) => {
     try {
-      const findData = await Subscription.findAll({
-        where :{companyId :req.id}
+      const findData = await SUBSCRIPTION.findAll({
+        where :{companyId :req.id},
+        include:[{model:SUBDURATION,attributes:['id','price','duration']}]
       });
       return res.render('super/subscription/subscriptionList.ejs',{findData});
     } catch (e) {
@@ -55,7 +50,7 @@ app.get('/add', superAuth,async (req, res, next) => {
 app.post('/postadd',superAuth,async (req, res) => {
   try {
     const data = req.body;
-    const user = await Subscription.findOne({
+    const user = await SUBSCRIPTION.findOne({
       attributes: ['id'],
 
       where: {
@@ -70,13 +65,39 @@ app.post('/postadd',superAuth,async (req, res) => {
     {
       var  newFea = data.feature.split();
     }
-      const users = await Subscription.create({
+      const users = await SUBSCRIPTION.create({
         name: data.name,
         price: data.minimumAmount,
         companyId: req.companyId,
         features: JSON.stringify(newFea)
       });
       if (users) {
+
+        if(Array.isArray(data.duration))
+        {
+          var duration = data.duration;
+          var price = data.price;
+
+        }else
+        {
+          var  duration = data.duration.split();
+          var  price = data.price.split();
+
+        }
+
+for(var k=0;k<duration.length;k++)
+{
+  await SUBDURATION.create({
+    subId: users.id,
+    price: price[k],
+    duration: duration[k],
+    companyId: req.companyId,
+  });
+
+
+}
+
+
         responseHelper.post(res, appstrings.added_success, null,200);
        
       }
@@ -102,11 +123,10 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
     if(responseNull) 
     { return responseHelper.error(res, e.message, null);
     }
-    const findData = await Subscription.findOne({
+    const findData = await SUBSCRIPTION.findOne({
       where :{companyId :req.companyId, id: id },
-      order: [
-        ['createdAt','DESC']
-      ],      
+      include:[{model:SUBDURATION,attributes:['id','price','duration']}]
+         
     });
     return res.render('super/subscription/view.ejs',{data:findData});
   } catch (e) {
@@ -118,7 +138,7 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
 app.post('/update',superAuth,async (req, res) => {
   try {
     const data = req.body;
-    const user = await Subscription.findOne({
+    const user = await SUBSCRIPTION.findOne({
       where: {
         id:data.planId,
         companyId: req.companyId
@@ -137,7 +157,7 @@ app.post('/update',superAuth,async (req, res) => {
     if (user) {
       
     
-      const users = await Subscription.update({
+      const users = await SUBSCRIPTION.update({
         name: data.name,
         price:data.minimumAmount,
         features: JSON.stringify(newFea)
@@ -154,6 +174,37 @@ app.post('/update',superAuth,async (req, res) => {
 
 
       if (users) {
+
+
+        await SUBDURATION.destroy({where:{subId:data.planId}})
+
+        if(Array.isArray(data.duration))
+        {
+          var duration = data.duration;
+          var price = data.price;
+
+        }else
+        {
+          var  duration = data.duration.split();
+          var  price = data.price.split();
+
+        }
+
+for(var k=0;k<duration.length;k++)
+{
+  await SUBDURATION.create({
+    subId: data.planId,
+    price: price[k],
+    duration: duration[k],
+    companyId: req.companyId,
+  });
+
+
+}
+
+
+
+
 
         responseHelper.post(res, appstrings.update_success, null,200);
        
@@ -183,7 +234,7 @@ app.post('/delete',superAuth,async(req,res,next) => {
 
   try{
         //console.log(pool.format('DELETE FROM `reminders` WHERE `reminder_id` = ?', [req.params.id]));
-        const numAffectedRows = await Subscription.destroy({
+        const numAffectedRows = await SUBSCRIPTION.destroy({
           where: {
             id: req.body.id
           }
@@ -217,7 +268,7 @@ app.post('/status',superAuth,async(req,res,next) => {
       if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
      
   
-     const userData = await Subscription.findOne({
+     const userData = await SUBSCRIPTION.findOne({
        where: {
          id: params.id }
      });
@@ -229,7 +280,7 @@ app.post('/status',superAuth,async(req,res,next) => {
 
   var status=0
   if(params.status=="0")  status=1
-     const updatedResponse = await Subscription.update({
+     const updatedResponse = await SUBSCRIPTION.update({
        status: status,
   
      },

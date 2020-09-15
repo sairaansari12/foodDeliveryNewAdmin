@@ -50,6 +50,24 @@
                                         </div>
                                 </div>
                             </div>
+
+                            <div class="col-lg-6">
+                                <div class="card-box">
+                                    <h5 class="text-uppercase mt-3 mb-3 bg-light p-2">Duration</h5>
+
+                                    
+                                        <div class="newduration">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group change">
+                                                <label for="">&nbsp;</label><br/>
+                                                <button type="button" class="btn w-sm btn-success  waves-effect waves-light add-more-price">+ Add Plan</button>
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+
+
                         </div>
                         <!-- end row -->
 
@@ -88,13 +106,43 @@
                 </div><div class="text-center form-group" style="margin-top: 28px;">\
                 <button type="button" class="btn w-sm btn-danger remove waves-effect waves-light form-control remove_this">- Remove</button>\
                 </div></div>');
+
+               
             return false;
         });
     });
+
+    $(".add-more-price").click( function(e) {
+             e.preventDefault();
+            
+                $(".newduration").append('<div class="row after-add-more">\
+                <div class="form-group  col-md-8">\
+                <label for="product-name">Plan Feature <span class="text-danger">*</span></label>\
+                <input type="number" id="duration" autocomplete="off"  min="1"  minlength="1" maxlength="100" name="duration" class="form-control" placeholder="Add Duration(No. of Months)">\
+                <input type="number" id="price" autocomplete="off"  min="1" minlength="1" maxlength="100" name="price" class="form-control" placeholder="Add Price">\
+                </div><div class="text-center form-group" style="margin-top: 28px;">\
+                <button type="button" class="btn w-sm btn-danger remove waves-effect waves-light form-control remove_this1">- Remove</button>\
+                </div></div>');
+            return false;
+        
+    });
+   
+   
+   
     jQuery(document).on('click', '.remove_this', function() {
        $(this).parents(".newinputs").remove();
         return false;
     });
+
+    jQuery(document).on('click', '.remove_this1', function() {
+       $(this).parents(".newduration").remove();
+        return false;
+    });
+
+
+
+
+
     $(function() { 
         $('#sidebar-menu ul li').find('a[href*="<%-superadminpath%>subscription"]').parent().addClass('menuitem-active');
         $('#sidebar-menu ul li a[href^="<%-superadminpath%>subscription"]').addClass('active');
@@ -117,6 +165,12 @@
             },
             feature: {
                 required: true
+            },
+            price: {
+                required: true
+            },
+            duration: {
+                required: true
             }
 
         },
@@ -128,6 +182,12 @@
                 required: "This field is required"
             },
             feature: {
+                required: "This field is required"
+            },
+            price: {
+                required: "This field is required"
+            },
+            duration: {
                 required: "This field is required"
             }
         },

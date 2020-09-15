@@ -79,7 +79,8 @@
     "import_success" :"Data imported successfully",
     "charge_update_success" :"Charges updated successfully",
     "payment_success" :"Amount for this order paid successfully",
-    "contact_title" :"You have recived new message in contact us lsit, please check"
+    "contact_title" :"You have recived new message in contact us lsit, please check",
+    "plan_purchased":"Plan purchased successfully"
 
 
 

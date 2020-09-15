@@ -71,6 +71,54 @@
                                         </div>
                                 </div>
                             </div>
+
+                            <div class="col-lg-6">
+                                <div class="card-box">
+                                    <h5 class="text-uppercase mt-3 mb-3 bg-light p-2">Duration</h5>
+
+                                        
+
+                                       
+                                        <% for(var i =0;i<data.subscriptionDurations.length;i++){ %>
+
+
+                                      
+                                           
+                                            <% if(i == 0){ %>
+                                                <div class="form-group mb-2">
+                                                    <label for="product-name">Plan Duration <span class="text-danger">*</span></label>
+                                                   <input type="number" id="duration"  min="1" value="<%= data.subscriptionDurations[i].duration %>" autocomplete="off"  minlength="1" maxlength="100" name="duration" class="form-control" placeholder="Add Duration(No. of Months)">
+                                                   <input type="number" id="price" min="1" value="<%= data.subscriptionDurations[i].price %>" autocomplete="off"  minlength="1" maxlength="100" name="price" class="form-control" placeholder="Add Price">
+
+                                                </div>
+                                            <% }else{ %>
+                                                <div class="row after-add-more1">
+                                                <div class="form-group  col-md-8">
+                                                    <label for="product-name">Plan Feature <span class="text-danger">*</span></label>
+                                                   <input type="text" id="duration"  min="1" value="<%= data.subscriptionDurations[i].duration %>" autocomplete="off"  minlength="1" maxlength="100" name="duration" class="form-control" placeholder="Add Duration(No. of Months)">
+                                                   <input type="number" id="price"  min="1" value="<%= data.subscriptionDurations[i].price %>" autocomplete="off"  minlength="1" maxlength="100" name="price" class="form-control" placeholder="Add Price">
+
+                                                </div>
+                                                <div class="text-center form-group" style="margin-top: 28px;">
+                                                    <button type="button" class='btn w-sm btn-danger remove1 waves-effect waves-light form-control'>- Remove</button>
+                                                
+                                                </div> </div>
+                                               
+                                            <% } %>
+                                        
+                                        <% } %>
+                                        
+
+                                        <div class="newduration">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group change">
+                                                <label for="">&nbsp;</label><br/>
+                                                <button type="button" class="btn w-sm btn-success  waves-effect waves-light add-more-price">+ Add Duration</button>
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- end row -->
 
@@ -100,9 +148,16 @@
         $('#sidebar-menu ul li').find('a[href*="<%-superadminpath%>subscription"]').parent().addClass('menuitem-active');
         $('#sidebar-menu ul li a[href^="<%-superadminpath%>subscription"]').addClass('active');
     });
-    $("body").on("click",".remove",function(){ 
-        $(this).parents(".after-add-more").remove();
+   
+    $("body").on("click",".remove_this1",function(){ 
+        $(this).parents(".after-add-more1").remove();
     });
+
+    jQuery(document).on('click', '.remove_this', function() {
+       $(this).parents(".after-add-more").remove();
+        return false;
+    });
+
     jQuery(document).ready( function () {                                 
         $(".add-more").click( function(e) {
              e.preventDefault();
@@ -115,11 +170,24 @@
                 </div></div>');
             return false;
         });
+   
+        $(".add-more-price").click( function(e) {
+             e.preventDefault();
+             $(".newduration").append('<div class="row after-add-more1">\
+                <div class="form-group  col-md-8">\
+                <label for="product-name">Plan Feature <span class="text-danger">*</span></label>\
+                <input type="number"  min="1" name="duration" autocomplete="off"  minlength="1" maxlength="100" name="duration" class="form-control" placeholder="Add Duration(No. of Months)">\
+                <input type="number" id="price" autocomplete="off"  min="1" minlength="1" maxlength="100" name="price" class="form-control" placeholder="Add Price">\
+                </div><div class="text-center form-group" style="margin-top: 28px;">\
+                <button type="button" class="btn w-sm btn-danger remove waves-effect waves-light form-control remove_this1">- Remove</button>\
+                </div></div>');
+            return false;
+        });
+   
+   
+   
     });
-    jQuery(document).on('click', '.remove_this', function() {
-       $(this).parents(".newinputs").remove();
-        return false;
-    });
+ 
     $('#name').on('keypress', function (event) {
         var regex = new RegExp("^[a-zA-Z0-9_ ]*$");
         var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
@@ -138,6 +206,12 @@
             },
             feature: {
                 required: true
+            },
+            price: {
+                required: true
+            },
+            duration: {
+                required: true
             }
 
         },
@@ -149,6 +223,12 @@
                 required: "This field is required"
             },
             feature: {
+                required: "This field is required"
+            },
+            price: {
+                required: "This field is required"
+            },
+            duration: {
                 required: "This field is required"
             }
         },

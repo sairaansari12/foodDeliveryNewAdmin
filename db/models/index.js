@@ -47,6 +47,8 @@ let modules = [
   require('./companyRatings'), 
   require('./serviceRatings'),
   require('./subscription'), 
+  require('./subscriptionDuration'), 
+  require('./userSubscription'), 
   require('./deals'),
   require('./shipment'),
   require('./instructions'),

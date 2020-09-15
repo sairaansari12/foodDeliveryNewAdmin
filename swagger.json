@@ -267,6 +267,50 @@
 
 
 
+  "/api/mobile/subscription/": {
+    "get": {
+      "x-swagger-router-controller": "/api/mobile/subscription",
+      "operationId": "index",
+      "tags": ["Get Subscription Plan"],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":"true" ,"type":"string"}
+
+
+   ],
+
+ 
+  
+  
+      "responses": {}
+    }
+  },
+
+
+  "/api/mobile/subscription/purchasePlan": {
+    "post": {
+      "x-swagger-router-controller": "/api/mobile/subscription/purchasePlan",
+      "operationId": "index",
+      "tags": ["Purchase Subscription Plan"],
+      "description": "",
+      "parameters": [
+        { "name": "authorization",  "in": "header",  "required":"true" ,"type":"string"},
+        { "name": "subscriptionId",  "in": "formData",  "required":"true","type":"string"},
+        { "name": "amount",  "required":"true", "in": "formData","type":"string"},
+        { "name": "durationId",   "required":"true",  "in": "formData", "type":"string"}
+       
+
+
+   ],
+
+ 
+  
+  
+      "responses": {}
+    }
+  },
+
+
    "/api/mobile/services/getSubcat": {
      "get": {
        "x-swagger-router-controller": "/api/mobile/services/getSubcat",

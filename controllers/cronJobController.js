@@ -55,6 +55,7 @@ updateEmpPopularity()
 updateRestroPopularity()
 deleteChatMsgs();
 
+checkExpiryPlans()
 
   } catch (e) {
     console.error(e.message)
@@ -546,6 +547,73 @@ async function deleteChatMsgs(){
   } 
 }
 
+async function checkExpiryPlans()
+{
+  try{
+    var newDate = moment(new Date()).format("YYYY-MM-DD");
+    //Get Plan
+    const getplan = await USERSUB.findAll({
+      where: {
+        status: '1',
+        endDate: {
+          [Op.lt]: newDate
+        }
+      }
+    });
+    var MainArray = [];
+    for (var i = 0; i < getplan.length; i++) {
+      var userId = users[i].UserId;
+      var findData =await USER.findOne({where:{id:userId}});
+      if(findData)
+      {
+        MainArray.push(userId);
+        //Send Notification
+        var notifPushUserData={
+          title: "Subscription Expired",
+          description: "Your Subscription has been expired.",
+          token:findData.dataValues.deviceToken,  
+          platform:findData.dataValues.platform,
+          userId: userId,
+          role: 3,
+          notificationType: "Subscription Expire",
+          status: "Expire",
+        }
+        commonNotification.sendNotification(notifPushUserData)
+      }
+    }
+    if(MainArray.length > 0)
+    {
+       const updatedResponse = await USER.update({
+        userType: '3'
+        }, 
+        {
+        where : { 
+          id: {
+            [Op.in]: MainArray
+          }
+        }
+      });
+       //User Plan
+      const updatedplanResponse = await USERSUB.update({
+        status: '0'
+        }, 
+        {
+          
+            where : { 
+              userId: {
+                [Op.in]: MainArray
+              }
+            }
+          });
+        }
+         console.log("Plan Expired");
+      }
+      catch (e) {
+         console.error(e.message)
+      }
+      
+    
+}
 //PRODUCT RATINGS
 
 
