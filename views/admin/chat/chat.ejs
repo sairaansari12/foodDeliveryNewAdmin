@@ -14,6 +14,17 @@
                 margin-top: -50px;
                 margin-left: -100px;
             }
+            .chat-btn{
+                background: #5a9f5a;
+                border: 1px solid #5a9f5a;
+                color: white;
+                padding: 8px;
+                width: 102px;
+                position: fixed;
+                top: 60%;
+                left: 50%;
+                /* margin-top: -96px; */
+            }
         </style>
 
         <%- include('../partials/header'); -%>
@@ -52,9 +63,12 @@
                             </div>
                         </div>     
                         <!-- end page title --> 
+                        
                         <div class="admin-center" id="admin-center">
+                            
                             <div data-simplebar style="max-height: 375px" id="chatlist"></div>
                         </div>
+                        
                         <div class="row">
                             <!-- chat area -->
                             <div class="col-xl-12 col-lg-12" id="right-chat">
@@ -66,7 +80,7 @@
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <ul id="list" class="conversation-list" data-simplebar style="max-height: 460px; overflow-y: scroll;">
+                                        <ul id="list" class="conversation-list" data-simplebar style="max-height: 460px; overflow: auto;">
                                                                               
                                             
                                         </ul>
@@ -219,8 +233,9 @@
         })
     }
     function createChatList(data){
-        var html = "";
+        var html = "", btn= "";
         for(var k=0;k<data.length;k++){
+            btn = `<button class="chat-btn"  onclick="showmsg('${data[k].id}')">Start Chat</button>`;
             html = html + `<a href="javascript:void(0);" class="text-body">
                 <div class="media p-2">
                     <img src="/dist/assets/images/user.jpg" class="mr-2 rounded-circle" height="42" alt="" />
@@ -238,7 +253,9 @@
                 </div>
             </a> `  
         }
-        $('#chatlist').html(html)
+        $('#chatlist').html(html);
+        $("#chatlist").append(btn);
+       
     }
 
     function showmsg(id){

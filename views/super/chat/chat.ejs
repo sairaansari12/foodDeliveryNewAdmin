@@ -70,15 +70,13 @@
                                         <!-- users -->
                                         <div class="row">
                                             <div class="col">
-                                                <div data-simplebar style="max-height: 375px" id="chatlist">
+                                                <div data-simplebar style="max-height: 375px;overflow: auto;" id="chatlist">
                                                    
                                                 </div> <!-- end slimscroll-->
                                             </div> <!-- End col -->
                                         </div>
                                         <!-- end users -->
                                     </div> <!-- end card-body-->
-                                    <!-- <button onclick="next(-1)">Prev</button>
-                                    <button onclick="next(1)">Next</button> -->
                                     <div class="pagination1" id="pagination1">
                                         <a onclick="next(-1)" >&laquo;</a>
                                         <a id="pagenumber"></a>
@@ -94,33 +92,11 @@
                                 <div class="card">
                                     <div class="card-body py-2 px-3 border-bottom border-light">
                                         <div class="media py-1">
-                                            <!-- <img src="../assets/images/users/user-5.jpg" class="mr-2 rounded-circle" height="36" alt="Brandon Smith">
-                                            <div class="media-body">
-                                                <h5 class="mt-0 mb-0 font-15">
-                                                    <a href="contacts-profile.html" class="text-reset">James Zavel</a>
-                                                </h5>
-                                                <p class="mt-1 mb-0 text-muted font-12">
-                                                    <small class="mdi mdi-circle text-success"></small> Online
-                                                </p>
-                                            </div> -->
-                                            <!-- <div>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Voice Call">
-                                                    <i class="fe-phone-call"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Video Call">
-                                                    <i class="fe-video"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add Users">
-                                                    <i class="fe-user-plus"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete Chat">
-                                                    <i class="fe-trash-2"></i>
-                                                </a>
-                                            </div> -->
+      
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <ul id="list" class="conversation-list" data-simplebar style="max-height: 460px; overflow-y: scroll;">
+                                        <ul id="list" class="conversation-list" data-simplebar style="max-height: 460px; overflow: auto;">
                                                                               
                                             
                                         </ul>
