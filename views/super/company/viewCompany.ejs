@@ -22,19 +22,11 @@
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-<<<<<<< HEAD
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">Update Restaurant Info</a></li>
                                         <li class="breadcrumb-item active">Edit</li>
                                     </ol>
                                 </div>
                                 <h4 class=form-label">Update Restaurant Info</h4>
-=======
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Company</a></li>
-                                        <li class="breadcrumb-item active">Edit</li>
-                                    </ol>
-                                </div>
-                                <h4 class="page-title">Edit Company</h4>
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
                             </div>
                         </div>
                     </div>
@@ -92,7 +84,6 @@
                                                         <span class="d-none d-sm-inline">MEDIA INFO</span>
                                                     </a>
                                                 </li>
-<<<<<<< HEAD
 
                                                 
                                                 <li class="nav-item">
@@ -110,8 +101,6 @@
                                                         <span class="d-none d-sm-inline">MORE INFO</span>
                                                     </a>
                                                 </li>
-=======
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
                                                 <li class="nav-item">
                                                     <i class="mdi mdi-checkbox-marked-circle-outline mr-1"></i>
                                                     <button type="submit"
@@ -191,11 +180,7 @@
                                                                     Number <span class="text-danger">*</span></label>
                                                                 <div class="col-md-3">
                                                                     <input autocomplete="off" type="text"
-<<<<<<< HEAD
                                                                         placeholder="91"    id="countryCode" name="countryCode"  value="<%- data.countryCode %>" data-trigger="change"
-=======
-                                                                        placeholder="91" value="<%- data.countryCode %>" data-trigger="change"
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
                                                                         data-required="true"
                                                                         class="form-control parsley-validated" />
                                                                 </div>
@@ -240,27 +225,11 @@
                                                                 <img  class="avatar-title" style="height: 50px;width: 100px;" src="<%=data.logo2 %>"   id="myIcon"  alt="" >
                                                             </div>
 
-<<<<<<< HEAD
                                                           
-=======
-                                                            <div class="form-group row mb-3">
-                                                                <label class="col-md-3 col-form-label"
-                                                                    for="image">Upload
-                                                                    Image3: <span class="text-danger">*</span></label>
-                                                                <div class="col-md-3">
-                                                                    <input class="custom-file-input1" id="logo3"
-                                                                        type="file" name="logo3">
-
-                                                                </div>
-                                                                <img  class="avatar-title" style="height: 50px;width: 100px;" src="<%=data.logo3 %>"   id="myIcon"  alt="" >
-                                                            </div>
-
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
                                                         </div> <!-- end col -->
                                                     </div> <!-- end row -->
                                                 </div>
 
-<<<<<<< HEAD
                                                 <div class="tab-pane" id="basictab5">
                                                     <div class="row">
                                                         <div class="col-lg-12">
@@ -418,18 +387,12 @@
 
 
 
-=======
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
                                                 <div class="tab-pane" id="basictab3">
                                                     <div class="row">
                                                         <div class="col-12">
                                                             <div class="text-center">
                                                                 <h2 class="mt-0"><i class="mdi mdi-check-all"></i></h2>
-<<<<<<< HEAD
                                                                 <h5 class="mt-0">Please wait..We are updating company details!</h5>
-=======
-                                                                <h3 class="mt-0">Please wait..We are update company details!</h3>
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
                                                             </div>
                                                         </div> <!-- end col -->
                                                     </div> <!-- end row -->
@@ -460,7 +423,6 @@
 
 
 <script type="text/javascript">
-<<<<<<< HEAD
  $("#startTime").flatpickr({enableTime:!0,noCalendar:!0,dateFormat:"h:i K"});
 $("#endTime").flatpickr({enableTime:!0,noCalendar:!0,dateFormat:"h:i K"});
 
@@ -472,8 +434,6 @@ $("#countryCode").intlTelInput({
         $("#countryCode").val($("#countryCode").intlTelInput("getSelectedCountryData").dialCode);
 
     });
-=======
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
 $(function() { 
         $('#sidebar-menu ul li').find('a[href*="<%-superadminpath%>company"]').parent().addClass('menuitem-active');
         $('#sidebar-menu ul li a[href^="<%-superadminpath%>company"]').addClass('active');
@@ -538,7 +498,6 @@ $(function() {
 
             submitHandler: function (form) {
            
-<<<<<<< HEAD
 
                 var chargesType=  $("input[name='chargesType']:checked").val()
               var fullAmount=  $("#fullAmount").val()
@@ -568,11 +527,6 @@ return;
                 $('#basictab4').removeClass('active')
                 $('#basictab5').removeClass('active')
                 $('#basictab6').removeClass('active')
-=======
-                $('#basictab1').removeClass('active')
-                $('#basictab2').removeClass('active')
-                $('#basictab4').removeClass('active')
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
 
                 $('#basictab3').addClass('active')
 
@@ -594,15 +548,9 @@ return;
                         $("#loading1").hide();
                         if (response.code == 200) {
                             showToastSuccess(response.message)
-<<<<<<< HEAD
                             // setTimeout(function(){
                             //     window.location.href = "<%- superadminpath %>company";
                             // },1000)
-=======
-                            setTimeout(function(){
-                                window.location.href = "<%- superadminpath %>company";
-                            },1000)
->>>>>>> c9b29b9d9e81853210f0f8c2e3bb6a9a62639d05
                         } else {
                             showToastError(response.message)
                         }
