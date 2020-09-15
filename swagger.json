@@ -248,8 +248,12 @@
         { "name": "authorization",  "in": "header",  "required":"true" ,"type":"string"},
         { "name": "companyId",  "in": "formData",  "required":"true","type":"string"},
         { "name": "mediaType",  "required":"true", "in": "formData","type":"string" ,"description":"send 'photo' to upload photos,'video' to uplaod videos"},
-        { "name": "title",  "required":"true", "in": "formData", "type":"string"},
-        { "name": "description", "required":"true", "in": "formData","type":"string"}
+        { "name": "title",   "in": "formData", "type":"string"},
+        { "name": "description", "in": "formData","type":"string"},
+        { "name": "media",  "in": "formData","type":"array",   "collectionFormat": "multi",
+          "items": {
+            "type": "file"
+           }}
 
 
    ],

@@ -53,6 +53,7 @@ updateTiffinRating()
 updateEmpRating()
 updateEmpPopularity()
 updateRestroPopularity()
+deleteChatMsgs();
 
 
   } catch (e) {
@@ -511,6 +512,39 @@ if(dataPop24 && dataPop24.dataValues && dataPop24.dataValues.count)
     
 }
 
+
+async function deleteChatMsgs(){
+  const groups= await groupa.findAll({
+    attributes: ['id']
+  });  
+  if(groups){
+    groups.map(async group=>{
+      var message = await chatMessages.findOne({ 
+        attributes: ['id'],
+        where: {
+          [Op.and]: [
+            {
+              groupId: group.id
+            },
+            {
+              createdAt: {[Op.lte]: moment().subtract(7, 'days').toDate()},
+            }
+          ]
+         },
+         order: [
+           ['createdAt', 'DESC']
+          ],
+      });
+      if(message){
+        chatMessages.destroy({
+          where:{
+            groupId : group.id
+          }
+        })
+      }
+    });
+  } 
+}
 
 //PRODUCT RATINGS
 

@@ -22,20 +22,6 @@ module.exports = function(sequelize, DataTypes) {
     mediaUrl: {
       type: DataTypes.TEXT,
       allowNull: false,
-      get() {
-        if(this.getDataValue('mediaUrl') && this.getDataValue('mediaUrl')!="")
-        {
-          var images=this.getDataValue('mediaUrl').split(",")
-          imageArray=[];
-          for(var k=0;k<images.length;k++)
-          {
-            imageArray.push(images[k]);
-          }
-          return  imageArray;
-        }
-        else return []
-
-    },
       defaultValue: ""
     },
 
@@ -45,15 +31,9 @@ module.exports = function(sequelize, DataTypes) {
       get() {
         if(this.getDataValue('mediaHttpUrl') && this.getDataValue('mediaHttpUrl')!="")
         {
-          var images=this.getDataValue('mediaHttpUrl').split(",")
-          imageArray=[];
-          for(var k=0;k<images.length;k++)
-          {
-            imageArray.push( config.IMAGE_APPEND_URL+"gallery/"+images[k]);
-          }
-          return  imageArray;
+       return  config.IMAGE_APPEND_URL+"gallery/"+this.getDataValue('mediaHttpUrl')  ;
         }
-        else return []
+        else return ""
 
     },
       defaultValue: ""
@@ -62,12 +42,14 @@ module.exports = function(sequelize, DataTypes) {
 
     title: {
       type: DataTypes.STRING(256),
-      allowNull: false,
+      allowNull: true,
+      defaultValue:""
   },
 
   description: {
     type: DataTypes.TEXT(),
-    allowNull: false,
+    allowNull: true,
+    defaultValue:""
 },
 
     companyId: {

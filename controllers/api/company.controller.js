@@ -167,7 +167,7 @@ app.post('/gallery',checkAuth, async (req, res, next) => {
 
 
       var findData = await GALLERY.findAll({
-        attributes:['id','mediaHttpUrl','mediaType','createdAt','title','description'],
+        attributes:['id','mediaHttpUrl','mediaType','createdAt'],
         where :where,
         offset: offset, limit: limit ,
         order: [['createdAt','DESC']]
@@ -189,7 +189,7 @@ app.post('/gallery/add',checkAuth,async (req, res) => {
     const data = req.body;
 
 
-    let responseNull= commonMethods.checkParameterMissing([data.companyId,data.title,data.description,data.mediaType])
+    let responseNull= commonMethods.checkParameterMissing([data.companyId,data.mediaType])
     if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
 
 
@@ -249,7 +249,7 @@ app.post('/gallery/add',checkAuth,async (req, res) => {
       attributes: ['id'],
 
       where: {
-        title: data.title,
+        title: (data.title)?data.title:"PDELICIOKXXX",
       }
     });
 
@@ -257,21 +257,24 @@ app.post('/gallery/add',checkAuth,async (req, res) => {
 
     if (!user) {
     
-      const users = await GALLERY.create({
+    var users=null
+      for(var k=0;k<upload.length;k++)
+      {
+       users = await GALLERY.create({
         title: data.title,
         description: data.description,
         mediaType: data.mediaType,
-        mediaUrl: upload.toString(),
-        mediaHttpUrl:upload.toString(),
+        mediaUrl: upload[k],
+        mediaHttpUrl: upload[k],
         companyId:data.companyId,
         status:0
        });
 
+      }
 
       if (users) {
-
         responseHelper.post(res, appstrings.added_success, null,200);
-       
+      
       }
      else  responseHelper.error(res, appstrings.oops_something, 400);
 

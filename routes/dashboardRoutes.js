@@ -15,6 +15,7 @@ const paymentCtrl              = require('../controllers/dashboard/dpayment.cont
 const notificationCtrl              = require('../controllers/dashboard/dnotification.controller');
 const productCtrl = require('../controllers/dashboard/dproduct.controller');
 const galleryCtrl = require('../controllers/dashboard/dgallery.controller');
+const chatCtrl = require('../controllers/dashboard/dchat.controller');
 
 //New Routes
 const dealCtrl              = require('../controllers/dashboard/ddeal.controller');
@@ -52,6 +53,8 @@ router.use('/ordersetting/',osettingCtrl)
 router.use('/task/',taskController);
 router.use('/contactus/',contactUsController);
 router.use('/gallery/',galleryCtrl);
+router.use('/chat/',chatCtrl);
+
 
 router.use((req, res, next) => {
 

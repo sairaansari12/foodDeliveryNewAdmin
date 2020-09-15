@@ -6,14 +6,17 @@ const COMPANY= db.models.companies
 const Op = require('sequelize').Op;
 const jwt = require('jsonwebtoken');
 
-function isAdminAuth(req, res, next) {
-    // if(req.session.userData){
-    //   return next();
-    // }
-    // return res.redirect('/company');
+//CHt moidels
 
-    return next();
-  }
+const groupa = db.models.groups;
+const groupMembers = db.models.groupMembers;
+const chatMessages = db.models.chatMessages;
+const textMessages = db.models.textMessages;
+const mediaMessages = db.models.mediaMessages;
+const messagesStatus = db.models.messagesStatus;
+
+
+
 /**
 *@role Get Login Page
 *@Method POST
@@ -259,7 +262,6 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
 }
 
 app.get('/chat',superAuth, async (req, res, next) => {
-
   const credentials = {
     phoneNumber: req.session.userData.phoneNumber,
     companyId:   req.companyId,
@@ -267,14 +269,256 @@ app.get('/chat',superAuth, async (req, res, next) => {
     userType: req.session.userData.type,
     id : req.session.userData.id
   };
-  const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });  
-    return res.render('super/chat/chat.ejs',{ token: authToken, id: req.id});
+  authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });
+  return res.render('super/chat/chat.ejs',{ token: authToken, id: req.id});
 });
+app.get('/chatListSearch', superAuth,async (req, res, next) => {
+  const groupsM= await groupMembers.findAll({
+    attributes: ['groupId'],
+    where: {
+      userId: req.id
+    }
+  })
+  jwt.verify(authToken, config.jwtToken, async function (err) {
+    if (err) {
+     console.log("===error", authToken)
+    } else {
+      const senderId = await common.userId(authToken);
+      if(groupsM) {
+      const messages = [];
+      await Promise.all(
+        groupsM.map(async group => {
+        const groupDetail = await groupa.findOne({
+          attributes: ['groupName','groupIcon','createdBy','createdAt'],
+          where: {
+            id: group.groupId
+          },
+          include: [
+      
+            {
+              model: groupMembers,
+              attributes: ['userId'],
+            }
+          ]
+        })
+      var message;
+      message = await chatMessages.findOne({
+        attributes: ['id', 'senderId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+          [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+          [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
+          [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
+          [sequelize.literal('user.firstName'), 'senderName'],
+          [sequelize.literal('user.image'), 'senderImage'],
+          [sequelize.literal('group.groupName'), 'groupName'],
+          [sequelize.literal('group.name'), 'orderid'],
+          [sequelize.literal('group.groupIcon'), 'groupIcon'],
+          [sequelize.literal('group.createdBy'), 'createdBy']
 
+        ],
+        subQuery: false,
 
-app.get('/chatAdmin',superAuth, async (req, res, next) => {
+        where: {
+          groupId: group.groupId
+        },
+        order: [
+          ['createdAt', 'DESC']
+          ],
+        
+        include: [
+    
+          {
+            model: groupa,
+            attributes: [],
+          },
+          {
+            model: textMessages,
+            attributes: [],
+          },
+          {
+            model: groupMembers,
+            attributes: ['userId'],
+          }, {
+            model: mediaMessages,
+            attributes: [],
+          }, {
+            model: USERS,
+            attributes: [],
+            where: {
+              [Op.or]: {
+                firstName: { [Op.like]: '%' + req.query.text + '%' },
+                lastName: { [Op.like]: '%' + req.query.text + '%' }
+              }
+            },
+            required: true
+          }, {
+            model: messagesStatus,
+            attributes: ['deliveredAt', 'readAt', 'userId',
+              [sequelize.literal('(SELECT image from users where id= messagesStatuses.userId)'), 'image'],
+              [sequelize.literal('(SELECT firstName from users where id= messagesStatuses.userId)'), 'userName']
+            ],
+            required: true
+          }
+        ],
+      }) 
+      var adminMsg = await chatMessages.findOne({
+        attributes: ['id', 'senderId', 'groupId','createdAt',
+          [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+        ],
+        subQuery: false,
+        where: {
+         groupId: group.groupId
+        },
+        order: [
+          ['createdAt', 'DESC']
+         ],
+        
+        include: [
+          {
+            model: textMessages,
+            attributes: [],
+          },{
+            model: COMPANY,
+            attributes: [],
+            where: {
+              companyName: { [Op.like]: '%' + req.query.text + '%' }
+            },
+            required: true
+          }
+        ],
+      });
+      //  console.log("=====adminMsg====", adminMsg) 
+      if(adminMsg && message){
+        if(adminMsg.dataValues.createdAt > message.dataValues.sentAt){
+          message.dataValues.message = adminMsg.dataValues.message;
+          message.dataValues.sentAt = adminMsg.dataValues.createdAt;
+        }
+      }
+      if(message && message.dataValues.senderName == ""){
+        message.dataValues.senderName = "Guest user";
+      }
+      if(message) {
+        message.dataValues.groupMember = groupDetail.dataValues.groupMembers;
+        message.dataValues.actualMessage = {}
+        messages.push(message)
+      } else {
+        message = await chatMessages.findOne({
+          attributes: ['id','adminId', 'groupId', 'actualMessageId', 'messageType', 'type', 'status', ['createdAt', 'sentAt'],
+            [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+            [sequelize.fn('IFNULL', sequelize.col('mediaMessages.media'), ''), 'media'],
+            [sequelize.fn('IFNULL', sequelize.col('mediaMessages.thumbnail'), ''), 'thumbnail'],
+            [sequelize.literal('company.companyName'), 'senderName'],
+            [sequelize.literal('company.logo1'), 'senderImage'],
+            [sequelize.literal('group.name'), 'orderId'],
+            [sequelize.literal('group.groupIcon'), 'groupIcon'],
+            [sequelize.literal('group.createdBy'), 'createdBy']
 
-  return res.render('super/chat/chatAdmin.ejs',{ token: req.token, id: req.id});
+          ],
+          subQuery: false,
+          where: {
+            [Op.and]: [
+              {
+                groupId: group.groupId
+              },
+              {
+                adminId: {
+                  [Op.ne]: senderId
+                },
+              }
+            ]
+          },
+          order: [
+            ['createdAt', 'DESC']
+           ],
+          
+          include: [
+     
+            {
+              model: groupa,
+              attributes: [],
+            },
+            {
+              model: textMessages,
+              attributes: [],
+            },
+            {
+              model: groupMembers,
+              attributes: ['userId'],
+            }, {
+              model: mediaMessages,
+              attributes: [],
+            }, {
+              model: COMPANY,
+              attributes: [],
+              where: {
+                companyName: { [Op.like]: '%' + req.query.text + '%' }
+              },
+              required: true
+            }, {
+              model: messagesStatus,
+              attributes: ['deliveredAt', 'readAt', 'userId',
+                [sequelize.literal('(SELECT logo1 from companies where id= messagesStatuses.userId)'), 'image'],
+                [sequelize.literal('(SELECT companyName from companies where id= messagesStatuses.userId)'), 'userName']
+              ],
+              required: true
+            }
+          ],
+        });
+        var adminMsg = await chatMessages.findOne({
+          attributes: ['id', 'senderId', 'groupId','createdAt',
+            [sequelize.fn('IFNULL', sequelize.col('textMessages.message'), ''), 'message'],
+          ],
+          subQuery: false,
+          where: {
+            [Op.and]: [
+              {
+                groupId: group.groupId
+              },
+              {
+                adminId: senderId,
+              }
+            ]
+          },
+          order: [
+            ['createdAt', 'DESC']
+           ],
+          
+          include: [
+            {
+              model: textMessages,
+              attributes: [],
+            },{
+              model: COMPANY,
+              attributes: [],
+              where: {
+                companyName: { [Op.like]: '%' + req.query.text + '%' }
+              },
+              required: true
+            }
+          ],
+        });
+        if(adminMsg && message){
+          if(adminMsg.dataValues.createdAt > message.dataValues.sentAt){
+            message.dataValues.message = adminMsg.dataValues.message;
+            message.dataValues.sentAt = adminMsg.dataValues.createdAt;
+          }
+        }     
+        if(message)
+          messages.push(message)
+      }
+    })
+    )                     
+
+    if (messages) {
+      let sortMessages = await messages.slice().sort(
+        (a, b) => b.actualTime - a.actualTime); //// sort message array in asc order of message sent
+        return responseHelper.post(res, appstrings.success,sortMessages,200);
+
+    }
+  } else {
+    return responseHelper.post(res, appstrings.success,[],200);
+  }
+}
+});
 });
 
 /**

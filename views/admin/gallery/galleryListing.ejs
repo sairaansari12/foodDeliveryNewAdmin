@@ -201,7 +201,7 @@ function getFilter(page)
                    {
 var video=value.mediaType=="video"?"inline":"none"
 var photo=value.mediaType=="photo"?"inline":"none"
-
+var galleryDisplay=value.description.length>60?"inline":"none"
                     var approved=(value.status)=='0'?'<span class="badge bg-soft-danger text-center mt-2 text-danger"><i class="fe-delete">&nbsp;&nbsp;Not Approved (click to change)</i></span>':  '<span class="badge text-center bg-soft-success mt-2 text-success"><i class="fa fa-check">Approved (click to change)</i></span>';
 
                                  row=row+`  
@@ -232,7 +232,7 @@ var photo=value.mediaType=="photo"?"inline":"none"
                                         <h4 class="font-16 mt-0">${value.title}</h4>
                                         <a  class="text-popup">
                           <p >${short(value.description,80)}
-                            <br><a  href="javascript:void(0);"  onclick="showText('${readPlain(value.description)}')">Read More</a>
+                            <br><a style="display:${galleryDisplay}" href="javascript:void(0);"  onclick="showText('${readPlain(value.description)}')">Read More</a>
 
                             </p>
 

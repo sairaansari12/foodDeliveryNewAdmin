@@ -315,7 +315,7 @@ app.post('/login',async (req, res, next) => {
     
       if(updatedResponse)
       {
-if(params.referralCode && params.referralCode!="") setReferralPoints(params.referralCode,userData.dataValues.id)
+if(params.referralCode && params.referralCode!="") setReferralPoints(params.referralCode,userData.dataValues.id,params.companyId,0)
 
 userData.dataValues.sessionToken=token
 userData.dataValues.platform=params.platform
@@ -362,7 +362,7 @@ else userData.dataValues.btype=0
           const authToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.authTokenExpiration });
           const refreshToken = jwt.sign(credentials, config.jwtToken, { algorithm: 'HS256', expiresIn: config.refreshTokenExpiration });
 
-      if(params.referralCode && params.referralCode!="") setReferralPoints(params.referralCode,userId)
+      if(params.referralCode && params.referralCode!="") setReferralPoints(params.referralCode,userId,params.companyId, users.dataValues.lPoints)
 
 
 
@@ -408,7 +408,7 @@ catch (e) {
 })
 
 
-function setReferralPoints(referralCode,userId,parentCompany)
+async function setReferralPoints(referralCode,userId,parentCompany,myLPoints)
 {  try{
   const userData = await USER.findOne({
   where: {
@@ -417,24 +417,28 @@ function setReferralPoints(referralCode,userId,parentCompany)
   }});
 
 
-  const userData1 = await USER.findOne({
-    where: {
-      referralCode: referralCode,
-  
-    }});
+
+
 
   const referData = await DOCUMENT.findOne({
     where: {
       companyId: parentCompany,
   
     }});
-  var points=0
+  var points=50
+  var points1=25
+
 if(referData && referData.dataValues && referData.dataValues.referPoints)
 points=referData.dataValues.referPoints
+
+if(referData && referData.dataValues && referData.dataValues.referPointsOther)
+points1=referData.dataValues.referPointsOther
 
 if(userData && userData.dataValues!=""){
 
   var newPoints1=parseInt(userData.dataValues.lPoints)+points
+  var newPoints=parseInt(myLPoints)+points1
+
 USER.update({lPoints: newPoints},{where:{id:userId}})
 USER.update({lPoints: newPoints1},{where:{id:userData.dataValues.id}})
 

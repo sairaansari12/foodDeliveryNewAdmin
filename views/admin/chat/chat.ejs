@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        
 
         <%- include('../partials/header'); -%>
 
@@ -23,60 +24,56 @@
                     <!-- Start Content-->
                     <div class="container-fluid">
                         
-                        <!-- start page title -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="page-title-box">
-                                    <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="<%- adminpath %>">Dashboard</a></li>
-                                            <li class="breadcrumb-item active">Chat</li>
-                                        </ol>
-                                    </div>
-                                    <h4 class="page-title">Chat</h4>
-                                </div>
-                            </div>
-                        </div>     
+                     
                         <!-- end page title --> 
 
-                        <div class="row">
-                            <!-- start chat users-->
-                          
-                            <!-- end chat users-->
+                            <div class="auth-fluid">
+                                <!--Auth fluid left content -->
+                                <div class="auth-fluid-form-box">
+                                    <div class="align-items-center d-flex h-100">
+                                        <div class="card-body">
+                    
+                                            <div  id="chatlist"></div>
 
+                                            
+                    
+                                        </div> <!-- end .card-body -->
+                                    </div> <!-- end .align-items-center.d-flex.h-100-->
+                                </div>
+                                <!-- end auth-fluid-form-box-->
+                    
+                                <!-- Auth fluid right content -->
+                                <div class="auth-fluid-right text-center">
+                                    <div class="auth-user-testimonial">
+                                        <h2 class="mb-3 text-white">I love the Food!</h2>
+                                        <p class="lead"><i class="mdi mdi-format-quote-open"></i> Vegetables are a must on a diet. I suggest carrot cake, zucchini bread, and pumpkin pie <i class="mdi mdi-format-quote-close"></i>
+                                        </p>
+                                        <h5 class="text-white">
+                                            - Saira (Delicio Admin User)
+                                        </h5>
+                                    </div> <!-- end auth-user-testimonial-->
+                                </div>
+                                <!-- end Auth fluid right content -->
+                            </div>
+
+
+
+
+
+                        
+                        
+                        <div class="row">
                             <!-- chat area -->
-                            <div class="col-xl-11 col-lg-8" id="right-chat">
+                            <div class="col-xl-12 col-lg-12" id="right-chat">
 
                                 <div class="card">
                                     <div class="card-body py-2 px-3 border-bottom border-light">
                                         <div class="media py-1">
-                                            <!-- <img src="../assets/images/users/user-5.jpg" class="mr-2 rounded-circle" height="36" alt="Brandon Smith">
-                                            <div class="media-body">
-                                                <h5 class="mt-0 mb-0 font-15">
-                                                    <a href="contacts-profile.html" class="text-reset">James Zavel</a>
-                                                </h5>
-                                                <p class="mt-1 mb-0 text-muted font-12">
-                                                    <small class="mdi mdi-circle text-success"></small> Online
-                                                </p>
-                                            </div> -->
-                                            <!-- <div>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Voice Call">
-                                                    <i class="fe-phone-call"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Video Call">
-                                                    <i class="fe-video"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add Users">
-                                                    <i class="fe-user-plus"></i>
-                                                </a>
-                                                <a href="javascript: void(0);" class="text-reset font-19 py-1 px-2 d-inline-block" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete Chat">
-                                                    <i class="fe-trash-2"></i>
-                                                </a>
-                                            </div> -->
+                                            
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <ul id="list" class="conversation-list" data-simplebar style="max-height: 460px; overflow-y: scroll;">
+                                        <ul id="list" class="conversation-list" data-simplebar style="max-height: 460px; overflow: auto;">
                                                                               
                                             
                                         </ul>
@@ -138,10 +135,10 @@
 <script>
     //live link = http://51.79.40.224:9070/
     var socket = new io('http://localhost:9062/');
-    var groupId, base64Img, extension;
+    var groupId, base64Img, extension, currentPage = 0;
     var chatListData = [];
     socket.on("newMessage", (data)=>{  
-        getChatlist();     
+            
         if(data.senderId)
             var odd = data.senderId == '<%-id%>' ? true : false;
         else     
@@ -199,9 +196,9 @@
     })
    
     $(document).ready(function(){  
-      $("#chat img:last-child").remove()
-       // $("#right-chat").hide(); 
-        getChatlist();
+      $("#chat img:last-child").remove();
+        $("#right-chat").hide(); 
+        getAdmin();
     });
     
     
@@ -210,97 +207,66 @@
       $("#msg").show();
       $("#img img:last-child").remove();
       if(base64Img && base64Img != ""){
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin", groupId: groupId});
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: "vendor", groupId: groupId});
         base64Img = "";
       }else{
-          console.log(">>>>>>>>>>>>GROUP",groupId)
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, message: $('#msg').val(), usertype: "admin", groupId: groupId});
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: "vendor", groupId: groupId});
       }
         
         $('#msg').val('');
       return false;
     });
-    function getChatlist(){
-                socket.emit('chatList',{authToken: '<%-token%>', usertype: "user"});
-        
-     }
-
-     socket.on("errorMessage", data=>{
-             console.log("=>>?????????????????????????????????>chatList", data)
-           
-          
-         })
-     socket.on("chatList", data=>{
-            // console.log("=>>>chatList", data)
+    function getAdmin(){
+        socket.emit('getAdmin',{authToken: '<%-token%>'});
+        socket.on("getAdmin", data=>{
+            console.log("=>>>chatList", data)
             chatListData = data;
             var userData = data;
-            var html = "";
-
-               console.log(userData.length)
-            if(userData.length>0)
-           { var id = userData[0].adminId ? userData[0].adminId : userData[0].senderId;
-            showmsg(id)
-           }
-
-           else{
-
-            var data = {
-            authToken: '<%-token%>',
-            receiverId: "25cbf58b-46ba-4ba2-b25d-8f8f653e9f13",
-            groupId: ''
-        }
-        console.log(">>>>>>>>>>>",data)
-
-
-       socket.emit('joinRoom',data);
-        
-
-            
-           }
-    //         for(var k=0;k<userData.length;k++){
-    //             html = html + `<a href="javascript:void(0);" class="text-body">
-    //                 <div class="media p-2">
-    //                     <img src="/dist/assets/images/user.jpg" class="mr-2 rounded-circle" height="42" alt="" />
-    //                     <div class="media-body" onclick="showmsg('${id}')">
-    //                         <h5 class="mt-0 mb-0 font-14">
-    //                             <!-- <span class="float-right text-muted font-weight-normal font-12">4:30am</span> -->
-    //                             ${data[k].senderName ? data[k].senderName : data[k].adminName}
-    //                         </h5>
-    //                         <p class="mt-1 mb-0 text-muted font-14">
-    //                            <!-- <span class="w-25 float-right text-right"><span class="badge badge-soft-danger">3</span></span> -->
-    //                             <span class="w-75"> ${data[k].message}</span>
-    //                         </p>
-    //                     </div>
-    //                 </div>
-    //             </a> `  
-    //         }
-    //         $('#chatlist').html(html)
-     
+            createChatList(userData);  
         })
-     
+    }
+    function createChatList(data){
+        var html = "", btn= "";
+        for(var k=0;k<data.length;k++){
+            btn = `<button class="btn-info"  onclick="showmsg('${data[k].id}')"><i class="mdi mdi-chat "></i>&nbsp;&nbsp;Chat</button>`;
+            html = html + 
+            
+            `<div class="col-md-12 text-center bg-pattern ">
+                            <div class="card-box product-box"> 
+            <a href="javascript:void(0);" class="text-body">
+                <div class="media p-2">
+                    <img src="${data[k].image}" class="img-fluid" alt="" />
+                    </div>
+                    <div class="media p-2">
+                        
+                    <div class="media-body" onclick="showmsg('${data[k].id}')">
+                        ${btn}
+                        <h4 class="mt-2 mb-0 font-20">
+                            ${data[k].name}
+                        </h4>
+                        <p class="mt-1 mb-0 text-muted font-14">
+                            <span class="w-75">${data[k].email} </span></br>
+                            <span class="w-75">${data[k].phone} </span>            
+                                        </p>
+                    </div>
+                </div>
+                </div>
+                </div>
+            </a> `  
+        }
+        $('#chatlist').html(html);
+       
+    }
 
     function showmsg(id){
         $("#right-chat").show();
-       
-       var singleChatList = chatListData.find(x=> x.senderId == id || x.adminId == id);
-        if(groupId){
-            var leaveRoomData = {
-                authToken: '<%-token%>',
-                receiverId: id,
-                groupId: groupId
-            }
-            socket.emit("leaveRoom", leaveRoomData);
-        }
+        $("#chatlist").hide();
        var data = {
             authToken: '<%-token%>',
-            receiverId: id,
-            groupId: singleChatList.groupId
+            receiverId: id
         }
-        console.log("Before Room>>>>>>>>",chatListData)
-
        socket.emit('joinRoom',data);
        socket.on('joinRoom',(data)=>{
-
            groupId = data.groupId;
            socket.emit("chatHistory", {authToken: '<%-token%>', groupId: data.groupId, usertype: "admin"});
            socket.on("chatHistory", (data)=>{
@@ -382,6 +348,8 @@
         }
         reader.readAsDataURL(img);
     }
+    
+   
     function convertTime(timeStamp){
         var unixtimestamp = timeStamp;
         var date = new Date(unixtimestamp*1000);
