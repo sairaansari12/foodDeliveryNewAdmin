@@ -4,7 +4,32 @@
         
 
         <%- include('../partials/header'); -%>
+<style>
+    .auth-fluid1 {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 60vh;
+  flex-direction: row;
+  align-items: stretch;
+  background: url("/assets/images/chatbg.jpg") center;
+  background-size: cover; }
+  .auth-fluid1 .auth-fluid-form-box {
+    max-width: 400px;
+    border-radius: 0;
+    z-index: 2;
+    padding: 3rem 2rem;
+    background-color: #fff;
+    position: relative;
+    width: 100%; }
+  .auth-fluid1 .auth-fluid-right {
+    padding: 8rem 3rem;
+    flex: 1;
+    position: relative;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.3); }
 
+</style>
     </head>
 
     <body class="loading"
@@ -25,34 +50,53 @@
                     <div class="container-fluid">
                         
                      
-                        <!-- end page title --> 
 
-                            <div class="auth-fluid">
-                                <!--Auth fluid left content -->
-                                <div class="auth-fluid-form-box">
-                                    <div class="align-items-center d-flex h-100">
-                                        <div class="card-body">
+                           
                     
-                                            <div  id="chatlist"></div>
-
+                                <div  id="adminDiv" class="auth-fluid1">
+                                    <!--Auth fluid left content -->
+                                    <div class="auth-fluid-form-box">
+                                        <div class="align-items-center d-flex h-100">
+                                            <div class="card-body">
+                            
+                                              
+                                                
+                            
+                                                <!-- title-->
+                                                <h4 class="text-muted mb-4">Click on chat button to contact admin</h4>
+                            
                                             
-                    
-                                        </div> <!-- end .card-body -->
-                                    </div> <!-- end .align-items-center.d-flex.h-100-->
+                            
+                                                <div  id="chatlist"></div>
+
+                                               
+                            
+                                            </div> <!-- end .card-body -->
+                                        </div> <!-- end .align-items-center.d-flex.h-100-->
+                                    </div>
+                                    <!-- end auth-fluid-form-box-->
+                            
+                                    <!-- Auth fluid right content -->
+                                    <div class="auth-fluid-right text-center">
+                                        <div class="auth-user-testimonial">
+                                            <h2 class="mb-3 text-white">Need Help?</h2>
+                                            <p class="lead"><i class="mdi mdi-format-quote-open"></i>If you signed up for Delicio, such as for your business, sign in to Delecio now to contact support. Use your administrator account (the one you signed up with).
+                                                <i class="mdi mdi-format-quote-close"></i>
+                                            </p>
+                                            <h5 class="text-white">
+                                                (Delicio Admin)
+                                            </h5>
+                                        </div> <!-- end auth-user-testimonial-->
+                                    </div>
+                                    <!-- end Auth fluid right content -->
                                 </div>
-                                <!-- end auth-fluid-form-box-->
-                    
-                                <!-- Auth fluid right content -->
-                                <div class="auth-fluid-right text-center">
-                                    <div class="auth-user-testimonial">
-                                        <h2 class="mb-3 text-white">I love the Food!</h2>
-                                        <p class="lead"><i class="mdi mdi-format-quote-open"></i> Vegetables are a must on a diet. I suggest carrot cake, zucchini bread, and pumpkin pie <i class="mdi mdi-format-quote-close"></i>
-                                        </p>
-                                        <h5 class="text-white">
-                                            - Saira (Delicio Admin User)
-                                        </h5>
-                                    </div> <!-- end auth-user-testimonial-->
-                                </div>
+
+
+
+
+
+
+                            
                                 <!-- end Auth fluid right content -->
                             </div>
 
@@ -260,7 +304,7 @@
 
     function showmsg(id){
         $("#right-chat").show();
-        $("#chatlist").hide();
+        $("#adminDiv").hide();
        var data = {
             authToken: '<%-token%>',
             receiverId: id
