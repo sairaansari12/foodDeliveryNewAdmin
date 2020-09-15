@@ -74,8 +74,8 @@ let modules = [
   require('./chat/chatMessages.js'),
   require('./chat/textMessages.js'),
   require('./chat/mediaMessages.js'),
-  require('./chat/messagesStatus.js'),
-  require('./chat/clearedMessages.js'),
+  // require('./chat/messagesStatus.js'),
+  // require('./chat/clearedMessages.js'),
 
   
 

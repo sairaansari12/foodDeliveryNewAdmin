@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     createdBy: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'users',
           key: 'id'
@@ -23,6 +23,16 @@ module.exports = function(sequelize, DataTypes) {
          onUpdate: 'CASCADE',
          onDelete: 'CASCADE',
     },
+    createdByAdmin: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'companies',
+        key: 'id'
+       },
+       onUpdate: 'CASCADE',
+       onDelete: 'CASCADE',
+  },
 	  groupName: {
       type: DataTypes.STRING(255),
       allowNull: true,

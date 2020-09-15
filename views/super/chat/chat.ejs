@@ -158,7 +158,7 @@
 <script>
     //live link = http://51.79.40.224:9070/
     var socket = new io('http://localhost:9062/');
-    var groupId, base64Img, extension, currentPage = 1, totalPage, totalRows, isVendor = false;
+    var groupId, base64Img, extension, currentPage = 1, totalPage, totalRows, isVendor = false, receiverId;
     var chatListData = [];
     socket.on("newMessage", (data)=>{  
         var pageData = {
@@ -239,17 +239,17 @@
       $("#img img:last-child").remove();
       if(base64Img && base64Img != ""){
           
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId});
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId, receiverId: receiverId});
         base64Img = "";
       }else{
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId});
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId, receiverId: receiverId});
       }    
         $('#msg').val('');
       return false;
     });
     function getChatlist(pageData){
 
-        socket.emit('chatList',{authToken: '<%-token%>', usertype: "user", pageNumber: pageData.pageNumber});
+        socket.emit('chatList',{authToken: '<%-token%>', usertype: "admin", pageNumber: pageData.pageNumber});
         socket.on("chatList", data=>{
             console.log("=>>>chatList", data);
             totalPage = data.page;
@@ -302,7 +302,7 @@
     function showmsg(id, Vendor){
         $("#right-chat").show();
         isVendor = Vendor;
-        
+        receiverId = id;
        var singleChatList = chatListData.find(x=> x.orderid == id || x.adminId == id);
         if(groupId){
             var leaveRoomData = {
@@ -316,7 +316,8 @@
        var data = {
             authToken: '<%-token%>',
             receiverId: id,
-            groupId: singleChatList.groupId
+            groupId: singleChatList.groupId,
+            userType: "vendor"
         }
        socket.emit('joinRoom',data);
        socket.on('joinRoom',(data)=>{
