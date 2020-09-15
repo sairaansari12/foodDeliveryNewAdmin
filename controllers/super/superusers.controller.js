@@ -7,6 +7,9 @@ const Op = require('sequelize').Op;
 
 
 
+/**
+*@role Get User Page
+*/
 app.get('/',superAuth, async (req, res, next) => {
     
     try {
@@ -46,6 +49,7 @@ app.post('/list',superAuth,async (req, res, next) => {
 
   }
 
+  if(params.page) page=params.page
 
   if(params.page) page=params.page
 
@@ -60,6 +64,10 @@ app.post('/list',superAuth,async (req, res, next) => {
 
  
 
+   var where= {
+    companyId:req.companyId,
+    status:  {[Op.or]: status}    
+    }
 
     if(params.search && params.search!="")
     {
@@ -111,7 +119,6 @@ app.post('/list',superAuth,async (req, res, next) => {
 
 
 app.post('/status',superAuth,async(req,res,next) => { 
-    
     var params=req.body
     try{
         let responseNull=  commonMethods.checkParameterMissing([params.id,params.status])
@@ -149,22 +156,17 @@ app.post('/status',superAuth,async(req,res,next) => {
              else{
                return responseHelper.post(res, 'Something went Wrong',400);
     
-             }
-       
-       }
-
-       else{
-        return responseHelper.post(res, appstrings.no_record,204);
-
+        }
+        
+      
       }
-
-         }
-           catch (e) {
-             return responseHelper.error(res, e.message, 400);
-           }
-    
-    
-    
+      else
+        return responseHelper.post(res, appstrings.no_record,204);
+      
+    }
+    catch (e) {
+      return responseHelper.error(res, e.message, 400);
+    }
 });
 
 

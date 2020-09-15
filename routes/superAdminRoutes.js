@@ -24,6 +24,8 @@ const ratingsCtrl              = require('../controllers/super/superratings.cont
 
 
 
+
+const settingCtrl      = require('../controllers/super/superdocument.controller');
 router.use('/employees/',empCtrl);
 router.use('/',authController);
 
