@@ -471,7 +471,7 @@ module.exports = function (io) {
                 description: data.message,
                 userId: data.receiverId,
                 orderId: "",
-                role: data.usertype == 'admin' ? 1 : 2
+                role: data.extraType == 'vendor' ? 4 : data.usertype == 'user' ? 3 : 1 ,
               } 
               commonNotification.insertNotification(notifData);  
               var notifPushUserData={
@@ -480,7 +480,7 @@ module.exports = function (io) {
                 token: toUser.dataValues.deviceToken,  
                 platform: toUser.dataValues.platform,
                 userId : data.receiverId,
-                role : data.usertype == 'admin' ? 1 : 2,
+                role : data.extraType == 'vendor' ? 4 : data.usertype == 'user' ? 3 : 1 ,
                 orderId: "",
                 notificationType:"CHAT_NEW_MSG",
                 status: 1,
