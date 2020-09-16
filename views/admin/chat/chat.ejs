@@ -216,8 +216,15 @@
       if(base64Img && base64Img != ""){
         socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: "vendor", groupId: groupId, receiverId: receiverId});
         base64Img = "";
+        var url = `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%231abc9c' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e")`
+        $("#msg").css('background-image',url );
       }else{
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: "vendor", groupId: groupId, receiverId:receiverId});
+        $("#msg").css('background-image', 'none');
+        if($('#msg').val() && $('#msg').val().trim() != ""){
+            socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: "vendor", groupId: groupId, receiverId:receiverId});
+            var url = `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%231abc9c' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e")`
+            $("#msg").css('background-image',url );
+        }
       }
         
         $('#msg').val('');
@@ -226,9 +233,9 @@
     function getAdmin(){
         socket.emit('getAdmin',{authToken: '<%-token%>'});
         socket.on("getAdmin", data=>{
-            console.log("=>>>chatList", data)
             chatListData = data;
             var userData = data;
+            $('#loading1').show();
             createChatList(userData);  
         })
     }
@@ -255,12 +262,14 @@
         }
         $('#chatlist').html(html);
         $("#chatlist").append(btn);
+        $('#loading1').hide();
        
     }
 
     function showmsg(id){
         $("#right-chat").show();
         $("#admin-center").hide();
+        $('#loading1').show();
         receiverId = id;
        var data = {
             authToken: '<%-token%>',
@@ -330,7 +339,8 @@
                 }
                 
                }
-               $('#list').html(html)
+               $('#list').html(html);
+               $('#loading1').hide();
            })
        });
        
@@ -345,7 +355,7 @@
         reader.onloadend = function() {
             base64Img = reader.result;
             $("#msg").hide();
-            var html = `<img src="${base64Img}" style="width: 50%;" />`
+            var html = `<img src="${base64Img}" style="width: 200px;height: 200px;"  />`
             $("#img").html(html);
         }
         reader.readAsDataURL(img);

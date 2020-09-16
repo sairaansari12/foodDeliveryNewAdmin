@@ -118,7 +118,7 @@
                                                                 <div class="btn-group">
                                                                     <a onclick="selectFile()" class="btn btn-light"><i class="fe-paperclip"></i></a>
                                                                     <input onchange="getImage(this)" id="file-upload" type="file" hidden />
-                                                                    <button type="submit" class="btn btn-success chat-send btn-block"><i class='fe-send'></i></button>
+                                                                    <button type="submit" class="btn btn-success chat-send btn-block"><i class='fe-send' ></i></button>
                                                                 </div>
                                                             </div> <!-- end col -->
                                                         </div> <!-- end row-->
@@ -161,14 +161,12 @@
     var groupId, base64Img, extension, currentPage = 1, totalPage, totalRows, isVendor = false, receiverId;
     var chatListData = [];
     socket.on("newMessageEvent",(data)=>{
-        console.log("======newMsgAdmin")
         var pageData = {
             pageNumber: currentPage
         }
         getChatlist(pageData);
     })
     socket.on("newMessage", (data)=>{  
-        console.log("======new msg")
         var pageData = {
             pageNumber: currentPage
         }
@@ -237,6 +235,7 @@
         var pageData = {
             pageNumber: currentPage
         }
+        $('#loading1').show();
         getChatlist(pageData);
     });
     
@@ -245,12 +244,21 @@
       e.preventDefault();
       $("#msg").show();
       $("#img img:last-child").remove();
-      if(base64Img && base64Img != ""){
-          
+      if(base64Img && base64Img != ""){  
         socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId, receiverId: receiverId});
         base64Img = "";
+        var url = `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%231abc9c' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e")`
+        $("#msg").css('background-image',url );
+        
       }else{
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId, receiverId: receiverId});
+        $("#msg").css('background-image', 'none');
+          if($('#msg').val() && $('#msg').val().trim() != ""){
+            socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: isVendor != "false" ? "vendor" : "", groupId: groupId, receiverId: receiverId});
+            var url = `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%231abc9c' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e")`
+            $("#msg").css('background-image',url );
+            
+        }
+        
       }    
         $('#msg').val('');
       return false;
@@ -259,7 +267,6 @@
 
         socket.emit('chatList',{authToken: '<%-token%>', usertype: "admin", pageNumber: pageData.pageNumber});
         socket.on("chatList", data=>{
-            console.log("=>>>chatList", data);
             totalPage = data.page;
             totalRows = data.count;
             if(totalRows > 10){
@@ -304,11 +311,13 @@
                 </div>
             </a> `  
         }
-        $('#chatlist').html(html)
+        $('#chatlist').html(html);
+        $('#loading1').hide();
     }
 
     function showmsg(id, Vendor){
         $("#right-chat").show();
+        $('#loading1').show();
         isVendor = Vendor;
         receiverId = id;
        var singleChatList = chatListData.find(x=> x.orderid == id || x.adminId == id);
@@ -331,7 +340,6 @@
            groupId = data.groupId;
            socket.emit("chatHistory", {authToken: '<%-token%>', groupId: data.groupId, usertype: "admin"});
            socket.on("chatHistory", (data)=>{
-               console.log("=>chatHistoryRes",  data);
                var html = "";
                for(var i = 0 ;  i <data.length ; i++){
                    var sentAt = convertTime(data[i].sentAt);
@@ -389,7 +397,8 @@
                 }
                 
                }
-               $('#list').html(html)
+               $('#list').html(html);
+               $('#loading1').hide();
            })
        });
        
@@ -404,7 +413,7 @@
         reader.onloadend = function() {
             base64Img = reader.result;
             $("#msg").hide();
-            var html = `<img src="${base64Img}" style="width: 50%;" />`
+            var html = `<img src="${base64Img}" style="width: 200px;height: 200px;" />`
             $("#img").html(html);
         }
         reader.readAsDataURL(img);
@@ -418,7 +427,6 @@
                 if (response.code == '200') {
                     var data=response.body;
                     chatListData = data;
-                    console.log("======search data", data)
                     createChatList(data, 'search');
                 }
             },
