@@ -46,6 +46,23 @@
     },
 
 
+    "/api/mobile/auth/useReferral": {
+      "post": {
+        "x-swagger-router-controller": "api/mobile/auth/useReferral",
+        "operationId": "index",
+        "tags": ["Use Referral"],
+        "description": "Authentication",
+        "parameters": [
+      { "name": "referralCode",   "in": "formData",  "required":"true",  "type": "string" },
+      { "name": "companyId",   "value":"25cbf58b-46ba-4ba2-b25d-8f8f653e9f13" ,"in": "formData",  "required":"true",  "type": "string" }
+     
+     
+     
+     ],
+     "responses": {}
+      }
+    },
+
     "/api/mobile/profile/getProfile": {
      "get": {
        "x-swagger-router-controller": "/api/mobile/profile/getProfile",

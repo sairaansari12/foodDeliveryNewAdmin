@@ -88,6 +88,7 @@ app.post('/update',adminAuth,async(req,res,next) => {
           autoAssign:  params.autoAssign,
           onelPValue:  params.onelPValue,
           loyalityPoints:  params.loyalityPoints,
+          lpProMember:params.lpProMember,
           lpOrderPercentage:  params.lpOrderPercentage,
           targetSales:  params.targetSales,
           companyId: req.id
@@ -119,6 +120,8 @@ app.post('/update',adminAuth,async(req,res,next) => {
           autoAssign:  params.autoAssign,
           onelPValue:  params.onelPValue,
           loyalityPoints:  params.loyalityPoints,
+          lpProMember:params.lpProMember,
+
           lpOrderPercentage:  params.lpOrderPercentage,
           companyId: req.id
         }) ; 

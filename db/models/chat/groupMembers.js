@@ -21,13 +21,23 @@ module.exports = function(sequelize, DataTypes) {
     },
     userId: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'users',
           key: 'id'
          },
          onUpdate: 'CASCADE',
          onDelete: 'CASCADE',
+    },
+    adminId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'companies',
+        key: 'id'
+       },
+       onUpdate: 'CASCADE',
+       onDelete: 'CASCADE',
     },
     createdAt: {
       type: DataTypes.INTEGER(11),

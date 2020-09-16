@@ -8,12 +8,15 @@ const jwt = require('jsonwebtoken');
 
 //CHt moidels
 
+
+const users = db.models.users;
 const groupa = db.models.groups;
 const groupMembers = db.models.groupMembers;
 const chatMessages = db.models.chatMessages;
 const textMessages = db.models.textMessages;
 const mediaMessages = db.models.mediaMessages;
 const messagesStatus = db.models.messagesStatus;
+const companies = db.models.companies;
 
 
 
@@ -341,7 +344,7 @@ app.get('/chatListSearch', superAuth,async (req, res, next) => {
             model: mediaMessages,
             attributes: [],
           }, {
-            model: USERS,
+            model: users,
             attributes: [],
             where: {
               [Op.or]: {
@@ -377,7 +380,7 @@ app.get('/chatListSearch', superAuth,async (req, res, next) => {
             model: textMessages,
             attributes: [],
           },{
-            model: COMPANY,
+            model: companies,
             attributes: [],
             where: {
               companyName: { [Op.like]: '%' + req.query.text + '%' }
@@ -447,7 +450,7 @@ app.get('/chatListSearch', superAuth,async (req, res, next) => {
               model: mediaMessages,
               attributes: [],
             }, {
-              model: COMPANY,
+              model: companies,
               attributes: [],
               where: {
                 companyName: { [Op.like]: '%' + req.query.text + '%' }
@@ -487,7 +490,7 @@ app.get('/chatListSearch', superAuth,async (req, res, next) => {
               model: textMessages,
               attributes: [],
             },{
-              model: COMPANY,
+              model: companies,
               attributes: [],
               where: {
                 companyName: { [Op.like]: '%' + req.query.text + '%' }

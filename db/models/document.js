@@ -109,10 +109,33 @@ autoAssign: {
    defaultValue: 'yes'
 },
 
+
+
+
+
+
 loyalityPoints: {
   type: DataTypes.STRING(20),
   defaultValue: 0
 },
+
+lpReferral1: {
+  type: DataTypes.STRING(20),
+  defaultValue: 0
+},
+
+
+lpReferral2: {
+  type: DataTypes.STRING(20),
+  defaultValue: 0
+},
+
+
+lpProMember: {
+  type: DataTypes.STRING(20),
+  defaultValue: 0
+},
+
 
 onelPValue: {
   type: DataTypes.STRING(20),

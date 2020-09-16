@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
     duration: {
       type:DataTypes.INTEGER(20),
       allowNull: true,
-      defaultValue: '',
+      defaultValue: 0,
       get() {
         var stringApp="Months"
         if(this.getDataValue('duration') && this.getDataValue('duration')<2) 

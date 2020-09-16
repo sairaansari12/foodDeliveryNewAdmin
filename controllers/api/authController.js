@@ -315,11 +315,13 @@ app.post('/login',async (req, res, next) => {
     
       if(updatedResponse)
       {
-if(params.referralCode && params.referralCode!="") setReferralPoints(params.referralCode,userData.dataValues.id,params.companyId,0)
+        if(params.referralCode && params.referralCode!="") 
+        setReferralPoints(params.referralCode,userData.dataValues.id,params.companyId, userData.dataValues.lPoints)
 
 userData.dataValues.sessionToken=token
 userData.dataValues.platform=params.platform
 userData.dataValues.deviceToken=params.deviceToken
+userData.dataValues.isFirst=false
 var btype=await commonMethods.getBusinessType(params.companyId)
 if(btype && btype.dataValues && btype.dataValues.type) userData.dataValues.btype=btype.dataValues.type
 else userData.dataValues.btype=0
@@ -393,7 +395,11 @@ var referralCode="USERDELC"+userId.substring(1,7).toUpperCase()
             var btype=await commonMethods.getBusinessType(params.companyId)
 if(btype && btype.dataValues && btype.dataValues.type) userData.dataValues.btype=btype.dataValues.type
 else userData.dataValues.btype=0
-         if(userData) return responseHelper.post(res, 'User Detail', userData);
+         if(userData) {
+          userData.dataValues.isFirst=true
+
+         return responseHelper.post(res, 'User Detail', userData);
+         }
 else return responseHelper.post(res, 'Something Error', null,400);
 
       }
@@ -408,6 +414,119 @@ catch (e) {
 })
 
 
+
+app.post('/useReferral',checkAuth,async (req, res, next) => {
+  const params = req.body;
+
+var userId=req.id
+  let responseNull=  commonMethods.checkParameterMissing([params.referralCode,params.companyId])
+  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+  
+ 
+		
+   
+    try{
+      const userData = await USER.findOne({
+      where: {
+        referralCode: params.referralCode,
+    
+      }});
+    
+      const myData = await USER.findOne({
+        where: {
+          id: userId,
+      
+        }});
+    
+    
+    if(userData)
+    {
+    
+    
+      const referData = await DOCUMENT.findOne({
+        attributes:['id','lpReferral1','lpReferral2'],
+        where: {
+          companyId: params.companyId,
+      
+        }});
+      var points=50
+      var points1=25
+    
+    if(referData && referData.dataValues && referData.dataValues.lpReferral1)
+    points=referData.dataValues.lpReferral1
+    
+    if(referData && referData.dataValues && referData.dataValues.lpReferral2)
+    points1=referData.dataValues.lpReferral2
+    
+    
+    if(userData && userData.dataValues!=""){
+    
+      var newPoints=parseInt(userData.dataValues.lPoints)+parseInt(points)
+      var newPoints1=parseInt(myData.dataValues.lPoints)+parseInt(points1)
+    
+    USER.update({lPoints: newPoints1},{where:{id:userId}})
+    USER.update({lPoints: newPoints},{where:{id:userData.dataValues.id}})
+    
+    
+        var notifPushUserData={title:"Congratulations "+points+" points added to your account",
+         description:"Congratulations "+points+" points added to your account. Your friend "+myData.dataValues.firstName+" has used your referral code",
+         token:userData.dataValues.deviceToken,  
+        platform:userData.dataValues.platform,
+        userId :userData.dataValues.id,
+        role :3,
+        notificationType:"REFERRAL_REWARD",
+        status:1,
+    }
+    
+    
+    
+    var notifPushUserData1={title:"Congratulations "+points1+" points added to your account",
+    description:"Congratulations "+points1+" points added to your account by using referral code",
+    token:myData.dataValues.deviceToken,  
+    platform:myData.dataValues.platform,
+    userId :myData.dataValues.id,
+    role :3,
+    notificationType:"REFERRAL_REWARD",
+    status:1,
+    }
+    
+    
+    
+    
+    
+    
+    commonNotification.insertNotification(notifPushUserData)   
+    commonNotification.sendNotification(notifPushUserData)
+    
+    commonNotification.insertNotification(notifPushUserData1)   
+    commonNotification.sendNotification(notifPushUserData1)
+    
+    return responseHelper.post(res, appstrings.success, null,200);
+
+    
+    }
+
+   
+    }
+    
+        
+    else
+
+    return responseHelper.post(res, appstrings.invalid_referral, null,400);
+
+    
+
+    
+      
+
+  
+}
+catch (e) {
+  return responseHelper.error(res, e.message, 400);
+}
+  
+})
+
 async function setReferralPoints(referralCode,userId,parentCompany,myLPoints)
 {  try{
   const userData = await USER.findOne({
@@ -416,11 +535,19 @@ async function setReferralPoints(referralCode,userId,parentCompany,myLPoints)
 
   }});
 
+  const myData = await USER.findOne({
+    where: {
+      id: userId,
+  
+    }});
 
 
+if(userData)
+{
 
 
   const referData = await DOCUMENT.findOne({
+    attributes:['id','lpReferral1','lpReferral2'],
     where: {
       companyId: parentCompany,
   
@@ -428,22 +555,58 @@ async function setReferralPoints(referralCode,userId,parentCompany,myLPoints)
   var points=50
   var points1=25
 
-if(referData && referData.dataValues && referData.dataValues.referPoints)
-points=referData.dataValues.referPoints
+if(referData && referData.dataValues && referData.dataValues.lpReferral1)
+points=referData.dataValues.lpReferral1
 
-if(referData && referData.dataValues && referData.dataValues.referPointsOther)
-points1=referData.dataValues.referPointsOther
+if(referData && referData.dataValues && referData.dataValues.lpReferral2)
+points1=referData.dataValues.lpReferral2
+
 
 if(userData && userData.dataValues!=""){
 
-  var newPoints1=parseInt(userData.dataValues.lPoints)+points
-  var newPoints=parseInt(myLPoints)+points1
+  var newPoints=parseInt(userData.dataValues.lPoints)+parseInt(points)
+  var newPoints1=parseInt(myLPoints)+parseInt(points1)
 
-USER.update({lPoints: newPoints},{where:{id:userId}})
-USER.update({lPoints: newPoints1},{where:{id:userData.dataValues.id}})
+USER.update({lPoints: newPoints1},{where:{id:userId}})
+USER.update({lPoints: newPoints},{where:{id:userData.dataValues.id}})
+
+
+    var notifPushUserData={title:"Congratulations "+points+" points added to your account",
+     description:"Congratulations "+points+" points added to your account. Your friend "+myData.dataValues.firstName+" has used your referral code",
+     token:userData.dataValues.deviceToken,  
+    platform:userData.dataValues.platform,
+    userId :userData.dataValues.id,
+    role :3,
+    notificationType:"REFERRAL_REWARD",
+    status:1,
+}
 
 
 
+var notifPushUserData1={title:"Congratulations "+points1+" points added to your account",
+description:"Congratulations "+points1+" points added to your account by using referral code",
+token:myData.dataValues.deviceToken,  
+platform:myData.dataValues.platform,
+userId :myData.dataValues.id,
+role :3,
+notificationType:"REFERRAL_REWARD",
+status:1,
+}
+
+
+
+
+
+
+commonNotification.insertNotification(notifPushUserData)   
+commonNotification.sendNotification(notifPushUserData)
+
+commonNotification.insertNotification(notifPushUserData1)   
+commonNotification.sendNotification(notifPushUserData1)
+
+
+
+}
 }
 
     }

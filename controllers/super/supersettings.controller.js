@@ -122,6 +122,76 @@ app.get('/changePassword',superAuth, async (req, res, next) => {
    return res.render(adminfilepath+'dashboard/changePassword.ejs');
 });
 
+
+
+app.get('/points', superAuth,async (req, res, next) => {
+  try {
+      const findData = await DOCUMENT.findOne({
+        where :{companyId :req.id }
+      });
+
+      return res.render('super/settings/points.ejs',{data:findData});
+    } catch (e) {
+        console.log(e)
+      req.flash('errorMessage',e.message)
+      return res.redirect(superadminpath);
+    }
+
+});
+
+
+
+app.post('/points', superAuth,async (req, res) => {
+  try {
+      
+    var params=req.body
+    let responseNull=  commonMethods.checkParameterMissing([params.lpReferral1,params.lpReferral2])
+    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
+   
+    const findData = await DOCUMENT.findOne({
+      where :{companyId :req.id }
+    });
+var response=null
+    if(findData)
+   {
+    response= await DOCUMENT.update({ 
+        aboutus: params.aboutus,
+        lpReferral1:  params.lpReferral1,
+        lpReferral2:  params.lpReferral2,
+       },{where:{id:params.documentId}
+      });
+      
+    }
+    else{
+      response=await DOCUMENT.create({ 
+        aboutus: params.aboutus,
+        lpReferral1:  params.lpReferral1,
+        lpReferral2:  params.lpReferral2,
+        companyId:req.id
+       
+      });
+      
+    }
+      console.log("RESPOSNE>>>>>>>>>>",response)
+    if(response)  return responseHelper.post(res, appstrings.update_success,null,200);
+else  return responseHelper.post(res, appstrings.oops_something,null,400);
+
+    
+      } catch (e) {
+        console.log(e)
+        return responseHelper.post(res, e.message,null,400);
+
+    }
+
+});
+
+
+
+
+
+
+
+
 ///////////////////////////////////////////////////////
 /////////////////////// Staff Roles ////////////////////////
 //////////////////////////////////////////////////////

@@ -179,7 +179,7 @@
 <script>
     //live link = http://51.79.40.224:9070/
     var socket = new io('http://localhost:9062/');
-    var groupId, base64Img, extension, currentPage = 0;
+    var groupId, base64Img, extension, currentPage = 0, receiverId;
     var chatListData = [];
     socket.on("newMessage", (data)=>{  
             
@@ -251,10 +251,10 @@
       $("#msg").show();
       $("#img img:last-child").remove();
       if(base64Img && base64Img != ""){
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: "vendor", groupId: groupId});
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 2, media: base64Img,extension:extension, usertype: "admin",extraType: "vendor", groupId: groupId, receiverId: receiverId});
         base64Img = "";
       }else{
-        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: "vendor", groupId: groupId});
+        socket.emit("sendMessage", {authToken: '<%-token%>' , type: 1, message: $('#msg').val(), usertype: "admin",extraType: "vendor", groupId: groupId, receiverId:receiverId});
       }
         
         $('#msg').val('');
@@ -305,9 +305,11 @@
     function showmsg(id){
         $("#right-chat").show();
         $("#adminDiv").hide();
+        receiverId = id;
        var data = {
             authToken: '<%-token%>',
-            receiverId: id
+            receiverId: id,
+            userType: "vendor"
         }
        socket.emit('joinRoom',data);
        socket.on('joinRoom',(data)=>{

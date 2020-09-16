@@ -23,8 +23,8 @@ let modules = [
   require('./chatMessages.js'),
   require('./textMessages.js'),
   require('./mediaMessages.js'),
-  require('./messagesStatus.js'),
-  require('./clearedMessages.js'),
+  // require('./messagesStatus.js'),
+  // require('./clearedMessages.js'),
 ];
 
 // Initialize models
