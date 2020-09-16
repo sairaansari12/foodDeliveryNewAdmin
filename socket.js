@@ -466,11 +466,11 @@ module.exports = function (io) {
               io.sockets.emit("newMessageEvent",messageDetail)
               io.sockets.in(groupId).emit('newMessage', messageDetail); // emit message in room
               var notifData = {
-                title: "New Message",
+                title: "You have received a new message in contact us list. Please check , Date: "+commonMethods.formatAMPM(new Date(new Date)),
                 description: data.message,
                 userId: data.receiverId,
                 orderId: "",
-                role: data.usertype == 'admin' ? 1 : 2
+                role: data.extraType == 'vendor' ? 4 : data.usertype == 'user' ? 3 : 1 ,
               } 
               commonNotification.insertNotification(notifData);  
               var notifPushUserData={
@@ -479,7 +479,7 @@ module.exports = function (io) {
                 token: toUser.dataValues.deviceToken,  
                 platform: toUser.dataValues.platform,
                 userId : data.receiverId,
-                role : data.usertype == 'admin' ? 1 : 2,
+                role: data.extraType == 'vendor' ? 4 : data.usertype == 'user' ? 3 : 1 ,
                 orderId: "",
                 notificationType:"CHAT_NEW_MSG",
                 status: 1,
