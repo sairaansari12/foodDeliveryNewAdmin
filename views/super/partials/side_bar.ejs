@@ -1,4 +1,9 @@
 <!--- Sidemenu -->
+<style>
+  #chat img{
+    width: 5%;
+  }
+</style>
 <div id="sidebar-menu">
   <ul id="side-menu">
     <li class="menu-title">Navigation</li>
@@ -95,7 +100,7 @@
     var socket = new io('http://localhost:9062/');
     socket.on("newMessageEvent", (data)=>{ 
       console.log("=>>>side bar new msg event")  
-      var html = "<img style='width:5%;' src='/dist/assets/images/dot.png' />";
+      var html = "<img src='/dist/assets/images/dot.png' />";
       $("#chat").html(html);
     });
 </script>
