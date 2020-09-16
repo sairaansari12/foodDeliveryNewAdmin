@@ -467,7 +467,7 @@ module.exports = function (io) {
               io.sockets.emit("newMessageEvent",messageDetail)
               io.sockets.in(groupId).emit('newMessage', messageDetail); // emit message in room
               var notifData = {
-                title: "New Message",
+                title: "You have received a new message in contact us list. Please check , Date: "+commonMethods.formatAMPM(new Date(new Date)),
                 description: data.message,
                 userId: data.receiverId,
                 orderId: "",
@@ -475,7 +475,7 @@ module.exports = function (io) {
               } 
               commonNotification.insertNotification(notifData);  
               var notifPushUserData={
-                title:"New message",
+                title: "New message",
                 description: data.message,
                 token: toUser.dataValues.deviceToken,  
                 platform: toUser.dataValues.platform,
