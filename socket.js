@@ -447,7 +447,7 @@ module.exports = function (io) {
               requestData.usertype = data.usertype;
               const messageDetail = await messageDetails(requestData);
               var toUser;
-              if(data.usertype == 'admin'){
+              if(data.usertype == 'admin' && data.extraType != 'vendor'){
                 toUser = await users.findOne({
                   attributes: ['deviceToken', 'platform'],
                   where: {
@@ -463,6 +463,8 @@ module.exports = function (io) {
                   },
                 });
               }
+              console.log("touser=======", toUser, data.usertype)
+              io.sockets.emit("newMessageEvent",messageDetail)
               io.sockets.in(groupId).emit('newMessage', messageDetail); // emit message in room
               var notifData = {
                 title: "New Message",

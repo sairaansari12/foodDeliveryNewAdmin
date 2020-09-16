@@ -160,7 +160,15 @@
     var socket = new io('http://localhost:9062/');
     var groupId, base64Img, extension, currentPage = 1, totalPage, totalRows, isVendor = false, receiverId;
     var chatListData = [];
+    socket.on("newMessageEvent",(data)=>{
+        console.log("======newMsgAdmin")
+        var pageData = {
+            pageNumber: currentPage
+        }
+        getChatlist(pageData);
+    })
     socket.on("newMessage", (data)=>{  
+        console.log("======new msg")
         var pageData = {
             pageNumber: currentPage
         }
@@ -312,7 +320,6 @@
             }
             socket.emit("leaveRoom", leaveRoomData);
         }
-        console.log("====showmsg", id, singleChatList.groupId)
        var data = {
             authToken: '<%-token%>',
             receiverId: id,

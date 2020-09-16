@@ -73,7 +73,7 @@
     <li>
       <a href="<%- superadminpath %>chat/" onclick="hideImg()">
           <i data-feather="message-square"></i>
-          <span id="chat"> Chat </span>
+          <span > Chat </span><span id="chat"></span>
       </a>
   </li>
   <!-- <li>
@@ -93,9 +93,9 @@
   })
     //live link = http://51.79.40.224:9070/
     var socket = new io('http://localhost:9062/');
-    socket.on("newMessage", (data)=>{ 
+    socket.on("newMessageEvent", (data)=>{ 
       console.log("=>>>side bar new msg event")  
-      var html = "<img width='10' src='/dist/assets/images/dot.png' />";
-      $("#chat").append(html);
+      var html = "<img style='width:5%;' src='/dist/assets/images/dot.png' />";
+      $("#chat").html(html);
     });
 </script>
