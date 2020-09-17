@@ -77,6 +77,11 @@ app.post('/list',adminAuth, async (req, res, next) => {
         order: [
           ['createdAt', 'DESC'],  
         ],
+        include:[ {
+          model: USERTYPE,
+          attributes: ['id','userType'],
+          required: false
+        }],
         where :where,
         offset: offset, limit: limit ,
       });
@@ -97,7 +102,9 @@ app.get('/add',adminAuth, async (req, res, next) => {
     
   try{
   
-    return res.render('admin/deals/dealAdd.ejs');
+    var types=await commonMethods.getUserTypes(req.parentCompany) 
+
+    return res.render('admin/deals/dealAdd.ejs',{types});
 
     } catch (e) {
       return responseHelper.error(res, e.message, 400);
@@ -205,6 +212,7 @@ app.post('/add',adminAuth,async (req, res) => {
         validUpto:data.validupto,
         thumbnail: icon,
         icon: icon,
+        type:data.type,
         description:data.description,
         companyId: req.companyId,
         status: '1'
@@ -282,6 +290,8 @@ app.post('/update',adminAuth,async (req, res) => {
         usageLimit: data.usageLimit,
         thumbnail: icon,
         icon:icon,
+        type:data.type,
+
         description:data.description,
         companyId: req.companyId,
         validUpto:data.validupto
@@ -336,8 +346,9 @@ app.get('/view/:id',adminAuth,async(req,res,next) => {
       const findData = await DEAL.findOne({
         where :{companyId :req.companyId, id: id }
       });
-      
-      return res.render('admin/deals/viewDeal.ejs',{data:findData});
+      var types=await commonMethods.getUserTypes(req.parentCompany) 
+
+      return res.render('admin/deals/viewDeal.ejs',{data:findData,types});
     }catch (e) {
       req.flash('errorMessage',e.message)
       return res.redirect(adminpath+"deals");

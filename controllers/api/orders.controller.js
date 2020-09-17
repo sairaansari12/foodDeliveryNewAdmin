@@ -980,8 +980,15 @@ var userData=await USERS.findOne({where:{id:userId}})
 var lSettings=await DOCUMENT.findOne({where:{companyId:companyId}})
 
 if(lSettings && lSettings.dataValues && lSettings.dataValues.loyalityPoints)
-award=lSettings.dataValues.loyalityPoints;
+{
 
+  
+  if(userData.dataValues.userType==4)
+  award=lSettings.dataValues.lpProMember;
+
+else award=lSettings.dataValues.loyalityPoints;
+
+}
 
 
 if(userData)

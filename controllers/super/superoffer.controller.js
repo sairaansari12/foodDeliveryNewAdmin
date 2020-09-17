@@ -21,8 +21,15 @@ app.get('/',superAuth, async (req, res, next) => {
         offerType: "overall",
         validupto: {
           [Op.gte] : newDate
-        }
-      }
+        },
+
+        
+      },
+      include:[ {
+        model: USERTYPE,
+        attributes: ['id','userType'],
+        required: false
+      }],
     });
     
         return res.render('super/offers/offerListing.ejs',{data:findData});
@@ -171,6 +178,7 @@ app.post('/add',superAuth,async (req, res) => {
         icon: icon,
         validupto:data.validupto,
         thumbnail: icon,
+        type:data.type,
         description:data.description,
         companyId: req.companyId,
         minimumAmount:data.minimumAmount
@@ -258,6 +266,7 @@ app.post('/update',superAuth,async (req, res) => {
         description:data.description,
         companyId: req.companyId,
         validupto:data.validupto,
+        type:data.type,
         minimumAmount:data.minimumAmount
        },
        {where:{

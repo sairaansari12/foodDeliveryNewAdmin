@@ -6,6 +6,7 @@ const Op = require('sequelize').Op;
 const COUPAN = db.models.coupan
 const CATEGORY = db.models.categories
 const DEAL = db.models.deals
+DEAL.belongsTo(USERTYPE,{foreignKey: 'type'})
 
 app.get('/',superAuth, async (req, res, next) => {
     
@@ -17,7 +18,9 @@ app.get('/',superAuth, async (req, res, next) => {
         companyId: req.companyId
       }
     });
-    return res.render('super/deals/dealListing.ejs',{data:findData});
+    var types=await commonMethods.getUserTypes(req.id) 
+
+    return res.render('super/deals/dealListing.ejs',{data:findData,types:types});
   } catch (e) {
     return responseHelper.error(res, e.message, 400);
   }
@@ -80,6 +83,11 @@ app.post('/list',superAuth, async (req, res, next) => {
         order: [
           ['createdAt', 'DESC'],  
         ],
+       include:[ {
+          model: USERTYPE,
+          attributes: ['id','userType'],
+          required: false
+        }],
         where :where,
         offset: offset, limit: limit ,
       });
@@ -100,7 +108,9 @@ app.get('/add',superAuth, async (req, res, next) => {
     
   try{
   
-    return res.render('super/deals/dealAdd.ejs');
+    var types=await commonMethods.getUserTypes(req.id) 
+
+    return res.render('super/deals/dealAdd.ejs',{types});
 
     } catch (e) {
       return responseHelper.error(res, e.message, 400);
@@ -208,6 +218,7 @@ app.post('/add',superAuth,async (req, res) => {
         validUpto:(data.validupto && data.validupto!="")?data.validupto:null,
         thumbnail: icon,
         icon: icon,
+        type:data.type,
         description:data.description,
         companyId: req.companyId,
         status: '1'
@@ -285,6 +296,7 @@ app.post('/update',superAuth,async (req, res) => {
         usageLimit: data.usageLimit,
         thumbnail: icon,
         icon:icon,
+        type:data.type,
         description:data.description,
         companyId: req.companyId,
         validUpto:(data.validupto && data.validupto!="")?data.validupto:null
@@ -340,7 +352,10 @@ app.get('/view/:id',superAuth,async(req,res,next) => {
         where :{companyId :req.companyId, id: id }
       });
       
-      return res.render('super/deals/viewDeal.ejs',{data:findData});
+
+      var types=await commonMethods.getUserTypes(req.id) 
+
+      return res.render('super/deals/viewDeal.ejs',{data:findData,types});
     }catch (e) {
       req.flash('errorMessage',e.message)
       return res.redirect(superadminpath+"deals");

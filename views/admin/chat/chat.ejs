@@ -310,7 +310,7 @@
         $('#loading1').hide();
     }
 
-//
+
     function showmsg(id){
         $("#right-chat").show();
         $("#adminDiv").hide();
@@ -361,7 +361,7 @@
                 }else{
                     html = html +  ` <li class="clearfix">
                             <div class="chat-avatar">
-                                <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data[i].senderName}" />
+                                <img src="${data[i].senderImage}"   onError="this.onerror=null;this.src='/assets/images/no-user.png';" class="rounded" alt="${data[i].senderName}" />
                                 <i>${sentAt}</i>
                             </div>
                             <div class="conversation-text" style="width: 73% !important">

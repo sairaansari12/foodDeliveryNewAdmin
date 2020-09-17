@@ -56,6 +56,16 @@
                                             <input type="number" id="usageLimit" value="<%-data.usageLimit%>" name="usageLimit" class="form-control" placeholder="Deal Usage Limit">
                                         </div>
 
+
+                                        <div class="form-group   mb-3">
+                                            <label for="product-category">Type <span class="text-danger">*</span></label>
+                                            <select class="form-control chosen" id="type" name="type">
+                                                <option value="0" />All 
+                                                <%for(var p=0;p<types.length;p++){%>
+                                                    <option <%if(data.type==types[p].id){%> selected <%}%>   value="<%-types[p].id%>" ><%-types[p].userType%></option>  
+                                                <%}%>
+                                            </select>
+                                        </div>
                                         <div class="form-group">
                                             <label>Due Date <span class="text-danger">*</span></label>
                                             <input type="text" value="<%- commonMethods.format(new Date(data.validUpto)) %>" class="form-control" id="validupto" name="validupto" placeholder="Deal Valid">

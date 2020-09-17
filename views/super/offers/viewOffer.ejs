@@ -53,6 +53,16 @@
                                             <label for="product-name">Minimum Order Amount <span class="text-danger">*</span></label>
                                             <input type="number" id="minimumAmount" value="<%-data.minimumAmount%>" name="minimumAmount" class="form-control" placeholder="Minimum Order Amount">
                                         </div>
+                                        
+                                        <div class="form-group   mb-3">
+                                            <label for="product-category">Type <span class="text-danger">*</span></label>
+                                            <select class="form-control chosen" id="type" name="type">
+                                                <option value="0" />All 
+                                                <%for(var p=0;p<types.length;p++){%>
+                                                    <option <%if(data.type==types[p].id){%> selected <%}%>   value="<%-types[p].id%>" ><%-types[p].userType%></option>  
+                                                <%}%>
+                                            </select>
+                                        </div>
                                     
                                         <div class="form-group">
                                             <label>Due Date <span class="text-danger">*</span></label>

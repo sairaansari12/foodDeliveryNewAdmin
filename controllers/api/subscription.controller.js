@@ -17,7 +17,6 @@ var moment = require('moment')
         include:[{model:SUBDURATION,required:true,attributes:['id','price','duration']},
         {model:USERSUB ,where:{status:1},required:false,attributes:['id','amount','duration','durationId','startDate','endDate']},
 
-      
       ]
       });
       responseHelper.post(res, appstrings.added_success, findData,200);

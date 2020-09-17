@@ -294,7 +294,7 @@
             var Vendor = data[k].adminId ? true : false;
             html = html + `<a href="javascript:void(0);" class="text-body">
                 <div class="media p-2">
-                    <img src="/dist/assets/images/user.jpg" class="mr-2 rounded-circle" height="42" alt="" />
+                    <img   onError="this.onerror=null;this.src='/assets/images/no-user.png';"src="/dist/assets/images/user.jpg" class="mr-2 rounded-circle" height="42" alt="" />
                     <div class="media-body" onclick="showmsg('${id}','${Vendor}')">
                         <h5 class="mt-0 mb-0 font-14">
                             <!-- <span class="float-right text-muted font-weight-normal font-12">4:30am</span> -->
@@ -342,6 +342,7 @@
            socket.on("chatHistory", (data)=>{
                var html = "";
                for(var i = 0 ;  i <data.length ; i++){
+                   console.log(data)
                    var sentAt = convertTime(data[i].sentAt);
                    if(data[i].senderId)
                         var odd = data[i].senderId == '<%-id%>' ? true : false;
@@ -350,7 +351,7 @@
                 if(odd){
                     html = html +  ` <li class="clearfix odd">
                             <div class="chat-avatar">
-                                <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data[i].senderName}" />
+                                <img src="/dist/assets/images/user.jpg"  onError="this.onerror=null;this.src='/assets/images/no-user.png';"  class="rounded" alt="${data[i].senderImage}" />
                                 <i>${sentAt}</i>
                             </div>
                             <div class="conversation-text" style="width: 73% !important">
@@ -365,7 +366,7 @@
                             </div>          
                         </li>`
                     }  else{
-                        html = html + `<img style="width: 345px;height: 260px;" src="${data[i].media}" />
+                        html = html + `<img   onError="this.onerror=null;this.src='/assets/images/no-user.png';"  style="width: 345px;height: 260px;" src="${data[i].media}" />
                              </div>
                             </div>                              
                         </li>`
@@ -374,7 +375,7 @@
                 }else{
                     html = html +  ` <li class="clearfix">
                             <div class="chat-avatar">
-                                <img src="/dist/assets/images/user.jpg" class="rounded" alt="${data[i].senderName}" />
+                                <img  src="/dist/assets/images/user.jpg"   onError="this.onerror=null;this.src='/assets/images/no-user.png';" class="rounded" alt="${data[i].senderName}" />
                                 <i>${sentAt}</i>
                             </div>
                             <div class="conversation-text" style="width: 73% !important">
@@ -389,7 +390,7 @@
                             </div>          
                         </li>`
                     }  else{
-                        html = html + `<img style="width: 345px;height: 260px;" src="${data[i].media}" />
+                        html = html + `<img   style="width: 345px;height: 260px;" src="${data[i].media}" />
                              </div>
                             </div>                              
                         </li>`

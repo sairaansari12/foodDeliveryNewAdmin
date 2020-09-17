@@ -78,6 +78,13 @@
                                             <h5 class="font-weight-normal text-muted">Usage Limit</h5>
                                             <h4><%-data.usageLimit %> </h4>
                                         </div>
+
+                                        <% var type=(data.userType && data.userType.userType && data.userType.userType!="")?data.userType.userType:"All"%>
+
+                                        <div class="col-6">
+                                            <h5 class="font-weight-normal text-muted">Valid For</h5>
+                                            <h4><%-type %> </h4>
+                                        </div>
                                     </div>
                                 </div> <!-- end card-box -->
                             <% }else{ %>

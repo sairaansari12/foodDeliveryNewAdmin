@@ -22,7 +22,12 @@ app.get('/',adminAuth, async (req, res, next) => {
         validupto: {
           [Op.gte] : newDate
         }
-      }
+      },
+      include:[ {
+        model: USERTYPE,
+        attributes: ['id','userType'],
+        required: false
+      }],
     });
     
         return res.render('admin/offers/offerListing.ejs',{data:findData});
@@ -39,7 +44,7 @@ app.get('/add',adminAuth, async (req, res, next) => {
     
   try{
     var cdata= await commonMethods.getAllCategories(req.companyId)
-    var types=await commonMethods.getUserTypes(req.companyId) 
+    var types=await commonMethods.getUserTypes(req.parentCompany) 
 
     return res.render('admin/offers/addOffer.ejs',{catData:cdata,types:types});
 
@@ -169,6 +174,7 @@ app.post('/add',adminAuth,async (req, res) => {
         code: data.code,
         discount: data.discount,
         icon: icon,
+        type:data.type,
         validupto:data.validupto,
         thumbnail: icon,
         description:data.description,
@@ -255,6 +261,7 @@ app.post('/update',adminAuth,async (req, res) => {
         icon: icon,
         usageLimit: data.usageLimit,
         thumbnail: icon,
+        type:data.type,
         description:data.description,
         companyId: req.companyId,
         validupto:data.validupto,
@@ -315,7 +322,7 @@ app.get('/view/:id',adminAuth,async(req,res,next) => {
       });
    
       var cdata= await commonMethods.getAllCategories(req.companyId)
-      var types=await commonMethods.getUserTypes(req.companyId) 
+      var types=await commonMethods.getUserTypes(req.parentCompany) 
 
       return res.render('admin/offers/viewOffer.ejs',{data:findData,catData:cdata,types:types});
 

@@ -296,8 +296,9 @@ app.post('/gallery/add',checkAuth,async (req, res) => {
 
 
 
-async function getEstimation(distance,companyId)
+async function getEstimation(distance,companyId,userId)
 {
+  var userData =await USERS.findOne({where:{id:userId}}) 
 
   var shipment =await SHIPMENT.findOne({where:{companyId:companyId}}) 
 
@@ -311,6 +312,9 @@ async function getEstimation(distance,companyId)
 
   else if(distance>parseFloat(shipment.dataValues.radius))
    return shipmentCharges+"#"+400
+
+if(userData && userData.dataValues && userData.dataValues.userType==4)
+return 0+"#"+200
 
 
 if(shipment && shipment.dataValues)
@@ -364,9 +368,8 @@ app.post('/shipmentCharges',checkAuth,async (req, res) => {
 
 
 
-  var data=  await getEstimation(distance,params.companyId)
+  var data=  await getEstimation(distance,params.companyId,req.id)
   var checkRes=data.split("#")
-  console.log(checkRes)
  if(checkRes[1]==200){
     shipmentCharges=checkRes[0]
     data1.shipment=shipmentCharges
@@ -376,7 +379,7 @@ app.post('/shipmentCharges',checkAuth,async (req, res) => {
 
     }
     else
-      return responseHelper.post(res,appstrings.something_went_wrong,null,400);
+      return responseHelper.post(res,appstrings.oops_something,null,400);
 
     
   
@@ -384,7 +387,10 @@ app.post('/shipmentCharges',checkAuth,async (req, res) => {
   
   
 }
-  
+
+else 
+return responseHelper.post(res,appstrings.oops_something,null,400);
+
   }
   
   

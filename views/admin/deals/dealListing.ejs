@@ -183,6 +183,8 @@
 
                         }
                    
+                        var type=(data[t].userType && data[t].userType.userType && data[t].userType.userType!="")?data[t].userType.userType:"All"
+
                         row =row+ '<div class="card-box mb-2">'+
                         '<div class="row align-items-center">'+
                         '<div class="col-sm-4"><div class="media">'+
@@ -192,6 +194,7 @@
                         '<h4 class="mt-0 mb-2 font-16">'+data[t].dealName+'</h4>'+
                         '<p class="mb-1"><b>Code:</b> '+data[t].code+'</p>'+
                         '<p class="mb-1"><b>Valid Upto:</b> '+format(new Date(data[t].validUpto)) +'</p>'+
+                        '<p class="mb-1"><b>Valid For:</b> '+type +'</p>'+
                         '</div></div></div>'+
                         '<div class="col-sm-4">'+
                         '<p class="mb-1 mt-3 mt-sm-0"><i class="mdi mdi-gift mr-1"></i> '+data[t].discount+'% (Discount)</p>'+

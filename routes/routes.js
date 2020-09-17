@@ -28,6 +28,7 @@ const jwt = require('jsonwebtoken');
  ASSIGNMENT = db.models.assignedEmployees
  CANCELREASON = db.models.cancelReasons
  COMPANYRATING = db.models.companyRatings
+ DEAL=db.models.deals
  USERTYPE=db.models.userType
  ROLETYPE=db.models.roleTypes
  BUSINESSTYPE=db.models.businessType

@@ -133,7 +133,7 @@ app.post('/applyCoupan', checkAuth,async (req, res, next) => {
   
   var newDate = moment(new Date()).format("MM/DD/YYYY");
 
-    const coupanDetails = await COUPAN.findOne({
+     var coupanDetails = await COUPAN.findOne({
      attributes: ['id','code','discount','minimumAmount','usageLimit'],
       where: {
         code: data.promoCode,
@@ -146,6 +146,32 @@ app.post('/applyCoupan', checkAuth,async (req, res, next) => {
 
       }
     });
+
+    if(coupanDetails==null)
+    {
+       coupanDetails = await DEAL.findOne({
+        attributes: ['id','dealName','code','discount','usageLimit'],
+         where: {
+           code: data.promoCode,
+           status :1,
+
+           [Op.or]: [
+            {validupto: {
+              [Op.gte]: newDate
+            }},
+            {validupto:null},
+    
+            
+    
+            
+          ],
+           
+           type:{[Op.in] :['0',req.userData.userType]}
+   
+         }
+       });
+
+    }
     if(coupanDetails)
     {
 
@@ -162,6 +188,27 @@ if(orderData  && orderData.length>=coupanDetails.usageLimit)
 return responseHelper.post(res, appstrings.exceeded_limit,null,400);
 
 
+
+if(coupanDetails.dealName)
+{
+  var dob=new Date(req.userData.dob)
+var anDate=new Date(req.userData.anniversaryDate)
+
+
+var valid=0
+
+if (sameDay( dob, new Date()) && coupanDetails.dealName=="birthday")
+  valid= 1
+if(sameDay(anDate,new Date()) &&  coupanDetails.dealName=="anniversary")
+ valid=1
+
+ if(coupanDetails.dealName=="other")
+  valid=1
+}
+
+if(valid==0)
+return responseHelper.post(res, appstrings.invalid_coupan,null,400);
+
       //Cart Total Price
       const getcart = await CART.findOne({
        attributes: [[Sequelize.fn('sum', Sequelize.col('orderTotalPrice')), 'totalPrice']
@@ -173,7 +220,7 @@ return responseHelper.post(res, appstrings.exceeded_limit,null,400);
 
      
 
-      if(parseFloat(getcart.dataValues.totalPrice)<parseFloat(coupanDetails.minimumAmount))
+      if(coupanDetails.minimumAmount && parseFloat(getcart.dataValues.totalPrice)<parseFloat(coupanDetails.minimumAmount))
       {
         return responseHelper.post(res, appstrings.minimum_limit,null,400);
 
