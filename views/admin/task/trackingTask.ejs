@@ -105,7 +105,7 @@ var currentInfo="<%-data.assignedEmployees[0].employee.firstName%>"
 var lat_lng=[]
 var first=1
 
-var socket = new io('localhost:9062');
+var socket = new io('<%-config.SOCKET_URL%>');
 socket.on('connect', function(response) {
     socket.emit('socketFromClient', {orderId: orderId, driverId:driverId, methodName:"getLocation"});
   

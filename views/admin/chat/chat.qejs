@@ -178,7 +178,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script>
     //live link = http://51.79.40.224:9070/
-    var socket = new io('http://localhost:9062/');
+    var socket = new io('<%-config.SOCKET_URL%>');
     var groupId, base64Img, extension, currentPage = 0;
     var chatListData = [];
     socket.on("newMessage", (data)=>{  

@@ -149,7 +149,7 @@
 </html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script>
-    var socket = new io('localhost:9062');
+    var socket = new io('<%-config.SOCKET_URL%>');
     var groupId;
     socket.on("newMessage", (data)=>{
         console.log("=>>>newMessage", data);
