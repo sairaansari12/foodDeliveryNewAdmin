@@ -258,6 +258,25 @@ app.get('/getSubcat', checkAuth,async (req, res, next) => {
     })
 
 
+    //Rating detail
+
+    const ratingInfo = await COMPANYRATING.findOne({
+      attributes: ['rating','review','orderId'],
+      where:{userId :req.id, [Op.or]: [
+        {
+            orderId: ""
+            
+        }, 
+        {
+          orderId: null
+            
+                
+        }
+       
+    ]},
+    })
+
+
 //COMPANY DETAIL
 
 const company = await COMPANY.findOne({
@@ -287,6 +306,7 @@ var gallery = await GALLERY.findAll({
       userData.banners = banners
       userData.details = company
       userData.gallery= gallery
+      userData.ratingInfo= ratingInfo
 
       getTrending(category,dataItem,function(err,data)
       {

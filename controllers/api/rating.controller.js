@@ -235,6 +235,15 @@ app.post('/addRating', checkAuth,async (req, res, next) => {
   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
   
 
+
+  var userrating=await COMPANYRATING.findOne({where:{userId:req.id}})
+
+
+
+
+
+
+
   var upload=[]
   //console.log(">>>>>>>>>>>>>>>>",req.files['productImages#'+datatoUpdated[h].serviceId])
         if(req.files && req.files['images'])
@@ -277,8 +286,27 @@ app.post('/addRating', checkAuth,async (req, res, next) => {
   
         }
 
+if(userrating)
+{
+  if(upload.length==0 && userrating.dataValues.reviewImages )
+  {
+    console.log(">>>>>>>>>",userrating.dataValues.reviewImages)
+    upload=userrating.dataValues.reviewImages
+
+    
+  }
+  await COMPANYRATING.update({ rating: data.rating,
+  foodQuality: data.foodQuality,
+  foodQuantity: data.foodQuantity,
+  packingPres: data.packingPres,
+  review: data.review,
+  reviewImages:upload.toString(),
+},{where:{id:userrating.dataValues.id}});
 
 
+}
+
+else{
 
       await COMPANYRATING.create({
         rating: data.rating,
@@ -293,6 +321,7 @@ app.post('/addRating', checkAuth,async (req, res, next) => {
       });
 
 
+    }
 //ADD SERVICE RATIUNGS
 
 if(data.ratingData && data.ratingData.length>0) 

@@ -601,8 +601,8 @@ app.get('/list',checkAuth,async (req, res) => {
       offset: offset, limit: limit,
        
       include: [
-        {model: db.models.address , attributes: ['id','addressName','addressType','houseNo','latitude','longitude','town','landmark','city'] } ,
-        {model: COMPANY , attributes: ['latitude','longitude'],required:true},
+        {model: COMPANY , attributes: ['companyName','latitude','longitude','logo1','rating','totalRatings']},
+        {model: ADDRESS , attributes: ['id','addressName','addressType','houseNo','latitude','longitude','town','landmark','city'] } ,
         {model: ORDERSTATUS , attributes: ['statusName','status']},
         {model: PAYMENT , attributes: ['transactionStatus'],where:{
           [Op.or]:[
@@ -637,13 +637,20 @@ user=JSON.parse(JSON.stringify(user))
 var today=new Date()
 var diffMins = diff_mins(today,orderDate); // milliseconds between now & Christmas
 
-console.log("diffMins>>>>>>>>",today,diffMins)
 if( diffMins<30 && user[t].progressStatus<5)  user[t].cancellable=true 
 else  user[t].cancellable=false
  
-delete  user[t]['company'];
+//delete  user[t]['company'];
 
+var quantity=0
+var quantityData=await SUBORDERS.findOne({attributes:[[sequelize.fn('sum', sequelize.col('quantity')), 'totalQuantity']],
+where:{orderId:user[t].id}
+})
 
+if(quantityData && quantityData.dataValues)
+quantity=quantityData.dataValues.totalQuantity
+
+user[t].totalQuantity=quantity
 }
       
         return responseHelper.post(res,appstrings.detail,user);
