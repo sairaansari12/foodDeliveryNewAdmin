@@ -317,32 +317,7 @@ module.exports = function (io) {
             }
             const chatMessage = await chatMessages.create(message);
             if (chatMessage) {
-              // const getUsers = await groupMembers.findAll({
-              //   attributes: ['userId'],
-              //   where: {
-              //     groupId: groupId,
-              //     userId: {
-              //       [Op.ne]: senderId
-              //     }
-              //   }
-              // })
-              // var receiverUserId;
-              // if (getUsers) {
-              //   await Promise.all(
-              //     getUsers.map(async user => {
-              //       const users = {};
-              //       receiverUserId = user.userId;
-              //       users.messageId = chatMessage.dataValues.id;
-              //       if(data.usertype == "user" || data.extraType == "vendor"){
-              //         users.adminId = user.userId;
-              //       } else{
-              //         users.userId = user.userId;
-              //       }
-
-              //       const messageStatus = await messagesStatus.create(users);
-              //     })
-              //   )
-              // }
+             
               if (type == 1) {          /////// 1 = text message
                 const text = {};
                 text.messageId = chatMessage.dataValues.id;
@@ -379,9 +354,16 @@ module.exports = function (io) {
                 const dir = config.mediapath + data.groupId
                 ///////// if folder of participants not exist then create it with other sub folders ///////////////
                 if (!fs.existsSync(dir)) {
+                  await fs.mkdir(`${dir}`, { recursive: true }, async function (err){
+                    if(err){
+                    }
+                  })
                   await Promise.all(
-                    config.dirnames.map(async dirname => {
-                      await fs.mkdirSync(`${dir}/${dirname}`, { recursive: true })
+                    config.dirnames.map(async dirname => {                       
+                      await fs.mkdir(`${dir}/${dirname}`, { recursive: true }, async function (err){
+                        if(err){
+                        }
+                      })                       
                     })
                   )
                 }
