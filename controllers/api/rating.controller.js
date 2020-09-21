@@ -1,128 +1,127 @@
 const express = require('express');
 const app = express();
 const db = require('../../db/db');
-const moment   = require('moment');
+const moment = require('moment');
 
-const Sequelize       = require('sequelize');
-const Op             = require('sequelize').Op;
+const Sequelize = require('sequelize');
+const Op = require('sequelize').Op;
 
 
 //////////////////////////////////////////////
 ///////////////////////// PromoCode Api //////
 //////////////////////////////////////////////
 
-SERVICERATINGS.belongsTo(ORDERS,{foreignKey: 'orderId'})
-SERVICERATINGS.belongsTo(USERS,{foreignKey: 'userId'})
+SERVICERATINGS.belongsTo(ORDERS, { foreignKey: 'orderId' })
+SERVICERATINGS.belongsTo(USERS, { foreignKey: 'userId' })
 
 
 //SERVICE RATING
-app.get('/serviceRatings', checkAuth,async (req, res, next) => {
+app.get('/serviceRatings', checkAuth, async (req, res, next) => {
 
-  var params=req.query
-  try{
-    let responseNull=  commonMethods.checkParameterMissing([params.serviceId])
-    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-    var page =1
-    var limit =100
-    if(params.page) page=params.page
-    if(params.limit) limit=parseInt(params.limit)
-    var offset=(page-1)*limit
+  var params = req.query
+  try {
+    let responseNull = commonMethods.checkParameterMissing([params.serviceId])
+    if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
+    var page = 1
+    var limit = 100
+    if (params.page) page = params.page
+    if (params.limit) limit = parseInt(params.limit)
+    var offset = (page - 1) * limit
 
 
     var subData = await SERVICERATINGS.findAll({
-      attributes: ['id','rating','review','createdAt'],
-    
+      attributes: ['id', 'rating', 'review', 'createdAt'],
+
       where: {
-        serviceId:  params.serviceId,
-        rating:  {[Op.not]: '0'}
+        serviceId: params.serviceId,
+        rating: { [Op.not]: '0' }
 
       },
       include: [
         {
-        model: USERS,
-        attributes: ['id','firstName','lastName','image'],
-        required: true
+          model: USERS,
+          attributes: ['id', 'firstName', 'lastName', 'image'],
+          required: true
         }],
       order: [['createdAt', 'DESC']],
       offset: offset, limit: limit,
 
     })
-    
+
 
     const ratData = await SERVICERATINGS.findOne({
       attributes: [[sequelize.fn('avg', sequelize.col('rating')), 'totalRating']],
-    where: {
-      serviceId:  params.serviceId}
+      where: {
+        serviceId: params.serviceId
+      }
     })
-    
 
-let dataToSend={}
-if(subData && subData.length>0) 
-{
-  dataToSend.avgRating=ratData.dataValues.totalRating
-  dataToSend.data=subData
 
-  return responseHelper.post(res, appstrings.success,dataToSend)
-}
+    let dataToSend = {}
+    if (subData && subData.length > 0) {
+      dataToSend.avgRating = ratData.dataValues.totalRating
+      dataToSend.data = subData
+
+      return responseHelper.post(res, appstrings.success, dataToSend)
+    }
     else
- return responseHelper.post(res, appstrings.no_record,null,204);
+      return responseHelper.post(res, appstrings.no_record, null, 204);
 
   }
-  catch(e){
+  catch (e) {
     return responseHelper.error(res, e.message, 400);
   }
 });
 
 
 //SERVICE RATING
-app.get('/companyRatings', checkAuth,async (req, res, next) => {
+app.get('/companyRatings', checkAuth, async (req, res, next) => {
 
-  var params=req.query
-  try{
-    let responseNull=  commonMethods.checkParameterMissing([params.companyId])
-    if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-    var page =1
-    var limit =100
-    if(params.page) page=params.page
-    if(params.limit) limit=parseInt(params.limit)
-    var offset=(page-1)*limit
+  var params = req.query
+  try {
+    let responseNull = commonMethods.checkParameterMissing([params.companyId])
+    if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
+    var page = 1
+    var limit = 100
+    if (params.page) page = params.page
+    if (params.limit) limit = parseInt(params.limit)
+    var offset = (page - 1) * limit
 
 
     var subData = await COMPANYRATING.findAll({
-  
+
       where: {
-        companyId:  params.companyId,
-        rating:  {[Op.not]: '0'}
+        companyId: params.companyId,
+        rating: { [Op.not]: '0' }
 
       },
       include: [
         {
-        model: USERS,
-        attributes: ['id','firstName','lastName','image'],
-        required: true
+          model: USERS,
+          attributes: ['id', 'firstName', 'lastName', 'image'],
+          required: true
         }],
       order: [['createdAt', 'DESC']],
       offset: offset, limit: limit,
 
     })
-    
+
 
     const ratData = await commonMethods.getCompAvgRating(params.companyId)
-    
 
-let dataToSend={}
-if(subData && subData.length>0) 
-{
-  dataToSend.avgRating=ratData.dataValues.totalRating
-  dataToSend.data=subData
 
-  return responseHelper.post(res, appstrings.success,dataToSend)
-}
+    let dataToSend = {}
+    if (subData && subData.length > 0) {
+      dataToSend.avgRating = ratData.dataValues.totalRating
+      dataToSend.data = subData
+
+      return responseHelper.post(res, appstrings.success, dataToSend)
+    }
     else
- return responseHelper.post(res, appstrings.no_record,null,204);
+      return responseHelper.post(res, appstrings.no_record, null, 204);
 
   }
-  catch(e){
+  catch (e) {
     return responseHelper.error(res, e.message, 400);
   }
 });
@@ -136,7 +135,7 @@ if(subData && subData.length>0)
 
 //     let responseNull=  commonMethods.checkParameterMissing([data.orderId,data.ratingData])
 //   if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-  
+
 //   var datatoUpdated=JSON.parse(JSON.stringify(data.ratingData))
 
 
@@ -155,12 +154,12 @@ if(subData && subData.length>0)
 //         orderId: data.orderId
 
 //       });
-      
+
 //     }
-    
+
 //       return responseHelper.post(res, appstrings.rating_added,null);
-      
-    
+
+
 //   }
 //   catch (e) {
 //     return responseHelper.error(res, e.message, 400);
@@ -169,53 +168,52 @@ if(subData && subData.length>0)
 
 
 ///////// Add Staff /////////////////////////
-app.post('/addStaffRating', checkAuth,async (req, res) => {
-  try{
-    const data    = req.body;
+app.post('/addStaffRating', checkAuth, async (req, res) => {
+  try {
+    const data = req.body;
     //Get Coupan Details
 
-    let responseNull=  commonMethods.checkParameterMissing([data.companyId,data.rating,data.empId,data.orderId])
-  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-  
-  var findData=await EMPLOYEE.findOne({where:{id:data.empId}});
+    let responseNull = commonMethods.checkParameterMissing([data.companyId, data.rating, data.empId, data.orderId])
+    if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
 
-if(findData)
-{
-   
-        var response= await STAFFRATINGS.create({
-           rating: data.rating,
-           review: data.review,
-           empId: data.empId,
-           orderId: data.orderId,
-           userId: req.id,
-           companyId: data.companyId
+    var findData = await EMPLOYEE.findOne({ where: { id: data.empId } });
+
+    if (findData) {
+
+      var response = await STAFFRATINGS.create({
+        rating: data.rating,
+        review: data.review,
+        empId: data.empId,
+        orderId: data.orderId,
+        userId: req.id,
+        companyId: data.companyId
 
 
-         });
-        
-        if(response)
-        {
+      });
 
-        var notifPushUserData={title:data.rating +" "+appstrings.new_rating_added+"  "+commonMethods.formatAMPM(new Date),
-          description:data.rating +" "+ appstrings.new_rating_added+'  ' +commonMethods.formatAMPM(new Date) +" For order No- "+data.orderId,
-          token:findData.dataValues.deviceToken,  
-              platform:findData.dataValues.platform,
-              userId :findData.id, role :4,
-              orderId:data.orderId,
-              notificationType:"FEEDBACK",status:0,
+      if (response) {
+
+        var notifPushUserData = {
+          title: data.rating + " " + appstrings.new_rating_added + "  " + commonMethods.formatAMPM(new Date),
+          description: data.rating + " " + appstrings.new_rating_added + '  ' + commonMethods.formatAMPM(new Date) + " For order No- " + data.orderId,
+          token: findData.dataValues.deviceToken,
+          platform: findData.dataValues.platform,
+          userId: findData.id, role: 4,
+          orderId: data.orderId,
+          notificationType: "FEEDBACK", status: 0,
         }
-        
-        commonNotification.insertNotification(notifPushUserData)   
+
+        commonNotification.insertNotification(notifPushUserData)
         commonNotification.sendEmpNotification(notifPushUserData)
 
       }
 
-        
-        
-      return responseHelper.post(res, appstrings.rating_added,null);
+
+
+      return responseHelper.post(res, appstrings.rating_added, null);
     }
     else
-    return responseHelper.post(res, appstrings.no_record,null,204);
+      return responseHelper.post(res, appstrings.no_record, null, 204);
 
   }
   catch (e) {
@@ -226,87 +224,83 @@ if(findData)
 
 
 ///////// Add Restraunt rating /////////////////////////
-app.post('/addRating', checkAuth,async (req, res, next) => {
-  try{
-    const data    = req.body;
+app.post('/addRating', checkAuth, async (req, res, next) => {
+  try {
+    const data = req.body;
     //Get Coupan Details
 
-    let responseNull=  commonMethods.checkParameterMissing([data.companyId])
-  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-  
-
-
-  var userrating=await COMPANYRATING.findOne({where:{userId:req.id}})
+    let responseNull = commonMethods.checkParameterMissing([data.companyId])
+    if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
 
 
 
+    var userrating = await COMPANYRATING.findOne({ where: { userId: req.id } })
 
 
 
 
-  var upload=[]
-  //console.log(">>>>>>>>>>>>>>>>",req.files['productImages#'+datatoUpdated[h].serviceId])
-        if(req.files && req.files['images'])
-        {
-  var fdata=req.files['images']
-  
-  if(fdata.length && fdata.length>0)
-  {
-  
-  for(var k=0;k<fdata.length;k++)
-    {
-  
-         ImageFile = req.files['images'][k];    
-    
-           bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
-            upload.push(bannerImage)
-             ImageFile.mv(config.UPLOAD_DIRECTORY +"reviews/"+ bannerImage, function (err) {
-                //upload file
-                if (err)
-                return responseHelper.error(res, err.meessage, 400);   
-              });
-    }
-    
-    
-  }
-  
-  else{
-    ImageFile = req.files['images'];    
-  
-    bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
-     upload.push(bannerImage)
-      ImageFile.mv(config.UPLOAD_DIRECTORY +"reviews/"+ bannerImage, function (err) {
-         //upload file
-         if (err)
-         return responseHelper.error(res, err.meessage, 400);   
-       });
-  
-    
-  }
-  
+
+
+
+    var upload = []
+    //console.log(">>>>>>>>>>>>>>>>",req.files['productImages#'+datatoUpdated[h].serviceId])
+    if (req.files && req.files['images']) {
+      var fdata = req.files['images']
+
+      if (fdata.length && fdata.length > 0) {
+
+        for (var k = 0; k < fdata.length; k++) {
+
+          ImageFile = req.files['images'][k];
+
+          bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+          upload.push(bannerImage)
+          ImageFile.mv(config.UPLOAD_DIRECTORY + "reviews/" + bannerImage, function (err) {
+            //upload file
+            if (err)
+              return responseHelper.error(res, err.meessage, 400);
+          });
         }
 
-if(userrating)
-{
-  if(upload.length==0 && userrating.dataValues.reviewImages )
-  {
-    console.log(">>>>>>>>>",userrating.dataValues.reviewImages)
-    upload=userrating.dataValues.reviewImages
 
-    
-  }
-  await COMPANYRATING.update({ rating: data.rating,
-  foodQuality: data.foodQuality,
-  foodQuantity: data.foodQuantity,
-  packingPres: data.packingPres,
-  review: data.review,
-  reviewImages:upload.toString(),
-},{where:{id:userrating.dataValues.id}});
+      }
+
+      else {
+        ImageFile = req.files['images'];
+
+        bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
+        upload.push(bannerImage)
+        ImageFile.mv(config.UPLOAD_DIRECTORY + "reviews/" + bannerImage, function (err) {
+          //upload file
+          if (err)
+            return responseHelper.error(res, err.meessage, 400);
+        });
 
 
-}
+      }
 
-else{
+    }
+
+    if (userrating) {
+      if (upload.length == 0 && userrating.dataValues.reviewImages) {
+        console.log(">>>>>>>>>", userrating.dataValues.reviewImages)
+        upload = userrating.dataValues.reviewImages
+
+
+      }
+      await COMPANYRATING.update({
+        rating: data.rating,
+        foodQuality: data.foodQuality,
+        foodQuantity: data.foodQuantity,
+        packingPres: data.packingPres,
+        review: data.review,
+        reviewImages: upload.toString(),
+      }, { where: { id: userrating.dataValues.id } });
+
+
+    }
+
+    else {
 
       await COMPANYRATING.create({
         rating: data.rating,
@@ -314,49 +308,46 @@ else{
         foodQuantity: data.foodQuantity,
         packingPres: data.packingPres,
         review: data.review,
-        userId:req.id,
-        orderId:data.orderId,
-        reviewImages:upload.toString(),
-        companyId:data.companyId
+        userId: req.id,
+        orderId: data.orderId,
+        reviewImages: upload.toString(),
+        companyId: data.companyId
       });
 
 
     }
-//ADD SERVICE RATIUNGS
+    //ADD SERVICE RATIUNGS
 
-if(data.ratingData && data.ratingData.length>0) 
-        
-{
-var datatoUpdated=[]
-  if(typeof  data.ratingData=="string")
- datatoUpdated=JSON.parse(data.ratingData)
-else
+    if (data.ratingData && data.ratingData.length > 0) {
+      var datatoUpdated = []
+      if (typeof data.ratingData == "string")
+        datatoUpdated = JSON.parse(data.ratingData)
+      else
 
- datatoUpdated=JSON.parse(JSON.stringify(data.ratingData))
+        datatoUpdated = JSON.parse(JSON.stringify(data.ratingData))
 
-for(var h=0;h<datatoUpdated.length;h++)
-{
+      for (var h = 0; h < datatoUpdated.length; h++) {
 
-   SERVICERATINGS.create({
-    rating: datatoUpdated[h].rating,
-    review: datatoUpdated[h].review,
-    serviceId: datatoUpdated[h].serviceId,
-    userId: req.id,
-    orderId: data.orderId
+        SERVICERATINGS.create({
+          rating: datatoUpdated[h].rating,
+          review: datatoUpdated[h].review,
+          serviceId: datatoUpdated[h].serviceId,
+          userId: req.id,
+          orderId: data.orderId
 
-  });
-  
-}
+        });
 
-}
+      }
 
-
-
-
-      return responseHelper.post(res, appstrings.rating_added,null);
     }
-    
-  
+
+
+
+
+    return responseHelper.post(res, appstrings.rating_added, null);
+  }
+
+
   catch (e) {
     return responseHelper.error(res, e.message, 400);
   }
@@ -365,44 +356,44 @@ for(var h=0;h<datatoUpdated.length;h++)
 
 
 ///////// Add App Feedback /////////////////////////
-app.post('/appRating', checkAuth,async (req, res) => {
-  try{
-    const data    = req.body;
+app.post('/appRating', checkAuth, async (req, res) => {
+  try {
+    const data = req.body;
 
-    let responseNull=  commonMethods.checkParameterMissing([data.rating])
-  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-  
+    let responseNull = commonMethods.checkParameterMissing([data.rating])
+    if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
 
-  var userrating=await APPRATINGS.findOne({where:{userId:req.id}})
 
-  var response=null
-      if(!userrating) 
-      {  response= await APPRATINGS.create({
-           rating: data.rating,
-           review: data.review,
-           userId: req.id
-         });
-        
-        }
-        else{
-          response=await APPRATINGS.update({
-            rating: data.rating,
-            review: data.review
-           
-          },{where:{userId:req.id}});
-        }
+    var userrating = await APPRATINGS.findOne({ where: { userId: req.id } })
 
-        console.log(response)
-        if(response)
-      
-          return responseHelper.post(res, appstrings.rating_added,null);
+    var response = null
+    if (!userrating) {
+      response = await APPRATINGS.create({
+        rating: data.rating,
+        review: data.review,
+        userId: req.id
+      });
 
-       else
-      return responseHelper.post(res, appstrings.oops_something,null,400);
+    }
+    else {
+      response = await APPRATINGS.update({
+        rating: data.rating,
+        review: data.review
 
-        
-        
-    
+      }, { where: { userId: req.id } });
+    }
+
+    console.log(response)
+    if (response)
+
+      return responseHelper.post(res, appstrings.rating_added, null);
+
+    else
+      return responseHelper.post(res, appstrings.oops_something, null, 400);
+
+
+
+
   }
   catch (e) {
     return responseHelper.error(res, e.message, 400);
