@@ -231,23 +231,42 @@ app.post('/addRating', checkAuth, async (req, res, next) => {
 
     let responseNull = commonMethods.checkParameterMissing([data.companyId])
     if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
+    var companyrating,orderrating ;
+//to check if its company rating or order rating
+    if(data.orderId){
+      //order rating
+      orderrating = await COMPANYRATING.findOne({ 
+        where: { 
+          userId: req.id,
+          companyId: data.companyId,
+          orderId: data.orderId
+        } 
+      })
+    } else{
+      // company rating
+      companyrating = await COMPANYRATING.findOne(
+        { where: { 
+          userId: req.id,
+          companyId: data.companyId,
+          [Op.or]:[{
+            orderId: ""
+          },{
+            orderId: null
+          }
+        ]
+         } 
+      })
 
-
-
-    var userrating = await COMPANYRATING.findOne({ where: { userId: req.id,companyId: data.companyId } })
-
+    }
 
     var upload = []
-    //console.log(">>>>>>>>>>>>>>>>",req.files['productImages#'+datatoUpdated[h].serviceId])
     if (req.files && req.files['images']) {
       var fdata = req.files['images']
-
       if (fdata.length && fdata.length > 0) {
 
         for (var k = 0; k < fdata.length; k++) {
 
           ImageFile = req.files['images'][k];
-
           bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
           upload.push(bannerImage)
           ImageFile.mv(config.UPLOAD_DIRECTORY + "reviews/" + bannerImage, function (err) {
@@ -257,12 +276,10 @@ app.post('/addRating', checkAuth, async (req, res, next) => {
           });
         }
 
-
       }
 
       else {
         ImageFile = req.files['images'];
-
         bannerImage = Date.now() + '_' + ImageFile.name.replace(/\s/g, "");
         upload.push(bannerImage)
         ImageFile.mv(config.UPLOAD_DIRECTORY + "reviews/" + bannerImage, function (err) {
@@ -271,46 +288,66 @@ app.post('/addRating', checkAuth, async (req, res, next) => {
             return responseHelper.error(res, err.meessage, 400);
         });
 
-
       }
 
     }
-console.log("========add", data, userrating)
-    if (userrating) {
-      if (upload.length == 0 && userrating.dataValues.reviewImages) {
-        console.log(">>>>>>>>>", userrating.dataValues.reviewImages)
-        upload = userrating.dataValues.reviewImages
+    if (!data.orderId) {
+        if(companyrating){
+          if (upload.length == 0 && companyrating.dataValues.reviewImages) {
+            upload = companyrating.dataValues.reviewImages
+          }
+          await COMPANYRATING.update({
+            rating: data.rating,
+            foodQuality: data.foodQuality,
+            foodQuantity: data.foodQuantity,
+            packingPres: data.packingPres,
+            review: data.review,
+            reviewImages: upload.toString(),
+          }, { where: { id: companyrating.dataValues.id, companyId: data.companyId,[Op.or]:[{ orderId: ""},{
+            orderId: null}] } });
+        } else{
+          await COMPANYRATING.create({
+            rating: data.rating,
+            foodQuality: data.foodQuality,
+            foodQuantity: data.foodQuantity,
+            packingPres: data.packingPres,
+            review: data.review,
+            userId: req.id,
+            orderId: data.orderId,
+            reviewImages: upload.toString(),
+            companyId: data.companyId
+          });
+        } 
+    }  else {
+      if(orderrating){
+        if (upload.length == 0 && orderrating.dataValues.reviewImages) {
+          upload = orderrating.dataValues.reviewImages
+  
+        }
+        await COMPANYRATING.update({
+          rating: data.rating,
+          foodQuality: data.foodQuality,
+          foodQuantity: data.foodQuantity,
+          packingPres: data.packingPres,
+          review: data.review,
+          reviewImages: upload.toString(),
+        }, { where: { id: orderrating.dataValues.id, companyId: data.companyId, orderId: data.orderId } });
+      } else{
+        await COMPANYRATING.create({
+          rating: data.rating,
+          foodQuality: data.foodQuality,
+          foodQuantity: data.foodQuantity,
+          packingPres: data.packingPres,
+          review: data.review,
+          userId: req.id,
+          orderId: data.orderId,
+          reviewImages: upload.toString(),
+          companyId: data.companyId
+        });
+      } 
+    }    
 
 
-      }
-      await COMPANYRATING.update({
-        rating: data.rating,
-        foodQuality: data.foodQuality,
-        foodQuantity: data.foodQuantity,
-        packingPres: data.packingPres,
-        review: data.review,
-        reviewImages: upload.toString(),
-      }, { where: { id: userrating.dataValues.id, companyId: data.companyId } });
-
-
-    }
-
-    else {
-
-      await COMPANYRATING.create({
-        rating: data.rating,
-        foodQuality: data.foodQuality,
-        foodQuantity: data.foodQuantity,
-        packingPres: data.packingPres,
-        review: data.review,
-        userId: req.id,
-        orderId: data.orderId,
-        reviewImages: upload.toString(),
-        companyId: data.companyId
-      });
-
-
-    }
     //ADD SERVICE RATIUNGS
 
     if (data.ratingData && data.ratingData.length > 0) {
@@ -318,7 +355,6 @@ console.log("========add", data, userrating)
       if (typeof data.ratingData == "string")
         datatoUpdated = JSON.parse(data.ratingData)
       else
-
         datatoUpdated = JSON.parse(JSON.stringify(data.ratingData))
 
       for (var h = 0; h < datatoUpdated.length; h++) {
@@ -335,9 +371,6 @@ console.log("========add", data, userrating)
       }
 
     }
-
-
-
 
     return responseHelper.post(res, appstrings.rating_added, null);
   }

@@ -613,6 +613,8 @@ app.get('/list', checkAuth, async (req, res) => {
 
     });
     user = JSON.parse(JSON.stringify(user))
+    console.log("=====order list",req.id, user )
+
     for (var t = 0; t < user.length; t++) {
 
       var orderDate = new Date(user[t].createdAt)
@@ -639,13 +641,12 @@ app.get('/list', checkAuth, async (req, res) => {
       var orderStatus = await SERVICERATINGS.findAll({
         where: {
           userId: req.id,
-          serviceId: user[t].id,
+          orderId: user[t].id,
   
         },
       });
       if(orderStatus && orderStatus.length > 0){
         user[t].isRated = true;
-        console.log("=====order list",req.id, user[t].id )
       } else{
         user[t].isRated = false;
       }

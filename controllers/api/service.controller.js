@@ -207,19 +207,13 @@ app.get('/getcategories', checkAuth, async (req, res, next) => {
 app.get('/getSubcat', checkAuth, async (req, res, next) => {
 
   var params = req.query
-
   const category = params.category
   var params = req.query
-
   var dataItem = ['0', '1']
 
-  if (params.itemType && params.itemType != "" && params.itemType != "2") dataItem = [params.itemType]
-
-
-
+  if (params.itemType && params.itemType != "" && params.itemType != "2") 
+    dataItem = [params.itemType]
   var include = []
-
-
   try {
     var services = await CATEGORY.findAll({
       attributes: ['id', 'name', 'description', 'icon', 'thumbnail', 'companyId'],
@@ -249,7 +243,6 @@ app.get('/getSubcat', checkAuth, async (req, res, next) => {
       }
     })
 
-
     //Banners
     const banners = await BANNERS.findAll({
       attributes: ['name', 'url'],
@@ -258,7 +251,6 @@ app.get('/getSubcat', checkAuth, async (req, res, next) => {
         ['orderby', 'ASC']
       ],
     })
-
 
     //Rating detail
     const ratingInfo = await COMPANYRATING.findOne({
@@ -269,20 +261,19 @@ app.get('/getSubcat', checkAuth, async (req, res, next) => {
         [Op.or]: [
           {
             orderId: ""
-
           },
           {
             orderId: null
-
+          },
+          {
+            orderId: "null"
           }
 
         ]
       },
     })
 
-
     //COMPANY DETAIL
-
     const company = await COMPANY.findOne({
       attributes: ['companyName', 'address1', 'email', 'countryCode', 'phoneNumber', 'rating', 'totalRatings', 'logo1', 'startTime', 'endTime', 'deliveryType', 'itemType',
         'foodQuantityRating', 'foodQualityRating', 'packingPresRating', 'latitude', 'longitude'
@@ -301,7 +292,6 @@ app.get('/getSubcat', checkAuth, async (req, res, next) => {
 
     });
 
-
     let userData = {}
 
     //Combining Data
@@ -310,7 +300,7 @@ app.get('/getSubcat', checkAuth, async (req, res, next) => {
     userData.banners = banners
     userData.details = company
     userData.gallery = gallery
-    userData.ratingInfo = ratingInfo
+    userData.ratingInfo = ratingInfo ? ratingInfo : null
 
     getTrending(category, dataItem, function (err, data) {
 
@@ -320,8 +310,6 @@ app.get('/getSubcat', checkAuth, async (req, res, next) => {
       return responseHelper.post(res, appstrings.success, userData);
 
     })
-
-
 
   }
   catch (e) {
@@ -348,16 +336,7 @@ app.get('/home', checkAuth, async (req, res, next) => {
   if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
 
 
-
-
   try {
-
-
-    //Deals
-
-
-
-
 
     //Offers
     var newDate = moment(new Date()).format("MM/DD/YYYY");
