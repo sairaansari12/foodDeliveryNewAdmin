@@ -234,12 +234,7 @@ app.post('/addRating', checkAuth, async (req, res, next) => {
 
 
 
-    var userrating = await COMPANYRATING.findOne({ where: { userId: req.id } })
-
-
-
-
-
+    var userrating = await COMPANYRATING.findOne({ where: { userId: req.id,companyId: data.companyId } })
 
 
     var upload = []
@@ -280,7 +275,7 @@ app.post('/addRating', checkAuth, async (req, res, next) => {
       }
 
     }
-
+console.log("========add", data, userrating)
     if (userrating) {
       if (upload.length == 0 && userrating.dataValues.reviewImages) {
         console.log(">>>>>>>>>", userrating.dataValues.reviewImages)
@@ -295,7 +290,7 @@ app.post('/addRating', checkAuth, async (req, res, next) => {
         packingPres: data.packingPres,
         review: data.review,
         reviewImages: upload.toString(),
-      }, { where: { id: userrating.dataValues.id } });
+      }, { where: { id: userrating.dataValues.id, companyId: data.companyId } });
 
 
     }

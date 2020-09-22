@@ -261,18 +261,18 @@ app.get('/getSubcat', checkAuth, async (req, res, next) => {
 
 
     //Rating detail
-
     const ratingInfo = await COMPANYRATING.findOne({
       attributes: ['rating', 'review', 'orderId', 'foodQuality', 'foodQuantity', 'packingPres'],
       where: {
-        userId: req.id, [Op.or]: [
+        userId: req.id,
+        companyId: req.companyId,
+        [Op.or]: [
           {
             orderId: ""
 
           },
           {
             orderId: null
-
 
           }
 
