@@ -63,8 +63,6 @@ module.exports = function(sequelize, DataTypes) {
        onDelete: 'CASCADE',
     },
 
-
-
     reviewImages: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -84,8 +82,6 @@ module.exports = function(sequelize, DataTypes) {
     },
       defaultValue: ""
     },
-
-
 
     companyId: {
       type: DataTypes.UUID,

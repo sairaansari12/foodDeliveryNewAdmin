@@ -16,34 +16,27 @@ module.exports = function(sequelize, DataTypes) {
         defaultValue:''
     },
 
-
-
-
     phoneNumber: {
       type: DataTypes.STRING(20),
       allowNull: false,
       defaultValue:''
-  },
+    },
 
     query: {
       type: DataTypes.TEXT(),
       allowNull: false,
-  }, 
+    }, 
   
-  
-  userId: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-}, 
+    userId: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    }, 
 
-
-email: {
-  type: DataTypes.STRING(256),
-  allowNull: false,
-  defaultValue:''
-},
-
-
+    email: {
+      type: DataTypes.STRING(256),
+      allowNull: false,
+      defaultValue:''
+    },
   
     status: {
       type: DataTypes.INTEGER(11),
@@ -56,9 +49,7 @@ email: {
       allowNull: false,
       defaultValue: 0
     },
-
-
-  
+    
     createdAt: {
       type: DataTypes.DATE(),
       allowNull: false,

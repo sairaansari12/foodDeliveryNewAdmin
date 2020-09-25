@@ -70,8 +70,6 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
         var date = new Date();
         var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
         var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-
         var filterNameMain=[sequelize.literal(`DAY(createdAt)`), 'DAY']
         var pStatus= await ORDERSTATUS.findAll({
           where: {
@@ -83,9 +81,7 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
        
         orderWhere={companyId: companyId,progressStatus: { [Op.or]: progressStatus}}
         orderWhereParent={progressStatus: { [Op.or]: progressStatus}}
-
-       
-       
+      
         if(filterName && filterName!="")
         {
           if(filterName=="MONTH")  filterNameMain= [sequelize.literal(`MONTH(createdAt)`), 'MONTH']
@@ -119,16 +115,12 @@ async function getDashboardData(fromDate1,toDate1,progressStatus1,filterName,com
 
 
       }
-        }
-
-
+      }
 
         paymentWhere={companyId: companyId,transactionStatus: { [Op.or]: progressStatus}}
         ratingWhere={companyId: companyId}
         top5Where={}
-
-        
-       
+      
         if(fromDate1)fromDate= Math.round(new Date(fromDate1).getTime())
         if(toDate1) toDate=Math.round(new Date(toDate1).getTime())
         

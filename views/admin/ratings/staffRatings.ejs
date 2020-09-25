@@ -269,7 +269,7 @@ var deleteR=(permissions && permissions.staffReviewDelete=="1") ?"inline" :"none
             for(var t=0;t<data.length;t++) {
     
             
-                var name=(data[t].user!=null)?data[t].user.firstName :"" 
+                var name=(data[t].user!=null)?data[t].user.firstName +" "+data[t].user.lastName :"" 
             var image=(data[t].user!=null)?data[t].user.image:""
 
 
@@ -298,11 +298,7 @@ var deleteR=(permissions && permissions.staffReviewDelete=="1") ?"inline" :"none
                                                         <b>Name:</b> <span class="text-muted "> <a href="<%-adminpath%>employees/view/${data[t].empId}">  ${data[t].employee.firstName}</a></span></br>
                                                         </p>
 
-                                                    <p class="font-13">
-                                                        <b>Order No:</b><a href="<%-adminpath%>orders/view/${data[t].orderId}">  ${data[t].order.orderNo}</a>
-    
-                                                    </p>
-                                                      
+                                                                         
                                                     <p class="font-13">
                                                         <b>Review:</b>
                                                         <br/>
