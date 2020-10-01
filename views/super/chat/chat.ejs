@@ -333,7 +333,8 @@
             authToken: '<%-token%>',
             receiverId: id,
             groupId: singleChatList.groupId,
-            userType: "vendor"
+            userType: "admin",
+            receiverType: isVendor != "false" ? "vendor" : "user",
         }
        socket.emit('joinRoom',data);
        socket.on('joinRoom',(data)=>{

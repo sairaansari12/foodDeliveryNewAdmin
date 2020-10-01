@@ -319,7 +319,8 @@
        var data = {
             authToken: '<%-token%>',
             receiverId: id,
-            userType: "vendor"
+            userType: "admin",
+            receiverType: "vendor"
         }
        socket.emit('joinRoom',data);
        socket.on('joinRoom',(data)=>{

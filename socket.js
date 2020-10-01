@@ -86,6 +86,7 @@ module.exports = function (io) {
         if (!authToken) {
           return socket.emit('errorMessage', 'Please Provide JWT Token');
         }
+        
         jwt.verify(authToken, config.jwtToken, async function (err) {
 
           if (err) {
@@ -173,27 +174,40 @@ module.exports = function (io) {
               }else{
                 groupData.name = `${senderId}_${receiverId}`;
               }
-              if(data.userType == "vendor"){
+              if(data.userType == "admin"){
                 groupData.createdByAdmin = senderId
               }else{
                 groupData.createdBy = senderId;
               }
               
-              console.log("======join room", data.userType)
               const createGroup = await groups.create(groupData);
               if (createGroup) {
                 var membersData;
-                if(data.userType == "vendor"){
-                  membersData = [
-                    {
-                      groupId: createGroup.dataValues.id,
-                      adminId: senderId
-                    },
-                    {
-                      groupId: createGroup.dataValues.id,
-                      adminId: receiverId
-                    }
-                  ];
+                if(data.userType == "admin"){
+                  if(data.receiverType == 'vendor'){
+                    membersData = [
+                      {
+                        groupId: createGroup.dataValues.id,
+                        adminId: senderId
+                      },
+                      {
+                        groupId: createGroup.dataValues.id,
+                        adminId: receiverId
+                      }
+                    ];
+                  }else{
+                    membersData = [
+                      {
+                        groupId: createGroup.dataValues.id,
+                        adminId: senderId
+                      },
+                      {
+                        groupId: createGroup.dataValues.id,
+                        userId: receiverId
+                      }
+                    ];
+                  }
+                  
                 }else{
                   membersData = [
                     {
@@ -202,13 +216,15 @@ module.exports = function (io) {
                     },
                     {
                       groupId: createGroup.dataValues.id,
-                      userId: receiverId
+                      adminId: receiverId
                     }
                   ];
                 }
                 
                 const createMembers = await groupMembers.bulkCreate(membersData);
                 if (createMembers) {
+            console.log("=======joinRoom createMembers",createGroup.dataValues.id)
+
                   groupID = createGroup.dataValues.id;
                   socket.join(createGroup.dataValues.id);
                   return socket.emit('joinRoom', { groupId: createGroup.dataValues.id });
@@ -216,11 +232,13 @@ module.exports = function (io) {
               }
             } else {
               groupID = groupExists.dataValues.id;
+            console.log("=======joinRoom groupExists",groupID)
+
               socket.join(groupExists.dataValues.id);
               return socket.emit('joinRoom', { groupId: groupExists.dataValues.id });
             }
           } else {
-            console.log("==== group id already")
+            console.log("==== group id already", groupId)
             groupID = groupId;
             socket.join(groupId);
             return socket.emit('joinRoom', { groupId: data.groupId });
@@ -285,7 +303,7 @@ module.exports = function (io) {
            groupId = data.groupId;
         else
           groupId = groupID;
-
+console.log("=====sendmesg========type", type)
         if (!authToken) {
           return socket.emit('errorMessage', 'Please Provide JWT Token');
         }
@@ -317,7 +335,7 @@ module.exports = function (io) {
             }
             const chatMessage = await chatMessages.create(message);
             if (chatMessage) {
-             
+              
               if (type == 1) {          /////// 1 = text message
                 const text = {};
                 text.messageId = chatMessage.dataValues.id;
@@ -404,6 +422,8 @@ module.exports = function (io) {
                 media.media = newDir + mediaPath + timestamp +"."+ data.extension;
                 media.thumbnail = newDir + '/thumbnails/' + timestamp + '.png';
                 const mediaMessage = await mediaMessages.create(media);
+                console.log("==========mediaMessage==========")
+
                 if (!mediaMessage) {
                   const deleteMessage = await chatMessages.destroy({
                     where: {
@@ -429,22 +449,9 @@ module.exports = function (io) {
               requestData.usertype = data.usertype;
               const messageDetail = await messageDetails(requestData);
               var toUser;
-              if(data.usertype == 'admin' && data.extraType != 'vendor'){
-                toUser = await users.findOne({
-                  attributes: ['deviceToken', 'platform'],
-                  where: {
-                    id: data.receiverId
-                  },
-                });
-                
-              } else{
-                toUser = await companies.findOne({
-                  attributes: ['deviceToken', 'platform'],
-                  where: {
-                    id: data.receiverId
-                  },
-                });
-              }
+              console.log("==========befor if==========")
+
+              console.log("==========new msg==========", groupId, messageDetail)
               io.sockets.emit("newMessageEvent",messageDetail)
               io.sockets.in(groupId).emit('newMessage', messageDetail); // emit message in room
               var notifData = {
@@ -454,20 +461,32 @@ module.exports = function (io) {
                 orderId: "",
                 role: data.extraType == 'vendor' ? 4 : data.usertype == 'user' ? 3 : 1 ,
               } 
-              commonNotification.insertNotification(notifData);  
-              var notifPushUserData={
-                title:"New message",
-                description: data.message,
-                token: toUser.dataValues.deviceToken,  
-                platform: toUser.dataValues.platform,
-                userId : data.receiverId,
-                role: data.extraType == 'vendor' ? 4 : data.usertype == 'user' ? 3 : 1 ,
-                orderId: "",
-                notificationType:"CHAT_NEW_MSG",
-                status: 1,
-                readStatus: 0
+              commonNotification.insertNotification(notifData); 
+              if(data.usertype == 'admin' && data.extraType != 'vendor'){
+                toUser = await users.findOne({
+                  attributes: ['deviceToken', 'platform'],
+                  where: {
+                    id: data.receiverId
+                  },
+                });
+                
               } 
-              commonNotification.sendNotificationChat(notifPushUserData);
+              if(toUser){
+                var notifPushUserData={
+                  title:"New message",
+                  description: data.message,
+                  token: toUser.dataValues.deviceToken,  
+                  platform: toUser.dataValues.platform,
+                  userId : data.receiverId,
+                  role: data.extraType == 'vendor' ? 4 : data.usertype == 'user' ? 3 : 1 ,
+                  orderId: "",
+                  notificationType:"CHAT_NEW_MSG",
+                  status: 1,
+                  readStatus: 0
+                } 
+                commonNotification.sendNotification(notifPushUserData);
+              }
+              
             }
           }
         })

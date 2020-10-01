@@ -18,117 +18,112 @@ const createHash = password => {
 
 
 
-app.post('/logout',checkAuth,async (req, res, next) => {
+app.post('/logout', checkAuth, async (req, res, next) => {
   const params = req.body;
-try{
+  try {
 
-  const updatedResponse = await EMPLOYEE.update({
-    sessionToken: "",
-    deviceToken: "",
-    loginstatus: 0,
+    const updatedResponse = await EMPLOYEE.update({
+      sessionToken: "",
+      deviceToken: "",
+      loginstatus: 0,
 
-  },
-  {
-    where : {
-    id:req.id,
-    companyId: req.myCompanyId
+    },
+      {
+        where: {
+          id: req.id,
+          companyId: req.myCompanyId
+        }
+      });
+
+
+
+    if (updatedResponse) {
+      return responseHelper.post(res, 'Logout Successfully');
+    }
+
+    else
+      return responseHelper.post(res, 'Logout Successfully');
+
+
   }
-  });
-
-
-
-  if(updatedResponse)
-  {
-    return responseHelper.post(res, 'Logout Successfully');
+  catch (e) {
+    return responseHelper.error(res, e.message, 400);
   }
-    
-else
-return responseHelper.post(res, 'Logout Successfully');
 
 
-}
-catch (e) {
-  return responseHelper.error(res, e.message, 400);
-}
-  
 
-  
- 
+
 })
 
 
 
-app.post('/markStatus',checkAuth,async (req, res, next) => {
+app.post('/markStatus', checkAuth, async (req, res, next) => {
   const params = req.body;
-try{
+  try {
 
-  let responseNull=  commonMethods.checkParameterMissing([params.status])
-  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-  
-  const updatedResponse = await EMPLOYEE.update({
-    loginstatus: params.status,
-  },
-  {
-    where : {
-    id:req.id
+    let responseNull = commonMethods.checkParameterMissing([params.status])
+    if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
+
+    const updatedResponse = await EMPLOYEE.update({
+      loginstatus: params.status,
+    },
+      {
+        where: {
+          id: req.id
+        }
+      });
+
+
+
+    return responseHelper.post(res, appstrings.success, null);
+
+
   }
-  });
+  catch (e) {
+    return responseHelper.error(res, e.message, 400);
+  }
 
 
 
-    return responseHelper.post(res, appstrings.success,null);
 
-
-}
-catch (e) {
-  return responseHelper.error(res, e.message, 400);
-}
-  
-
-  
- 
 })
 
 
-app.post('/login',async (req, res, next) => {
+app.post('/login', async (req, res, next) => {
   const params = req.body;
 
+console.log("===deliver login")
+  let responseNull = commonMethods.checkParameterMissing([params.phoneNumber, params.countryCode])
+  if (responseNull) return responseHelper.post(res, appstrings.required_field, null, 400);
 
-  let responseNull=  commonMethods.checkParameterMissing([params.phoneNumber,params.countryCode])
-  if(responseNull) return responseHelper.post(res, appstrings.required_field,null,400);
-  
-  try{
-		const userData = await EMPLOYEE.findOne({
-		where: {
-      phoneNumber: params.phoneNumber,
-      countryCode: params.countryCode,
+  try {
+    const userData = await EMPLOYEE.findOne({
+      where: {
+        phoneNumber: params.phoneNumber,
+        countryCode: params.countryCode,
 
-		}
-	  })  
-      
-    if(userData)
-   {
-   
+      }
+    })
+console.log("====user data")
+    if (userData) {
 
-    var parentCompany=""
-    var parent=await commonMethods.getParentCompany(userData.dataValues.companyId)
-    if(parent && parent.dataValues)parentCompany=parent.dataValues.parentId
+      var parentCompany = ""
+      var parent = await commonMethods.getParentCompany(userData.dataValues.companyId)
+      if (parent && parent.dataValues) parentCompany = parent.dataValues.parentId
 
       let token = jwt.sign(
         {
           phoneNumber: params.phoneNumber,
-          myCompanyId:    userData.dataValues.companyId,
+          myCompanyId: userData.dataValues.companyId,
           countryCode: params.countryCode,
           userType: 3,
-          parentCompany:parentCompany,
-          id : userData.dataValues.id
+          parentCompany: parentCompany,
+          id: userData.dataValues.id
 
         },
         config.jwtToken,
         { algorithm: 'HS256', expiresIn: '2880m' }
       );
-
-
 
       const updatedResponse = await EMPLOYEE.update({
         sessionToken: token,
@@ -136,40 +131,35 @@ app.post('/login',async (req, res, next) => {
         loginstatus: 1,
         deviceToken: params.deviceToken,
       },
-      {
-        where : {
-        id: userData.dataValues.id
+        {
+          where: {
+            id: userData.dataValues.id
+          }
+        });
+console.log("=======",params.deviceToken, updatedResponse)
+
+
+      if (updatedResponse) {
+        userData.dataValues.sessionToken = token
+        userData.dataValues.platform = params.platform
+        userData.dataValues.deviceToken = params.deviceToken
+        return responseHelper.post(res, 'Login Successfully', userData);
       }
-      });
-     
-    
-    
-      if(updatedResponse)
-      {
+    }
+
+    else {
+
+      return responseHelper.post(res, appstrings.invalid_cred, null, 400);
 
 
-userData.dataValues.sessionToken=token
-userData.dataValues.platform=params.platform
-userData.dataValues.deviceToken=params.deviceToken
+    }
 
 
-    return responseHelper.post(res, 'Login Successfully',userData);
-      }
-      }
+  }
+  catch (e) {
+    return responseHelper.error(res, e.message, 400);
+  }
 
-      else{
-
-        return responseHelper.post(res, appstrings.invalid_cred,null,400);
-
-    
-      }
-
-  
-}
-catch (e) {
-  return responseHelper.error(res, e.message, 400);
-}
-  
 })
 
 
